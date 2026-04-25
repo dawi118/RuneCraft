@@ -1,15 +1,15 @@
 {
   "items": [
     {
-      "id": "wizard-s-tower",
-      "name": "Wizard's Tower",
-      "subtitle": "We will build the wizards tower, complete with the connecting bridge and fairy ring",
-      "location": "progress",
-      "progress": 1,
-      "estimatedTotalTime": "10",
+      "id": "build-the-spire",
+      "name": "Build the spire",
+      "subtitle": "l...",
+      "location": "backlog",
+      "progress": 11,
+      "estimatedTotalTime": "100",
       "estimatedTimeLeft": "10",
-      "why": "It's iconic",
-      "what": "25/04/26 - in progress",
+      "why": "...",
+      "what": "...",
       "images": [
         {
           "src": "assets/img/runecraft-pixel-map.svg",
