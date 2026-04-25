@@ -88,7 +88,7 @@ async function readBoardFile() {
       headers: githubHeaders(token)
     });
     return {
-      board: JSON.parse(Buffer.from(file.content || "", file.encoding || "base64").toString("utf8")),
+      board: await parseGitHubJsonFile(file, token),
       sha: file.sha
     };
   }
@@ -98,6 +98,37 @@ async function readBoardFile() {
     throw httpError(response.status, "Could not read board JSON from GitHub");
   }
   return { board: await response.json(), sha: "" };
+}
+
+async function parseGitHubJsonFile(file, token) {
+  const content = await readGitHubFileContent(file, token);
+  try {
+    return JSON.parse(content);
+  } catch {
+    throw httpError(502, "GitHub returned invalid board JSON");
+  }
+}
+
+async function readGitHubFileContent(file, token) {
+  const content = String(file?.content || "");
+  const encoding = String(file?.encoding || "base64").toLowerCase();
+
+  if (encoding === "base64") {
+    return Buffer.from(content.replace(/\s+/g, ""), "base64").toString("utf8");
+  }
+
+  if (encoding === "utf-8" || encoding === "utf8") {
+    return content;
+  }
+
+  if (encoding === "none" && file?.git_url) {
+    const blob = await githubRequest(file.git_url, {
+      headers: githubHeaders(token)
+    });
+    return readGitHubFileContent(blob, token);
+  }
+
+  throw httpError(502, `GitHub returned board JSON with unsupported encoding: ${encoding}`);
 }
 
 async function writeBoardFile(board) {

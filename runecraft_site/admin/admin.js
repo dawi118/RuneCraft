@@ -285,13 +285,6 @@ function renderImageFields(images) {
           ? `<img src="${escapeHtml(imagePreviewSrc(image.src))}" alt="${escapeHtml(image.caption || "Uploaded story image thumbnail")}">`
           : `<span>No image uploaded</span>`}
       </div>
-      <div class="image-upload-controls">
-        <label class="button secondary image-upload-button">
-          Upload image
-          <input data-image-upload type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml">
-        </label>
-        <span class="image-upload-status" role="status" aria-live="polite"></span>
-      </div>
       <label>
         Image caption
         <input data-image-field="caption" type="text" value="${escapeHtml(image.caption)}" placeholder="Short caption for this image">
@@ -302,9 +295,6 @@ function renderImageFields(images) {
 
   imageList.querySelectorAll('[data-image-field="caption"]').forEach((input) => {
     input.addEventListener("input", updateImagesFromForm);
-  });
-  imageList.querySelectorAll("[data-image-upload]").forEach((input) => {
-    input.addEventListener("change", uploadImageFile);
   });
   imageList.querySelectorAll(".remove-image").forEach((button) => {
     button.addEventListener("click", () => {
@@ -343,33 +333,6 @@ function readImagesFromForm() {
     caption: text(card.querySelector('[data-image-field="caption"]').value)
   })).filter((image) => image.src);
   return normalizeImages(images);
-}
-
-async function uploadImageFile(event) {
-  event.stopPropagation();
-  const input = event.currentTarget;
-  const file = input.files?.[0];
-  const card = input.closest(".image-card");
-  const ticket = currentTicket();
-  if (!file || !card || !ticket) return;
-
-  input.disabled = true;
-  try {
-    const result = await uploadImageToGitHub(file, card.querySelector(".image-upload-status"));
-    const index = Number(card.dataset.index);
-    ticket.images[index] = {
-      src: result.path,
-      caption: text(card.querySelector('[data-image-field="caption"]')?.value || file.name.replace(/\.[^.]+$/, ""))
-    };
-    markDirty();
-    renderForm();
-    setStatus(`Uploaded ${result.fileName || file.name}. Save the board to publish the updated story.`);
-  } catch (error) {
-    showImageUploadError(error.message, card.querySelector(".image-upload-status"));
-  } finally {
-    input.disabled = false;
-    input.value = "";
-  }
 }
 
 function uniqueIdForCurrent(baseId) {
@@ -755,17 +718,6 @@ progressRange.addEventListener("input", () => {
 });
 document.querySelector("#new-ticket").addEventListener("click", createTicket);
 document.querySelector("#delete-ticket").addEventListener("click", deleteTicket);
-document.querySelector("#add-image").addEventListener("click", () => {
-  const ticket = currentTicket();
-  if (!ticket) return;
-  if (ticket.images.length >= MAX_IMAGES) {
-    setStatus(`Each ticket can have up to ${MAX_IMAGES} images.`, true);
-    return;
-  }
-  ticket.images.push({ src: "", caption: "" });
-  markDirty();
-  renderForm();
-});
 document.querySelector("#export-board").addEventListener("click", exportBoard);
 document.querySelector("#import-board").addEventListener("change", importBoard);
 adminRegionFilter?.addEventListener("change", renderBoard);
