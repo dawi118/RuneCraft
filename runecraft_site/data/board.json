@@ -1,22 +1,30 @@
 {
   "items": [
     {
-      "id": "draynor-manor",
+      "id": "new-ticket",
+      "name": "New build ticket",
+      "subtitle": "",
+      "location": "backlog",
+      "region": "Misthalin",
+      "category": "other",
+      "progress": 0,
+      "estimatedTotalTime": "",
+      "estimatedTimeLeft": "TBC",
+      "what": "",
+      "images": []
+    },
+    {
+      "id": "draynor-manor-and-village-approach",
       "name": "Draynor Manor and village approach",
       "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
       "location": "backlog",
       "region": "Misthalin",
       "category": "building",
-      "progress": 71,
+      "progress": 24,
       "estimatedTotalTime": 14,
-      "estimatedTimeLeft": "4 hours",
+      "estimatedTimeLeft": "10 hours 40 minutes",
       "what": "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
-      "images": [
-        {
-          "src": "assets/img/falador-party-room.svg",
-          "caption": "Mood placeholder for interior lighting, party-room colour and early-game eccentricity."
-        }
-      ]
+      "images": []
     },
     {
       "id": "karamja-docks",
