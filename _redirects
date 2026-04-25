@@ -1,0 +1,4 @@
+/runecraft_site/* /runecraft_site/:splat 200
+/admin /runecraft_site/admin/ 200
+/admin/* /runecraft_site/admin/:splat 200
+/* /runecraft_site/:splat 200
