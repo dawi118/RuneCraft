@@ -1,6 +1,7 @@
 const DEFAULT_REPO = "dawi118/RuneCraft";
 const DEFAULT_BRANCH = "main";
 const DEFAULT_BOARD_PATH = "runecraft_site/data/board.json";
+const DEFAULT_UPLOADS_PATH = "runecraft_site/assets/uploads";
 const REGION_OPTIONS = [
   "Misthalin",
   "Asgarnia",
@@ -15,6 +16,14 @@ const REGION_OPTIONS = [
 ];
 const CATEGORY_OPTIONS = ["landscape", "monument", "building", "infrastructure", "other"];
 const MAX_IMAGES = 10;
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+const IMAGE_TYPES = {
+  "image/gif": "gif",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/svg+xml": "svg",
+  "image/webp": "webp"
+};
 
 exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
@@ -39,7 +48,20 @@ exports.handler = async function handler(event) {
       });
     }
 
-    return respond(405, { error: "Method not allowed" }, { Allow: "GET, PUT, OPTIONS" });
+    if (event.httpMethod === "POST") {
+      authorize(event);
+      const payload = JSON.parse(event.body || "{}");
+      const upload = normalizeUpload(payload);
+      const result = await writeUploadFile(upload);
+      return respond(200, {
+        path: publicPathForUpload(result.path),
+        fileName: result.fileName,
+        commitSha: result.commit?.sha || "",
+        commitUrl: result.commit?.html_url || ""
+      });
+    }
+
+    return respond(405, { error: "Method not allowed" }, { Allow: "GET, PUT, POST, OPTIONS" });
   } catch (error) {
     const statusCode = Number(error.statusCode || 500);
     return respond(statusCode, { error: error.message || "Board admin request failed" });
@@ -95,6 +117,26 @@ async function writeBoardFile(board) {
       content: Buffer.from(`${JSON.stringify(board, null, 2)}\n`, "utf8").toString("base64")
     })
   });
+}
+
+async function writeUploadFile(upload) {
+  const token = githubToken();
+  if (!token) {
+    throw httpError(503, "GITHUB_TOKEN is not configured, so images cannot be uploaded to GitHub");
+  }
+
+  const uploadPath = `${uploadsPath()}/${upload.fileName}`;
+  const commit = await githubRequest(contentsUrlForPath(uploadPath, false), {
+    method: "PUT",
+    headers: githubHeaders(token),
+    body: JSON.stringify({
+      message: `Upload RuneCraft story image: ${upload.fileName}`,
+      branch: branch(),
+      content: upload.content
+    })
+  });
+
+  return { path: uploadPath, fileName: upload.fileName, commit };
 }
 
 async function githubRequest(url, options) {
@@ -169,6 +211,32 @@ function normalizeImages(images) {
   return normalized;
 }
 
+function normalizeUpload(payload) {
+  const detectedType = detectContentType(payload.data);
+  const contentType = String(payload.contentType || detectedType || "").split(";")[0].trim().toLowerCase();
+  if (!IMAGE_TYPES[contentType]) {
+    throw httpError(400, "Image upload must be a PNG, JPG, GIF, WebP, or SVG file");
+  }
+
+  const content = cleanBase64(payload.data);
+  if (!content) {
+    throw httpError(400, "Image upload did not include file data");
+  }
+
+  const buffer = Buffer.from(content, "base64");
+  if (!buffer.length) {
+    throw httpError(400, "Image upload data was empty");
+  }
+  if (buffer.length > MAX_UPLOAD_BYTES) {
+    throw httpError(413, "Image upload is too large. Use an image that is 4 MB or smaller");
+  }
+
+  return {
+    fileName: uploadFileName(payload.fileName, contentType),
+    content
+  };
+}
+
 function normalizeLocation(location, progress = 0) {
   if (Number(progress) >= 100) return "done";
   const value = String(location || "").toLowerCase().replace(/\s+/g, "-");
@@ -235,7 +303,11 @@ function limitText(value, maxLength) {
 }
 
 function contentsUrl(includeRef) {
-  const base = `https://api.github.com/repos/${repo()}/contents/${encodeURIComponentPath(boardPath())}`;
+  return contentsUrlForPath(boardPath(), includeRef);
+}
+
+function contentsUrlForPath(path, includeRef) {
+  const base = `https://api.github.com/repos/${repo()}/contents/${encodeURIComponentPath(path)}`;
   return includeRef ? `${base}?ref=${encodeURIComponent(branch())}` : base;
 }
 
@@ -257,6 +329,30 @@ function branch() {
 
 function boardPath() {
   return process.env.BOARD_FILE_PATH || DEFAULT_BOARD_PATH;
+}
+
+function uploadsPath() {
+  return String(process.env.UPLOADS_FILE_PATH || DEFAULT_UPLOADS_PATH).replace(/\/+$/, "");
+}
+
+function publicPathForUpload(path) {
+  return path.replace(/^runecraft_site\//, "");
+}
+
+function detectContentType(data) {
+  const match = String(data || "").match(/^data:([^;,]+)[;,]/i);
+  return match ? match[1] : "";
+}
+
+function cleanBase64(data) {
+  return String(data || "").replace(/^data:[^,]+,/i, "").replace(/\s+/g, "");
+}
+
+function uploadFileName(rawName, contentType) {
+  const extension = IMAGE_TYPES[contentType];
+  const originalName = String(rawName || "story-image").split(/[\\/]/).pop();
+  const base = originalName.replace(/\.[^.]+$/, "");
+  return `${Date.now()}-${slugify(base)}.${extension}`;
 }
 
 function githubToken() {
@@ -288,7 +384,7 @@ function respond(statusCode, body, extraHeaders = {}) {
     statusCode,
     headers: {
       "Access-Control-Allow-Headers": "Authorization, Content-Type",
-      "Access-Control-Allow-Methods": "GET, PUT, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, PUT, POST, OPTIONS",
       "Access-Control-Allow-Origin": process.env.ADMIN_ALLOWED_ORIGIN || "*",
       "Cache-Control": "no-store, max-age=0, must-revalidate",
       "CDN-Cache-Control": "no-store",

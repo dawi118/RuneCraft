@@ -3,7 +3,7 @@ const STATIC_BOARD_PATH = "../data/board.json";
 const DRAFT_KEY = "runecraft-board-admin-draft";
 const LIVE_BOARD_KEY = "runecraft-board-live";
 const MAX_IMAGES = 10;
-const MAX_IMAGE_SIZE = 50 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]);
 
 const regionOptions = [
@@ -244,7 +244,7 @@ function renderForm() {
     progressRange.value = "0";
     progressValue.textContent = "0%";
     form.querySelectorAll("input, textarea, select, button").forEach((control) => {
-      if (!["new-ticket", "reload-board", "save-board"].includes(control.id)) control.disabled = true;
+      control.disabled = true;
     });
     isRenderingForm = false;
     return;
@@ -279,20 +279,32 @@ function renderImageFields(images) {
 
   imageList.innerHTML = images.map((image, index) => `
     <div class="image-card" data-index="${index}">
+      <input data-image-field="src" type="hidden" value="${escapeHtml(image.src)}">
+      <div class="image-preview">
+        ${image.src
+          ? `<img src="${escapeHtml(imagePreviewSrc(image.src))}" alt="${escapeHtml(image.caption || "Uploaded story image thumbnail")}">`
+          : `<span>No image uploaded</span>`}
+      </div>
+      <div class="image-upload-controls">
+        <label class="button secondary image-upload-button">
+          Upload image
+          <input data-image-upload type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml">
+        </label>
+        <span class="image-upload-status" role="status" aria-live="polite"></span>
+      </div>
       <label>
-        Image path
-        <input data-image-field="src" type="text" value="${escapeHtml(image.src)}" placeholder="assets/img/example.svg">
-      </label>
-      <label>
-        Caption
-        <input data-image-field="caption" type="text" value="${escapeHtml(image.caption)}">
+        Image caption
+        <input data-image-field="caption" type="text" value="${escapeHtml(image.caption)}" placeholder="Short caption for this image">
       </label>
       <button class="button secondary danger remove-image" type="button">Remove</button>
     </div>
   `).join("");
 
-  imageList.querySelectorAll("input").forEach((input) => {
+  imageList.querySelectorAll('[data-image-field="caption"]').forEach((input) => {
     input.addEventListener("input", updateImagesFromForm);
+  });
+  imageList.querySelectorAll("[data-image-upload]").forEach((input) => {
+    input.addEventListener("change", uploadImageFile);
   });
   imageList.querySelectorAll(".remove-image").forEach((button) => {
     button.addEventListener("click", () => {
@@ -331,6 +343,33 @@ function readImagesFromForm() {
     caption: text(card.querySelector('[data-image-field="caption"]').value)
   })).filter((image) => image.src);
   return normalizeImages(images);
+}
+
+async function uploadImageFile(event) {
+  event.stopPropagation();
+  const input = event.currentTarget;
+  const file = input.files?.[0];
+  const card = input.closest(".image-card");
+  const ticket = currentTicket();
+  if (!file || !card || !ticket) return;
+
+  input.disabled = true;
+  try {
+    const result = await uploadImageToGitHub(file, card.querySelector(".image-upload-status"));
+    const index = Number(card.dataset.index);
+    ticket.images[index] = {
+      src: result.path,
+      caption: text(card.querySelector('[data-image-field="caption"]')?.value || file.name.replace(/\.[^.]+$/, ""))
+    };
+    markDirty();
+    renderForm();
+    setStatus(`Uploaded ${result.fileName || file.name}. Save the board to publish the updated story.`);
+  } catch (error) {
+    showImageUploadError(error.message, card.querySelector(".image-upload-status"));
+  } finally {
+    input.disabled = false;
+    input.value = "";
+  }
 }
 
 function uniqueIdForCurrent(baseId) {
@@ -393,18 +432,16 @@ async function addImageFiles(files) {
   const imageEntries = [];
 
   for (const file of accepted) {
-    if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
-      setStatus(`${file.name} is not a supported image type.`, true);
+    try {
+      const result = await uploadImageToGitHub(file);
+      imageEntries.push({
+        src: result.path,
+        caption: file.name.replace(/\.[^.]+$/, "")
+      });
+    } catch (error) {
+      showImageUploadError(error.message);
       continue;
     }
-    if (file.size > MAX_IMAGE_SIZE) {
-      setStatus(`${file.name} is larger than 50MB.`, true);
-      continue;
-    }
-    imageEntries.push({
-      src: await readFileAsDataUrl(file),
-      caption: file.name.replace(/\.[^.]+$/, "")
-    });
   }
 
   if (!imageEntries.length) return;
@@ -419,13 +456,69 @@ async function addImageFiles(files) {
   }
 }
 
-function readFileAsDataUrl(file) {
+async function uploadImageToGitHub(file, inlineStatus) {
+  validateImageFile(file);
+  const token = tokenInput.value.trim();
+  if (!token) {
+    throw new Error("Enter the admin token before uploading an image.");
+  }
+
+  if (inlineStatus) inlineStatus.textContent = `Uploading ${file.name}...`;
+  setStatus(`Uploading image ${file.name}.`);
+
+  const data = await readFileAsBase64(file);
+  const response = await fetch(ADMIN_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      fileName: file.name,
+      contentType: file.type,
+      data
+    })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result.error || `Upload failed with HTTP ${response.status}`);
+  }
+  if (!result.path) {
+    throw new Error("Upload finished, but the server did not return an image path.");
+  }
+  return result;
+}
+
+function validateImageFile(file) {
+  if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
+    throw new Error(`"${file.name}" is not a supported image. Choose a PNG, JPG, GIF, WebP, or SVG file.`);
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    throw new Error(`"${file.name}" is too large. Image uploads must be 4 MB or smaller.`);
+  }
+}
+
+function readFileAsBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.addEventListener("load", () => resolve(String(reader.result || "")));
-    reader.addEventListener("error", () => reject(reader.error || new Error("Could not read image file")));
+    reader.addEventListener("load", () => {
+      const value = String(reader.result || "");
+      const base64 = value.includes(",") ? value.split(",").pop() : value;
+      if (!base64) {
+        reject(new Error(`Could not read "${file.name}". Try exporting the image again, then upload it once more.`));
+        return;
+      }
+      resolve(base64);
+    });
+    reader.addEventListener("error", () => reject(reader.error || new Error(`The browser could not read "${file.name}". Check the file and try again.`)));
     reader.readAsDataURL(file);
   });
+}
+
+function showImageUploadError(message, inlineStatus) {
+  const fullMessage = `Image upload failed: ${message}`;
+  if (inlineStatus) inlineStatus.textContent = fullMessage;
+  setStatus(fullMessage, true);
 }
 
 function handleDrag(event) {
@@ -629,6 +722,13 @@ function discardDraft() {
   loadBoard(true);
 }
 
+function imagePreviewSrc(src) {
+  const value = text(src);
+  if (!value) return "";
+  if (/^(https?:|data:|\/)/i.test(value)) return value;
+  return `../${value.replace(/^\.?\//, "")}`;
+}
+
 function slugify(value) {
   return String(value)
     .toLowerCase()
@@ -666,13 +766,12 @@ document.querySelector("#add-image").addEventListener("click", () => {
   markDirty();
   renderForm();
 });
-document.querySelector("#reload-board").addEventListener("click", () => loadBoard(true));
 document.querySelector("#export-board").addEventListener("click", exportBoard);
 document.querySelector("#import-board").addEventListener("change", importBoard);
-document.querySelector("#discard-draft").addEventListener("click", discardDraft);
 adminRegionFilter?.addEventListener("change", renderBoard);
 adminCategoryFilter?.addEventListener("change", renderBoard);
 imageUpload?.addEventListener("change", async (event) => {
+  event.stopPropagation();
   await addImageFiles(event.target.files || []);
   event.target.value = "";
 });

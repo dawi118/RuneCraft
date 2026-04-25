@@ -19,6 +19,7 @@
           <p>Manage Lumber Yard tickets without leaving the site.</p>
         </div>
         <div class="admin-header-actions">
+          <a class="button secondary" href="../">Main website</a>
           <button class="button primary" id="save-board" type="button">Save</button>
         </div>
       </header>
@@ -36,13 +37,11 @@
 
       <section class="admin-toolbar" aria-label="Board controls">
         <button class="button primary" id="new-ticket" type="button">New ticket</button>
-        <button class="button secondary" id="reload-board" type="button">Reload</button>
         <button class="button secondary" id="export-board" type="button">Export JSON</button>
         <label class="button secondary import-button">
           Import JSON
           <input id="import-board" type="file" accept="application/json,.json">
         </label>
-        <button class="button secondary danger" id="discard-draft" type="button">Discard draft</button>
         <label class="filter-control">
           Region
           <select id="admin-region-filter"></select>
@@ -83,7 +82,7 @@
 
           <div class="field-grid">
             <label>
-              Location
+              Status
               <select name="location">
                 <option value="backlog">Backlog</option>
                 <option value="progress">In Progress</option>
@@ -91,7 +90,7 @@
               </select>
             </label>
             <label>
-              Progress
+              Progress (%)
               <input name="progress" type="number" min="0" max="100" step="1">
             </label>
           </div>
@@ -130,11 +129,11 @@
 
           <div class="images-head">
             <h3>Images</h3>
-            <button class="button secondary" id="add-image" type="button">Add image path</button>
+            <button class="button secondary" id="add-image" type="button">Add image</button>
           </div>
           <div class="image-drop" id="image-drop" tabindex="0">
             <strong>Drop images here</strong>
-            <span>PNG, JPEG, GIF, WebP, or SVG. Up to 10 images, below 50MB each.</span>
+            <span>PNG, JPEG, GIF, WebP, or SVG. Up to 10 images, below 4MB each.</span>
             <label class="button secondary import-button">
               Upload images
               <input id="image-upload" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml" multiple>

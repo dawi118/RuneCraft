@@ -26,7 +26,7 @@ collections:
               - { label: "ID", name: "id", widget: "string", hint: "Unique slug, e.g. varrock-core. Use lowercase letters, numbers and hyphens." }
               - { label: "Name", name: "name", widget: "string" }
               - { label: "Description", name: "subtitle", widget: "text" }
-              - label: "Location"
+              - label: "Status"
                 name: "location"
                 widget: "select"
                 options:
@@ -65,4 +65,4 @@ collections:
                 widget: "list"
                 fields:
                   - { label: "Image", name: "src", widget: "image" }
-                  - { label: "Caption", name: "caption", widget: "string", required: false }
+                  - { label: "Image caption", name: "caption", widget: "string", required: false }

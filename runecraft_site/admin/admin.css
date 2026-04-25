@@ -255,13 +255,57 @@
 
 .image-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: 88px minmax(140px, .62fr) minmax(0, 1fr) auto;
   gap: .65rem;
-  align-items: end;
+  align-items: center;
   padding: .75rem;
   border: 2px solid rgba(255, 226, 122, .24);
   border-radius: var(--radius);
   background: rgba(0,0,0,.18);
+}
+
+.image-preview {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  aspect-ratio: 1;
+  border: 3px solid #0f0a06;
+  border-radius: 6px;
+  color: #d7c18b;
+  background: #17100c;
+  overflow: hidden;
+  text-align: center;
+  font-size: .78rem;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-upload-controls {
+  display: grid;
+  gap: .35rem;
+}
+
+.image-upload-button {
+  position: relative;
+  overflow: hidden;
+  justify-self: start;
+}
+
+.image-upload-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.image-upload-status {
+  min-height: 1.2em;
+  color: #f0d99b;
+  font-size: .82rem;
 }
 
 @media (max-width: 980px) {
@@ -288,5 +332,10 @@
   .field-grid,
   .image-card {
     grid-template-columns: 1fr;
+  }
+
+  .image-preview {
+    width: 100%;
+    max-width: 160px;
   }
 }

@@ -968,6 +968,11 @@ h3 {
   padding: .7rem;
 }
 
+.parchment .idea-card h3,
+.parchment .idea-card p {
+  color: #ffe9a5;
+}
+
 .quest-layout {
   grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
 }
