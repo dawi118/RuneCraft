@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "id": "scoping-the-wildy",
+      "name": "Scoping the Wildy",
+      "subtitle": "Conducting a flyover of the wildy to check for dungeons and what needs to be done.",
+      "location": "done",
+      "region": "Wilderness",
+      "category": "other",
+      "progress": 100,
+      "estimatedTotalTime": 1,
+      "estimatedTimeLeft": "0 hours",
+      "what": "We swept through and took some beautiful pictures!",
+      "images": [
+        {
+          "src": "assets/uploads/1777159353187-screenshot-2026-04-26-at-00-14-35.png",
+          "caption": "Sweeping the Wildy"
+        }
+      ]
+    },
+    {
       "id": "draynor-manor-and-village-approaches",
       "name": "Draynor Manor and village approaches",
       "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
