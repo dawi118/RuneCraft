@@ -1,24 +1,6 @@
 {
   "items": [
     {
-      "id": "new-build-ticket",
-      "name": "New build ticket",
-      "subtitle": "",
-      "location": "backlog",
-      "region": "Misthalin",
-      "category": "other",
-      "progress": 0,
-      "estimatedTotalTime": "",
-      "estimatedTimeLeft": "TBC",
-      "what": "",
-      "images": [
-        {
-          "src": "assets/uploads/1777158910121-screenshot-2026-04-26-at-00-14-35.png",
-          "caption": "The Wilderness and GodWars Dungeon"
-        }
-      ]
-    },
-    {
       "id": "draynor-manor-and-village-approaches",
       "name": "Draynor Manor and village approaches",
       "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
