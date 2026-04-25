@@ -1,3 +1,5 @@
+# Legacy Decap CMS config retained for reference.
+# The active admin UI is index.html + admin.js and saves through netlify/functions/board.js.
 backend:
   name: github
   repo: dawi118/RuneCraft
