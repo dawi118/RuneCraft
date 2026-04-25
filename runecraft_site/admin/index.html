@@ -19,8 +19,7 @@
           <p>Manage Lumber Yard tickets without leaving the site.</p>
         </div>
         <div class="admin-header-actions">
-          <a class="button secondary" href="../#lumber">View board</a>
-          <button class="button primary" id="save-board" type="button">Save to GitHub</button>
+          <button class="button primary" id="save-board" type="button">Save</button>
         </div>
       </header>
 
@@ -44,6 +43,14 @@
           <input id="import-board" type="file" accept="application/json,.json">
         </label>
         <button class="button secondary danger" id="discard-draft" type="button">Discard draft</button>
+        <label class="filter-control">
+          Region
+          <select id="admin-region-filter"></select>
+        </label>
+        <label class="filter-control">
+          Type
+          <select id="admin-category-filter"></select>
+        </label>
         <span id="admin-status" role="status" aria-live="polite">Loading board data.</span>
       </section>
 
@@ -66,11 +73,11 @@
 
           <label>
             ID
-            <input name="id" type="text" required pattern="[a-z0-9-]+">
+            <input name="id" type="text" required pattern="[a-z0-9-]+" readonly>
           </label>
 
           <label>
-            Subtitle
+            Description
             <textarea name="subtitle" rows="3"></textarea>
           </label>
 
@@ -89,6 +96,17 @@
             </label>
           </div>
 
+          <div class="field-grid">
+            <label>
+              Region
+              <select name="region" id="ticket-region"></select>
+            </label>
+            <label>
+              Type
+              <select name="category" id="ticket-category"></select>
+            </label>
+          </div>
+
           <div class="range-row">
             <input id="progress-range" type="range" min="0" max="100" step="1">
             <span id="progress-value">0%</span>
@@ -96,28 +114,31 @@
 
           <div class="field-grid">
             <label>
-              Estimated total time
-              <input name="estimatedTotalTime" type="text">
+              Estimated build time (hours)
+              <input name="estimatedTotalTime" type="number" min="0" step="0.1">
             </label>
             <label>
               Estimated time left
-              <input name="estimatedTimeLeft" type="text">
+              <input name="estimatedTimeLeft" type="text" readonly>
             </label>
           </div>
 
           <label>
-            Why we built it
-            <textarea name="why" rows="5"></textarea>
-          </label>
-
-          <label>
-            What we did
+            Progress update
             <textarea name="what" rows="5"></textarea>
           </label>
 
           <div class="images-head">
             <h3>Images</h3>
-            <button class="button secondary" id="add-image" type="button">Add image</button>
+            <button class="button secondary" id="add-image" type="button">Add image path</button>
+          </div>
+          <div class="image-drop" id="image-drop" tabindex="0">
+            <strong>Drop images here</strong>
+            <span>PNG, JPEG, GIF, WebP, or SVG. Up to 10 images, below 50MB each.</span>
+            <label class="button secondary import-button">
+              Upload images
+              <input id="image-upload" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml" multiple>
+            </label>
           </div>
           <div class="image-list" id="image-list"></div>
         </form>

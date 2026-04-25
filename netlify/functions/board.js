@@ -1,6 +1,20 @@
 const DEFAULT_REPO = "dawi118/RuneCraft";
 const DEFAULT_BRANCH = "main";
 const DEFAULT_BOARD_PATH = "runecraft_site/data/board.json";
+const REGION_OPTIONS = [
+  "Misthalin",
+  "Asgarnia",
+  "Kandarin",
+  "Morytania",
+  "Kharidian Desert",
+  "Fremennik Province",
+  "Wilderness",
+  "Karamja",
+  "Tirannwn Great Kourend",
+  "Varlamore"
+];
+const CATEGORY_OPTIONS = ["landscape", "monument", "building", "infrastructure", "other"];
+const MAX_IMAGES = 10;
 
 exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
@@ -121,15 +135,20 @@ function normalizeBoard(source) {
       if (seen.has(id)) throw httpError(400, `Duplicate ticket ID: ${id}`);
       seen.add(id);
 
+      const progress = clampProgress(item?.progress, item?.location);
+      const location = normalizeLocation(item?.location, progress);
+      const estimatedTotalTime = normalizeBuildHours(item?.estimatedTotalTime);
+
       return {
         id,
         name: limitText(item?.name || "Untitled ticket", 120),
         subtitle: limitText(item?.subtitle || "", 320),
-        location: normalizeLocation(item?.location),
-        progress: clampProgress(item?.progress, item?.location),
-        estimatedTotalTime: limitText(item?.estimatedTotalTime || "TBC", 80),
-        estimatedTimeLeft: limitText(item?.estimatedTimeLeft || "TBC", 80),
-        why: limitText(item?.why || "", 4000),
+        location,
+        region: normalizeRegion(item?.region),
+        category: normalizeCategory(item?.category),
+        progress,
+        estimatedTotalTime,
+        estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
         what: limitText(item?.what || "", 4000),
         images: normalizeImages(item?.images)
       };
@@ -140,19 +159,18 @@ function normalizeBoard(source) {
 function normalizeImages(images) {
   const sourceImages = Array.isArray(images) ? images : [];
   const normalized = sourceImages
-    .slice(0, 20)
+    .slice(0, MAX_IMAGES)
     .map((image) => ({
-      src: limitText(image?.src || "", 320),
+      src: limitText(image?.src || "", 70 * 1024 * 1024),
       caption: limitText(image?.caption || "", 240)
     }))
     .filter((image) => image.src);
 
-  return normalized.length
-    ? normalized
-    : [{ src: "assets/img/runecraft-pixel-map.svg", caption: "Build progress image." }];
+  return normalized;
 }
 
-function normalizeLocation(location) {
+function normalizeLocation(location, progress = 0) {
+  if (Number(progress) >= 100) return "done";
   const value = String(location || "").toLowerCase().replace(/\s+/g, "-");
   if (["progress", "in-progress", "inprogress"].includes(value)) return "progress";
   if (["done", "complete", "completed"].includes(value)) return "done";
@@ -164,6 +182,44 @@ function clampProgress(progress, location) {
     return Math.max(0, Math.min(100, Math.round(Number(progress))));
   }
   return normalizeLocation(location) === "done" ? 100 : 0;
+}
+
+function normalizeRegion(region) {
+  const match = REGION_OPTIONS.find((option) => option.toLowerCase() === String(region || "").trim().toLowerCase());
+  return match || "Misthalin";
+}
+
+function normalizeCategory(category) {
+  const value = String(category || "").trim().toLowerCase();
+  return CATEGORY_OPTIONS.includes(value) ? value : "other";
+}
+
+function normalizeBuildHours(value) {
+  if (value === "" || value === null || value === undefined) return "";
+  const direct = Number(value);
+  if (Number.isFinite(direct)) return Math.max(0, Number(direct.toFixed(2)));
+  const match = String(value).match(/\d+(?:\.\d+)?/);
+  return match ? Math.max(0, Number(Number(match[0]).toFixed(2))) : "";
+}
+
+function estimatedTimeLeft(totalHours, progress) {
+  if (Number(progress) >= 100) return "0 hours";
+  if (totalHours === "" || !Number.isFinite(Number(totalHours))) return "TBC";
+  const rawMinutes = Number(totalHours) * 60 * (1 - (Math.max(0, Math.min(100, Number(progress) || 0)) / 100));
+  let minutes = Math.round(rawMinutes / 10) * 10;
+  if (rawMinutes > 0 && minutes === 0) minutes = 10;
+  return formatDuration(minutes);
+}
+
+function formatDuration(minutes) {
+  if (!Number.isFinite(Number(minutes)) || Number(minutes) <= 0) return "0 hours";
+  const rounded = Math.round(Number(minutes));
+  const hours = Math.floor(rounded / 60);
+  const mins = rounded % 60;
+  const parts = [];
+  if (hours) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
+  if (mins) parts.push(`${mins} minutes`);
+  return parts.join(" ") || "0 hours";
 }
 
 function slugify(value) {

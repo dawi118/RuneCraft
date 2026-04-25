@@ -1,3 +1,24 @@
+const regionOptions = [
+  "Misthalin",
+  "Asgarnia",
+  "Kandarin",
+  "Morytania",
+  "Kharidian Desert",
+  "Fremennik Province",
+  "Wilderness",
+  "Karamja",
+  "Tirannwn Great Kourend",
+  "Varlamore"
+];
+
+const categoryOptions = [
+  ["landscape", "Landscape"],
+  ["monument", "Monument"],
+  ["building", "Building"],
+  ["infrastructure", "Infrastructure"],
+  ["other", "Other"]
+];
+
 const boardDefaults = {
   items: [
     {
@@ -5,10 +26,11 @@ const boardDefaults = {
       name: "Draynor Manor and village approach",
       subtitle: "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
       location: "backlog",
+      region: "Misthalin",
+      category: "building",
       progress: 0,
-      estimatedTotalTime: "12-16 hours",
-      estimatedTimeLeft: "12-16 hours",
-      why: "It is one of the first places that made the old map feel strange and bigger than the starter route.",
+      estimatedTotalTime: 14,
+      estimatedTimeLeft: "14 hours",
       what: "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
       images: [
         {
@@ -22,10 +44,11 @@ const boardDefaults = {
       name: "Karamja docks and banana route",
       subtitle: "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
       location: "backlog",
+      region: "Karamja",
+      category: "infrastructure",
       progress: 0,
-      estimatedTotalTime: "10-14 hours",
-      estimatedTimeLeft: "10-14 hours",
-      why: "The first boat trip should feel like a proper jump in the world rather than a disconnected set piece.",
+      estimatedTotalTime: 12,
+      estimatedTimeLeft: "12 hours",
       what: "We are testing water scale, shore transitions, and how much island compression still feels right.",
       images: [
         {
@@ -39,10 +62,11 @@ const boardDefaults = {
       name: "Varrock square and rooftops",
       subtitle: "Banks, streets, roof language, market stalls, and the first dense city pass.",
       location: "progress",
+      region: "Misthalin",
+      category: "building",
       progress: 48,
-      estimatedTotalTime: "38 hours",
-      estimatedTimeLeft: "20 hours",
-      why: "Varrock is the first true hub test: dense enough to feel busy, clean enough to navigate.",
+      estimatedTotalTime: 38,
+      estimatedTimeLeft: "19 hours 50 minutes",
       what: "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
       images: [
         {
@@ -56,10 +80,11 @@ const boardDefaults = {
       name: "Grand Exchange market ring",
       subtitle: "A hub zone with market stalls, circular paths, bank flow, and screenshot-friendly overlooks.",
       location: "progress",
+      region: "Misthalin",
+      category: "infrastructure",
       progress: 32,
-      estimatedTotalTime: "28 hours",
+      estimatedTotalTime: 28,
       estimatedTimeLeft: "19 hours",
-      why: "It is the social heartbeat of OSRS, so it needs to read instantly even when compressed.",
       what: "The stall rhythm, central floor shape, and first donor board location are roughed in.",
       images: [
         {
@@ -73,10 +98,11 @@ const boardDefaults = {
       name: "Lumbridge courtyard scale test",
       subtitle: "A starter-area proof of scale for castle walls, chapel angle, paths, and bridge distance.",
       location: "done",
+      region: "Misthalin",
+      category: "building",
       progress: 100,
-      estimatedTotalTime: "7 hours",
+      estimatedTotalTime: 7,
       estimatedTimeLeft: "0 hours",
-      why: "Lumbridge is the emotional spawn point. If it feels wrong, the whole project feels wrong.",
       what: "We settled the first scale rules, chose a castle palette, and created path widths that work in Minecraft first-person.",
       images: [
         {
@@ -122,23 +148,28 @@ const currentBuildEl = document.querySelector("#current-build");
 const statusEl = document.querySelector("#board-status");
 const detailSection = document.querySelector("#build-detail");
 const detailArticle = document.querySelector("#build-article");
+const regionFilter = document.querySelector("#board-region-filter");
+const categoryFilter = document.querySelector("#board-category-filter");
 
 function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
   const items = sourceItems.map((item, index) => {
-    const location = normalizeLocation(item.location);
-    const images = Array.isArray(item.images) ? item.images : [];
+    const progress = getClampedProgress(item.progress, item.location);
+    const location = normalizeLocation(item.location, progress);
+    const estimatedTotalTime = normalizeBuildHours(item.estimatedTotalTime || item.duration);
+    const images = Array.isArray(item.images) ? item.images : (item.image ? [{ src: item.image, caption: "" }] : []);
     return {
       id: slugify(item.id || item.name || `build-${index + 1}`),
       name: item.name || item.title || "Untitled build",
       subtitle: item.subtitle || item.summary || "",
       location,
-      progress: getClampedProgress(item.progress, location),
-      estimatedTotalTime: item.estimatedTotalTime || item.duration || "TBC",
-      estimatedTimeLeft: item.estimatedTimeLeft || timeLeftFallback(item),
-      why: item.why || "",
+      region: normalizeRegion(item.region),
+      category: normalizeCategory(item.category),
+      progress,
+      estimatedTotalTime,
+      estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
       what: item.what || item.did || "",
-      images: images.length ? images.map(normalizeImage) : [normalizeImage({ src: item.image, caption: "Build progress image." })]
+      images: images.length ? images.map(normalizeImage).filter((image) => image.src) : []
     };
   });
 
@@ -147,22 +178,65 @@ function normalizeBoard(source) {
 
 function normalizeImage(image) {
   return {
-    src: image?.src || "assets/img/runecraft-pixel-map.svg",
+    src: image?.src || "",
     caption: image?.caption || ""
   };
 }
 
-function normalizeLocation(location) {
+function normalizeLocation(location, progress = 0) {
+  if (Number(progress) >= 100) return "done";
   const value = String(location || "").toLowerCase().replace(/\s+/g, "-");
   if (["progress", "in-progress", "inprogress"].includes(value)) return "progress";
   if (["done", "complete", "completed"].includes(value)) return "done";
   return "backlog";
 }
 
-function timeLeftFallback(item) {
-  const status = String(item.status || "").toLowerCase();
-  if (status.includes("done") || Number(item.progress) >= 100) return "0 hours";
-  return "TBC";
+function normalizeRegion(region) {
+  const match = regionOptions.find((option) => option.toLowerCase() === String(region || "").trim().toLowerCase());
+  return match || "Misthalin";
+}
+
+function normalizeCategory(category) {
+  const value = String(category || "").trim().toLowerCase();
+  return categoryOptions.some(([key]) => key === value) ? value : "other";
+}
+
+function normalizeBuildHours(value) {
+  if (value === "" || value === null || value === undefined) return "";
+  const direct = Number(value);
+  if (Number.isFinite(direct)) return Math.max(0, Number(direct.toFixed(2)));
+  const match = String(value).match(/\d+(?:\.\d+)?/);
+  return match ? Math.max(0, Number(Number(match[0]).toFixed(2))) : "";
+}
+
+function formatBuildHours(hours) {
+  if (hours === "" || !Number.isFinite(Number(hours))) return "TBC";
+  const value = Number(hours);
+  return `${formatNumber(value)} ${value === 1 ? "hour" : "hours"}`;
+}
+
+function estimatedTimeLeft(totalHours, progress) {
+  if (Number(progress) >= 100) return "0 hours";
+  if (totalHours === "" || !Number.isFinite(Number(totalHours))) return "TBC";
+  const rawMinutes = Number(totalHours) * 60 * (1 - (Math.max(0, Math.min(100, Number(progress) || 0)) / 100));
+  let minutes = Math.round(rawMinutes / 10) * 10;
+  if (rawMinutes > 0 && minutes === 0) minutes = 10;
+  return formatDuration(minutes);
+}
+
+function formatDuration(minutes) {
+  if (!Number.isFinite(Number(minutes)) || Number(minutes) <= 0) return "0 hours";
+  const rounded = Math.round(Number(minutes));
+  const hours = Math.floor(rounded / 60);
+  const mins = rounded % 60;
+  const parts = [];
+  if (hours) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
+  if (mins) parts.push(`${mins} minutes`);
+  return parts.join(" ") || "0 hours";
+}
+
+function formatNumber(value) {
+  return Number.isInteger(value) ? String(value) : String(value).replace(/\.?0+$/, "");
 }
 
 async function loadBoardData() {
@@ -170,7 +244,7 @@ async function loadBoardData() {
     const response = await fetch("data/board.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Board data returned ${response.status}`);
     board = normalizeBoard(await response.json());
-    statusEl.textContent = "Board content loaded from data/board.json.";
+    statusEl.textContent = "Board content loaded.";
   } catch {
     board = normalizeBoard(boardDefaults);
     statusEl.textContent = "Board content is using bundled fallback data. Hosted deployments load data/board.json.";
@@ -181,15 +255,42 @@ async function loadBoardData() {
 }
 
 function groupedBoard() {
+  const filteredItems = filteredTasks();
   return {
-    backlog: board.items.filter((task) => task.location === "backlog"),
-    progress: board.items.filter((task) => task.location === "progress"),
-    done: board.items.filter((task) => task.location === "done")
+    backlog: filteredItems.filter((task) => task.location === "backlog"),
+    progress: filteredItems.filter((task) => task.location === "progress"),
+    done: filteredItems.filter((task) => task.location === "done")
   };
 }
 
 function allTasks() {
   return board.items;
+}
+
+function filteredTasks() {
+  const selectedRegion = regionFilter?.value || "all";
+  const selectedCategory = categoryFilter?.value || "all";
+  return board.items.filter((task) => {
+    const regionMatches = selectedRegion === "all" || task.region === selectedRegion;
+    const categoryMatches = selectedCategory === "all" || task.category === selectedCategory;
+    return regionMatches && categoryMatches;
+  });
+}
+
+function renderBoardFilters() {
+  if (regionFilter) {
+    regionFilter.innerHTML = [
+      `<option value="all">All regions</option>`,
+      ...regionOptions.map((region) => `<option value="${escapeHtml(region)}">${escapeHtml(region)}</option>`)
+    ].join("");
+  }
+
+  if (categoryFilter) {
+    categoryFilter.innerHTML = [
+      `<option value="all">All types</option>`,
+      ...categoryOptions.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`)
+    ].join("");
+  }
 }
 
 function renderBoard() {
@@ -224,8 +325,10 @@ function taskTemplate(task, column, index) {
       <p>${escapeHtml(task.subtitle)}</p>
       <div class="task-meta">
         <span>${escapeHtml(statusForLocation(task.location))}</span>
-        <span>Total: ${escapeHtml(task.estimatedTotalTime)}</span>
-        <span>Left: ${escapeHtml(task.estimatedTimeLeft)}</span>
+        <span>${escapeHtml(task.region)}</span>
+        <span>${escapeHtml(categoryLabel(task.category))}</span>
+        <span>Build time: ${escapeHtml(formatBuildHours(task.estimatedTotalTime))}</span>
+        <span>${escapeHtml(task.estimatedTimeLeft)} left</span>
       </div>
       ${progressBarTemplate(progress, tone, `${task.name} progress ${progress}%`)}
       <button class="open-log" type="button" data-id="${escapeHtml(task.id)}">Open build log</button>
@@ -265,26 +368,26 @@ function openBuildLog(id) {
   const task = allTasks().find((item) => item.id === id);
   if (!task) return;
 
-  const primaryImage = task.images[0] || normalizeImage({});
-  const progress = getTaskProgress(task);
+  const primaryImage = task.images[0] || null;
 
   detailArticle.innerHTML = `
-    <div class="build-hero">
-      <figure class="build-primary-image">
-        <img src="${escapeHtml(primaryImage.src)}" alt="">
-        ${primaryImage.caption ? `<figcaption>${escapeHtml(primaryImage.caption)}</figcaption>` : ""}
-      </figure>
+    <div class="build-hero${primaryImage ? "" : " no-image"}">
+      ${primaryImage ? `
+        <figure class="build-primary-image">
+          <img src="${escapeHtml(primaryImage.src)}" alt="">
+          ${primaryImage.caption ? `<figcaption>${escapeHtml(primaryImage.caption)}</figcaption>` : ""}
+        </figure>
+      ` : ""}
       <div class="build-copy">
         <p class="eyebrow">${escapeHtml(statusForLocation(task.location))}</p>
         <h2>${escapeHtml(task.name)}</h2>
         <p>${escapeHtml(task.subtitle)}</p>
-        <h3>Why we built it</h3>
-        ${richText(task.why)}
-        <h3>What we did</h3>
+        <h3>Progress update</h3>
         ${richText(task.what)}
-        ${progressBarTemplate(progress, progressTone(task), `${task.name} progress ${progress}%`)}
         <div class="build-facts">
-          <span><b>Total time</b>${escapeHtml(task.estimatedTotalTime)}</span>
+          <span><b>Region</b>${escapeHtml(task.region)}</span>
+          <span><b>Type</b>${escapeHtml(categoryLabel(task.category))}</span>
+          <span><b>Build time</b>${escapeHtml(formatBuildHours(task.estimatedTotalTime))}</span>
           <span><b>Time left</b>${escapeHtml(task.estimatedTimeLeft)}</span>
         </div>
       </div>
@@ -373,6 +476,10 @@ function statusForLocation(location) {
   return "Backlog";
 }
 
+function categoryLabel(category) {
+  return categoryOptions.find(([value]) => value === category)?.[1] || "Other";
+}
+
 function progressBarTemplate(progress, tone, label) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
   return `
@@ -413,12 +520,15 @@ function escapeHtml(value) {
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
-    entry.target.classList.toggle("is-visible", entry.isIntersecting);
+    if (entry.isIntersecting) {
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    }
   });
-}, { threshold: 0.18, rootMargin: "0px 0px -8% 0px" });
+}, { threshold: 0.12, rootMargin: "0px 0px -12% 0px" });
 
 function refreshReveals() {
-  document.querySelectorAll(".tab-panel.is-active .reveal").forEach((el) => observer.observe(el));
+  document.querySelectorAll(".tab-panel.is-active .reveal:not(.is-visible)").forEach((el) => observer.observe(el));
 }
 
 document.querySelector("#close-detail")?.addEventListener("click", closeBuildLog);
@@ -442,10 +552,13 @@ document.querySelectorAll(".region-chip").forEach((chip) => {
 });
 
 window.addEventListener("hashchange", handleHash);
+regionFilter?.addEventListener("change", renderBoard);
+categoryFilter?.addEventListener("change", renderBoard);
 window.addEventListener("scroll", () => {
   document.documentElement.style.setProperty("--scroll-shift", String(window.scrollY));
 }, { passive: true });
 
+renderBoardFilters();
 renderBoard();
 renderRegion("lumbridge");
 loadBoardData();

@@ -25,7 +25,7 @@ collections:
             fields:
               - { label: "ID", name: "id", widget: "string", hint: "Unique slug, e.g. varrock-core. Use lowercase letters, numbers and hyphens." }
               - { label: "Name", name: "name", widget: "string" }
-              - { label: "Subtitle", name: "subtitle", widget: "text" }
+              - { label: "Description", name: "subtitle", widget: "text" }
               - label: "Location"
                 name: "location"
                 widget: "select"
@@ -33,11 +33,33 @@ collections:
                   - { label: "Backlog", value: "backlog" }
                   - { label: "In Progress", value: "progress" }
                   - { label: "Done", value: "done" }
+              - label: "Region"
+                name: "region"
+                widget: "select"
+                options:
+                  - "Misthalin"
+                  - "Asgarnia"
+                  - "Kandarin"
+                  - "Morytania"
+                  - "Kharidian Desert"
+                  - "Fremennik Province"
+                  - "Wilderness"
+                  - "Karamja"
+                  - "Tirannwn Great Kourend"
+                  - "Varlamore"
+              - label: "Type"
+                name: "category"
+                widget: "select"
+                options:
+                  - { label: "Landscape", value: "landscape" }
+                  - { label: "Monument", value: "monument" }
+                  - { label: "Building", value: "building" }
+                  - { label: "Infrastructure", value: "infrastructure" }
+                  - { label: "Other", value: "other" }
               - { label: "Progress (%)", name: "progress", widget: "number", min: 0, max: 100, value_type: "int" }
-              - { label: "Estimated total time", name: "estimatedTotalTime", widget: "string" }
-              - { label: "Estimated time left", name: "estimatedTimeLeft", widget: "string" }
-              - { label: "Why we built it", name: "why", widget: "markdown" }
-              - { label: "What we did", name: "what", widget: "markdown" }
+              - { label: "Estimated build time (hours)", name: "estimatedTotalTime", widget: "number", min: 0, value_type: "float" }
+              - { label: "Estimated time left", name: "estimatedTimeLeft", widget: "string", required: false }
+              - { label: "Progress update", name: "what", widget: "markdown", required: false }
               - label: "Images"
                 name: "images"
                 widget: "list"

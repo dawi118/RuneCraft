@@ -5,10 +5,11 @@
       "name": "Draynor Manor and village approach",
       "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
       "location": "backlog",
+      "region": "Misthalin",
+      "category": "building",
       "progress": 71,
-      "estimatedTotalTime": "12-16 hours",
-      "estimatedTimeLeft": "12-16",
-      "why": "It is one of the first places that made the old map feel strange and bigger than the starter route.",
+      "estimatedTotalTime": 14,
+      "estimatedTimeLeft": "4 hours",
       "what": "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
       "images": [
         {
@@ -22,10 +23,11 @@
       "name": "Karamja docks and banana route",
       "subtitle": "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
       "location": "backlog",
+      "region": "Karamja",
+      "category": "infrastructure",
       "progress": 0,
-      "estimatedTotalTime": "10-14 hours",
-      "estimatedTimeLeft": "10-14 hours",
-      "why": "The first boat trip should feel like a proper jump in the world rather than a disconnected set piece.",
+      "estimatedTotalTime": 12,
+      "estimatedTimeLeft": "12 hours",
       "what": "We are testing water scale, shore transitions, and how much island compression still feels right.",
       "images": [
         {
@@ -39,10 +41,11 @@
       "name": "Varrock square and rooftops",
       "subtitle": "Banks, streets, roof language, market stalls, and the first dense city pass.",
       "location": "progress",
+      "region": "Misthalin",
+      "category": "building",
       "progress": 48,
-      "estimatedTotalTime": "38 hours",
-      "estimatedTimeLeft": "20 hours",
-      "why": "Varrock is the first true hub test: dense enough to feel busy, clean enough to navigate.",
+      "estimatedTotalTime": 38,
+      "estimatedTimeLeft": "19 hours 50 minutes",
       "what": "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
       "images": [
         {
@@ -56,10 +59,11 @@
       "name": "Grand Exchange market ring",
       "subtitle": "A hub zone with market stalls, circular paths, bank flow, and screenshot-friendly overlooks.",
       "location": "progress",
+      "region": "Misthalin",
+      "category": "infrastructure",
       "progress": 32,
-      "estimatedTotalTime": "28 hours",
+      "estimatedTotalTime": 28,
       "estimatedTimeLeft": "19 hours",
-      "why": "It is the social heartbeat of OSRS, so it needs to read instantly even when compressed.",
       "what": "The stall rhythm, central floor shape, and first donor board location are roughed in.",
       "images": [
         {
@@ -73,10 +77,11 @@
       "name": "Lumbridge courtyard scale test",
       "subtitle": "A starter-area proof of scale for castle walls, chapel angle, paths, and bridge distance.",
       "location": "done",
+      "region": "Misthalin",
+      "category": "building",
       "progress": 100,
-      "estimatedTotalTime": "7 hours",
+      "estimatedTotalTime": 7,
       "estimatedTimeLeft": "0 hours",
-      "why": "Lumbridge is the emotional spawn point. If it feels wrong, the whole project feels wrong.",
       "what": "We settled the first scale rules, chose a castle palette, and created path widths that work in Minecraft first-person.",
       "images": [
         {

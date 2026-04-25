@@ -40,13 +40,14 @@ The board editor can add, edit, delete, import, and export board items. It keeps
 Each board item supports:
 
 - Name
-- Subtitle
+- Description
 - Location: backlog, in progress, done
+- Region
+- Type: landscape, monument, building, infrastructure, other
 - Progress percentage
-- Estimated total time
-- Estimated time left
-- Why we built it
-- What we did
+- Estimated build time in hours
+- Estimated time left, calculated from build time and progress
+- Progress update
 - Images
 - Image captions
 

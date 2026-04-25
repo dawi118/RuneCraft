@@ -72,7 +72,8 @@ a {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -492,6 +493,29 @@ h3 {
   margin: 0 0 1.2rem;
 }
 
+.board-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: end;
+}
+
+.filter-control {
+  display: grid;
+  gap: .28rem;
+  min-width: min(230px, 100%);
+  color: #ffe7a2;
+}
+
+.filter-control select {
+  min-height: 44px;
+  padding: .55rem .7rem;
+  border: 3px solid rgba(255, 226, 122, .28);
+  border-radius: var(--radius);
+  color: #ffe9a5;
+  background: #17100c;
+}
+
 #board-status {
   color: #f0d99b;
 }
@@ -670,6 +694,10 @@ h3 {
   gap: 1.25rem;
   align-items: stretch;
   padding: 1rem;
+}
+
+.build-hero.no-image {
+  grid-template-columns: 1fr;
 }
 
 .build-primary-image {

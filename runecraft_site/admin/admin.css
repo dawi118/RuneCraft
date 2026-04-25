@@ -197,6 +197,12 @@
   background: #17100c;
 }
 
+.ticket-form input[readonly] {
+  color: #d7c18b;
+  background: #211711;
+  cursor: not-allowed;
+}
+
 .ticket-form textarea {
   resize: vertical;
 }
@@ -213,6 +219,38 @@
 .image-list {
   display: grid;
   gap: .75rem;
+}
+
+.image-drop {
+  display: grid;
+  gap: .55rem;
+  justify-items: start;
+  padding: .9rem;
+  border: 3px dashed rgba(255, 226, 122, .34);
+  border-radius: var(--radius);
+  color: #ead9ad;
+  background: rgba(0,0,0,.18);
+}
+
+.image-drop strong {
+  color: #ffe9a5;
+  font-family: var(--display-font);
+}
+
+.image-drop.is-dragging,
+.image-drop:focus-visible {
+  outline: 3px solid rgba(255, 226, 122, .35);
+  border-color: var(--gold);
+  background: rgba(255, 226, 122, .1);
+}
+
+.empty-images {
+  margin: 0;
+  padding: .75rem;
+  border: 2px solid rgba(255, 226, 122, .18);
+  border-radius: var(--radius);
+  color: #d7c18b;
+  background: rgba(0,0,0,.14);
 }
 
 .image-card {

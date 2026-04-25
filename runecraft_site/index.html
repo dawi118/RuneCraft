@@ -89,7 +89,7 @@
               <a class="feature-card reveal" href="#lumber">
                 <span class="feature-icon compass"></span>
                 <h3>Progress people can follow</h3>
-                <p>Every milestone gets logged with notes, screenshots, build time, and why we made the decisions we made.</p>
+                <p>Every milestone gets logged with notes, screenshots, build time, and progress updates from the latest pass.</p>
               </a>
               <a class="feature-card reveal" href="#party">
                 <span class="feature-icon scroll"></span>
@@ -112,7 +112,16 @@
           <section class="section-band">
             <div class="section-inner">
               <div class="board-tools reveal">
-                <a class="button primary" href="admin/">Admin board editor</a>
+                <div class="board-filters" aria-label="Board filters">
+                  <label class="filter-control">
+                    Region
+                    <select id="board-region-filter"></select>
+                  </label>
+                  <label class="filter-control">
+                    Type
+                    <select id="board-category-filter"></select>
+                  </label>
+                </div>
                 <span id="board-status" role="status" aria-live="polite">Board content loads from the hosted project data file.</span>
               </div>
               <div id="current-build" class="current-build reveal" aria-live="polite"></div>

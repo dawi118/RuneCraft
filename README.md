@@ -10,7 +10,7 @@ The app is built with plain HTML, CSS, and JavaScript. It does not require a Jav
 - **Project introduction**: The homepage explains the Minecraft and RuneScape inspiration behind the build, with custom pixel-style art and local RuneScape-inspired fonts.
 - **Lumber Yard build board**: A kanban-style board groups build items into Backlog, In Progress, and Done.
 - **Current build highlight**: The first in-progress board item is promoted as the current focus.
-- **Detailed build logs**: Each board card can open a detail view with the build rationale, work notes, images, progress, estimated total time, and time left.
+- **Detailed build logs**: Each board card can open a detail view with work notes, images, region/type metadata, estimated build time, and calculated time left.
 - **JSON-driven content**: Board entries are loaded from `runecraft_site/data/board.json`, with bundled fallback data in `script.js` if the JSON request fails.
 - **World map progress view**: Region chips show progress notes and percentage bars for Lumbridge, Varrock, Falador, and Ardougne.
 - **Support and social area**: The Grand Exchange section includes placeholder social links, progress post cards, an optional blog note area, and a GoFundMe donation link.
@@ -117,12 +117,13 @@ Each board item supports:
 
 - `id`
 - `name`
-- `subtitle`
+- `subtitle` (shown as Description in the editor)
 - `location` (`backlog`, `progress`, or `done`)
+- `region`
+- `category`
 - `progress`
 - `estimatedTotalTime`
 - `estimatedTimeLeft`
-- `why`
 - `what`
 - `images`
 
