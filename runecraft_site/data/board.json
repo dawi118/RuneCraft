@@ -32,15 +32,15 @@
       ]
     },
     {
-      "id": "varrock-core",
+      "id": "varrock-square-and-rooftops",
       "name": "Varrock square and rooftops",
       "subtitle": "Banks, streets, roof language, market stalls, and the first dense city pass.",
       "location": "progress",
       "region": "Misthalin",
       "category": "building",
-      "progress": 48,
+      "progress": 62,
       "estimatedTotalTime": 38,
-      "estimatedTimeLeft": "19 hours 50 minutes",
+      "estimatedTimeLeft": "14 hours 30 minutes",
       "what": "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
       "images": [
         {
