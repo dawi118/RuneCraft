@@ -1,6 +1,23 @@
 {
   "items": [
     {
+      "id": "new-ticket",
+      "name": "New build ticket",
+      "subtitle": "",
+      "location": "backlog",
+      "progress": 0,
+      "estimatedTotalTime": "TBC",
+      "estimatedTimeLeft": "TBC",
+      "why": "",
+      "what": "",
+      "images": [
+        {
+          "src": "assets/img/runecraft-pixel-map.svg",
+          "caption": "Build progress image."
+        }
+      ]
+    },
+    {
       "id": "draynor-manor",
       "name": "Draynor Manor and village approach",
       "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
