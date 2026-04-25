@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project RuneCraft</title>
+    <meta name="description" content="Project RuneCraft is Marc and David's fan build bringing the world of Gielinor into Minecraft.">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="site-shell">
+      <header class="topbar" aria-label="Main navigation">
+        <a class="brand-mark" href="#tutorial" aria-label="Project RuneCraft home">
+          <img class="brand-rune" src="assets/img/mc-old-school-logo.svg" alt="MC Old School">
+          <span>
+            <strong>Project RuneCraft</strong>
+            <small>Gielinor, rebuilt block by block</small>
+          </span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="main-nav" class="nav-tabs">
+          <a href="#tutorial" data-tab="tutorial">
+            <img src="assets/img/icon-blue-star.svg" alt="">
+            <span><strong>Tutorial Island</strong><small>About us</small></span>
+          </a>
+          <a href="#lumber" data-tab="lumber">
+            <img src="assets/img/icon-saw.svg" alt="">
+            <span><strong>Lumber Yard</strong><small>What we're building</small></span>
+          </a>
+          <a href="#map" data-tab="map">
+            <img src="assets/img/icon-world.svg" alt="">
+            <span><strong>World Map</strong><small>Progress to date</small></span>
+          </a>
+          <a href="#exchange" data-tab="exchange">
+            <img src="assets/img/icon-coins.svg" alt="">
+            <span><strong>Grand Exchange</strong><small>Support us!</small></span>
+          </a>
+          <a href="#party" data-tab="party">
+            <img src="assets/img/icon-balloon.svg" alt="">
+            <span><strong>Falador Party Room</strong><small>Share your ideas!</small></span>
+          </a>
+        </nav>
+      </header>
+
+      <main id="main">
+        <section id="tutorial" class="tab-panel is-active">
+          <div class="hero section-band">
+            <img src="assets/img/runecraft-pixel-map.svg" alt="" class="hero-map">
+            <div class="hero-copy reveal">
+              <p class="eyebrow">Welcome to Project RuneCraft</p>
+              <h1>Project RuneCraft</h1>
+              <p class="lede">Marc and David are rebuilding the world of Gielinor in Minecraft, one familiar path, roofline, and ridiculous childhood memory at a time.</p>
+              <div class="hero-actions">
+                <a class="button primary" href="#lumber">View the build board</a>
+                <a class="button secondary" href="#map">Explore the atlas</a>
+              </div>
+            </div>
+          </div>
+
+          <section class="section-band parchment">
+            <div class="section-inner two-column">
+              <div class="reveal">
+                <p class="eyebrow">Who we are</p>
+                <h2>Two childhood players, one overgrown idea.</h2>
+              </div>
+              <div class="copy-stack reveal">
+                <p>We grew up on RuneScape 2 and Minecraft. Project RuneCraft is what happens when those two obsessions finally get a shared save file.</p>
+                <p>Our goal is to make Gielinor feel recognisable from the first glance, while still embracing the constraints and charm of Minecraft scale, blocks, materials, lighting, and survival-friendly building.</p>
+                <div class="stat-strip">
+                  <span><b>2</b> builders</span>
+                  <span><b>5</b> starter regions</span>
+                  <span><b>100%</b> fan-made</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-band">
+            <div class="section-inner feature-grid">
+              <a class="feature-card reveal" href="#exchange">
+                <span class="feature-icon pickaxe"></span>
+                <h3>OSRS memory, Minecraft craft</h3>
+                <p>We translate routes, towns, banks, castles, docks, fields, and strange little corners into block builds with readable silhouettes.</p>
+              </a>
+              <a class="feature-card reveal" href="#lumber">
+                <span class="feature-icon compass"></span>
+                <h3>Progress people can follow</h3>
+                <p>Every milestone gets logged with notes, screenshots, build time, and why we made the decisions we made.</p>
+              </a>
+              <a class="feature-card reveal" href="#party">
+                <span class="feature-icon scroll"></span>
+                <h3>Community suggestions</h3>
+                <p>Fans can send ideas, corrections, references, and favourite places they want to see on the build list.</p>
+              </a>
+            </div>
+          </section>
+        </section>
+
+        <section id="lumber" class="tab-panel">
+          <section class="section-band title-band">
+            <div class="section-inner reveal">
+              <p class="eyebrow">Lumber Yard</p>
+              <h2>What we're building</h2>
+              <p class="lede compact">A live storyboard for the build. Public visitors can follow progress; admins update the board through the secure CMS.</p>
+            </div>
+          </section>
+
+          <section class="section-band">
+            <div class="section-inner">
+              <div class="board-tools reveal">
+                <a class="button primary" href="admin/">Admin board editor</a>
+                <span id="board-status" role="status" aria-live="polite">Board content loads from the hosted project data file.</span>
+              </div>
+              <div id="current-build" class="current-build reveal" aria-live="polite"></div>
+              <div class="kanban-board" id="kanban-board" aria-label="Project build board"></div>
+            </div>
+          </section>
+
+          <section id="build-detail" class="section-band detail-view" aria-live="polite" hidden>
+            <div class="section-inner">
+              <button class="button secondary" id="close-detail" type="button">Back to board</button>
+              <article class="build-article" id="build-article"></article>
+            </div>
+          </section>
+        </section>
+
+        <section id="map" class="tab-panel">
+          <section class="section-band title-band">
+            <div class="section-inner reveal">
+              <p class="eyebrow">World Map</p>
+              <h2>The atlas of the build</h2>
+              <p class="lede compact">A high-level progress map for the places we want to connect first, from starter towns to the big hubs.</p>
+            </div>
+          </section>
+          <section class="section-band">
+            <div class="section-inner map-layout">
+              <figure class="map-frame reveal">
+                <img class="map-greyscale" src="assets/img/runecraft-pixel-map.svg" alt="Greyscale no-label Project RuneCraft map to colour as regions are completed.">
+              </figure>
+              <div class="region-list reveal">
+                <button class="region-chip is-active" data-region="lumbridge" type="button">Lumbridge</button>
+                <button class="region-chip" data-region="varrock" type="button">Varrock</button>
+                <button class="region-chip" data-region="falador" type="button">Falador</button>
+                <button class="region-chip" data-region="ardougne" type="button">Ardougne</button>
+                <div class="region-panel" id="region-panel"></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="exchange" class="tab-panel">
+          <section class="section-band title-band">
+            <div class="section-inner reveal">
+              <p class="eyebrow">Grand Exchange</p>
+              <h2>Follow us, share us, buy us an Asgarnian ale.</h2>
+              <p class="lede compact">A hub for progress posts, image drops, blog notes, and tiny donation goals.</p>
+            </div>
+          </section>
+          <section class="section-band exchange-grid section-inner">
+            <aside class="social-panel reveal">
+              <h3>Social links</h3>
+              <a href="https://instagram.com/" target="_blank" rel="noreferrer">Instagram progress feed</a>
+              <a href="https://youtube.com/" target="_blank" rel="noreferrer">Build timelapses</a>
+              <a href="https://discord.com/" target="_blank" rel="noreferrer">Community Discord</a>
+              <a href="mailto:hello@example.com">Email Marc and David</a>
+            </aside>
+            <div class="feed-panel reveal">
+              <h3>Latest progress posts</h3>
+              <div class="post-grid">
+                <article class="post-card">
+                  <img src="assets/img/lumbridge-courtyard.svg" alt="">
+                  <p>Lumbridge courtyard scale test</p>
+                </article>
+                <article class="post-card">
+                  <img src="assets/img/varrock-rooftops.svg" alt="">
+                  <p>Varrock roof palette experiments</p>
+                </article>
+                <article class="post-card">
+                  <img src="assets/img/grand-exchange-stalls.svg" alt="">
+                  <p>Grand Exchange stall layouts</p>
+                </article>
+              </div>
+              <div class="blog-strip">
+                <h4>Optional blog</h4>
+                <p>Short field notes can live here: build mistakes, texture tests, new regions, world downloads, and votes for what comes next.</p>
+              </div>
+            </div>
+            <aside class="donation-panel reveal">
+              <h3>Buy us an Asgarnian ale</h3>
+              <p>To share, obviously. Current round:</p>
+              <div class="coin-row"><span>&pound;5</span><span>&pound;100</span></div>
+              <div class="progress" aria-label="Donation progress: 5 pounds of 100 pounds">
+                <span style="width: 5%"></span>
+              </div>
+              <a class="button primary" href="https://gofund.me/7dc3fc541" target="_blank" rel="noreferrer">Give an Asgarnian ale</a>
+            </aside>
+          </section>
+        </section>
+
+        <section id="party" class="tab-panel">
+          <section class="section-band party-hero">
+            <img src="assets/img/falador-party-room.svg" alt="" class="party-art">
+            <div class="section-inner reveal">
+              <p class="eyebrow">Falador Party Room</p>
+              <h2>Ideas, corrections, and fan requests.</h2>
+              <p class="lede compact">Tell us which quest spot, bank chest, alleyway, dungeon entrance, or weird little nostalgia corner needs to make the cut.</p>
+            </div>
+          </section>
+          <section class="section-band parchment">
+            <div class="section-inner idea-layout">
+              <div class="idea-card reveal">
+                <h3>Send an idea</h3>
+                <p>Use this placeholder until the project inbox is ready.</p>
+                <a class="contact-link" href="mailto:your.email@example.com">your.email@example.com</a>
+              </div>
+              <form class="idea-form reveal">
+                <label>
+                  Build idea
+                  <input type="text" placeholder="e.g. Draynor Manor, Port Sarim docks">
+                </label>
+                <label>
+                  Why it matters
+                  <textarea rows="5" placeholder="Tell us what makes it iconic, useful, or funny."></textarea>
+                </label>
+                <button class="button primary" type="button">Submit placeholder</button>
+              </form>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Project RuneCraft is an unofficial fan project and is not affiliated with Jagex, Old School RuneScape, RuneLite, or Mojang.</p>
+        <p>Fonts: local RuneScape font pack from RuneStar/fonts, referenced after checking RuneLite font context.</p>
+        <p><a href="admin/">Admin editor</a></p>
+      </footer>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

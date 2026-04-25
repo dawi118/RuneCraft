@@ -1,0 +1,44 @@
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/YOUR_REPO_NAME
+  branch: main
+
+media_folder: "assets/uploads"
+public_folder: "assets/uploads"
+publish_mode: editorial_workflow
+
+collections:
+  - name: "project_data"
+    label: "Project Data"
+    files:
+      - name: "board"
+        label: "Lumber Yard Board"
+        file: "data/board.json"
+        format: "json"
+        fields:
+          - label: "Board Items"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.name}} - {{fields.location}} - {{fields.progress}}%"
+            fields:
+              - { label: "ID", name: "id", widget: "string", hint: "Unique slug, e.g. varrock-core. Use lowercase letters, numbers and hyphens." }
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Subtitle", name: "subtitle", widget: "text" }
+              - label: "Location"
+                name: "location"
+                widget: "select"
+                options:
+                  - { label: "Backlog", value: "backlog" }
+                  - { label: "In Progress", value: "progress" }
+                  - { label: "Done", value: "done" }
+              - { label: "Progress (%)", name: "progress", widget: "number", min: 0, max: 100, value_type: "int" }
+              - { label: "Estimated total time", name: "estimatedTotalTime", widget: "string" }
+              - { label: "Estimated time left", name: "estimatedTimeLeft", widget: "string" }
+              - { label: "Why we built it", name: "why", widget: "markdown" }
+              - { label: "What we did", name: "what", widget: "markdown" }
+              - label: "Images"
+                name: "images"
+                widget: "list"
+                fields:
+                  - { label: "Image", name: "src", widget: "image" }
+                  - { label: "Caption", name: "caption", widget: "string", required: false }

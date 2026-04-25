@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Blue star</title>
+  <path fill="#071f2a" opacity=".85" d="M32 3 39 24l22 1-17 14 6 22-18-13-18 13 6-22L3 25l22-1z"/>
+  <path fill="#6ea1ff" d="M32 7 38 26l20 1-16 12 6 19-16-11-16 11 6-19L6 27l20-1z"/>
+  <path fill="#395fc7" d="M32 13v34l-10 7 4-17-13-9 16-1z"/>
+</svg>

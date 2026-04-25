@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Balloon</title>
+  <path fill="#050505" opacity=".65" d="M31 4c15 0 24 10 24 23 0 12-10 21-19 24l-4 9-4-9C19 48 9 39 9 27 9 14 17 4 31 4z"/>
+  <path fill="#6df36f" d="M31 6c13 0 21 9 21 20 0 12-10 19-18 22l-3 8-3-8C20 45 12 38 12 26 12 15 19 6 31 6z"/>
+  <path fill="#b8ffc0" opacity=".52" d="M21 14h17v9h8v8H32v7H20z"/>
+  <path fill="#37bd45" d="M31 6c13 0 21 9 21 20 0 12-10 19-18 22l-3 8z" opacity=".32"/>
+</svg>
