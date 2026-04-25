@@ -1,19 +1,6 @@
 {
   "items": [
     {
-      "id": "new-ticket",
-      "name": "New build ticket",
-      "subtitle": "",
-      "location": "backlog",
-      "region": "Misthalin",
-      "category": "other",
-      "progress": 0,
-      "estimatedTotalTime": "",
-      "estimatedTimeLeft": "TBC",
-      "what": "",
-      "images": []
-    },
-    {
       "id": "draynor-manor-and-village-approach",
       "name": "Draynor Manor and village approach",
       "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
