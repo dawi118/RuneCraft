@@ -1,15 +1,15 @@
 {
   "items": [
     {
-      "id": "new-ticket",
-      "name": "New build ticket",
-      "subtitle": "",
-      "location": "backlog",
-      "progress": 0,
-      "estimatedTotalTime": "TBC",
-      "estimatedTimeLeft": "TBC",
-      "why": "",
-      "what": "",
+      "id": "wizard-s-tower",
+      "name": "Wizard's Tower",
+      "subtitle": "We will build the wizards tower, complete with the connecting bridge and fairy ring",
+      "location": "progress",
+      "progress": 1,
+      "estimatedTotalTime": "10",
+      "estimatedTimeLeft": "10",
+      "why": "It's iconic",
+      "what": "25/04/26 - in progress",
       "images": [
         {
           "src": "assets/img/runecraft-pixel-map.svg",
