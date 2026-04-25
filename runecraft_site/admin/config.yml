@@ -3,7 +3,7 @@ backend:
   repo: dawi118/RuneCraft
   branch: main
 
-media_folder: "assets/uploads"
+media_folder: "runecraft_site/assets/uploads"
 public_folder: "assets/uploads"
 publish_mode: editorial_workflow
 
@@ -13,7 +13,7 @@ collections:
     files:
       - name: "board"
         label: "Lumber Yard Board"
-        file: "data/board.json"
+        file: "runecraft_site/data/board.json"
         format: "json"
         fields:
           - label: "Board Items"

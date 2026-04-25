@@ -4,8 +4,9 @@ This site is now ready for static hosting with an admin CMS.
 
 ## Recommended Setup
 
-1. Create a GitHub repository and upload this folder.
-2. Edit `admin/config.yml` and replace:
+1. Create a GitHub repository and upload this project.
+2. Make sure `netlify.toml` exists at the repository root. It should publish the `runecraft_site` folder.
+3. Edit `runecraft_site/admin/config.yml` and replace:
 
    ```yaml
    repo: YOUR_GITHUB_USERNAME/YOUR_REPO_NAME
@@ -17,9 +18,11 @@ This site is now ready for static hosting with an admin CMS.
    repo: marc-and-david/project-runecraft
    ```
 
-3. Deploy the repository to Netlify, Vercel, Cloudflare Pages, or GitHub Pages.
-4. For Decap CMS editing at `/admin`, use a host/OAuth setup that supports the GitHub backend. Only GitHub users with write access to the repository can publish board changes.
-5. Add admins by inviting them as GitHub collaborators with write access.
+4. Deploy the repository to Netlify, Vercel, Cloudflare Pages, or GitHub Pages.
+5. For Decap CMS editing at `/admin`, use a host/OAuth setup that supports the GitHub backend. Only GitHub users with write access to the repository can publish board changes.
+6. Add admins by inviting them as GitHub collaborators with write access.
+
+For Netlify, keep the site connected to the repository root. The root `netlify.toml` publishes `runecraft_site`, so the Netlify UI can leave the publish directory blank unless you want to override it manually.
 
 ## Editing Board Items
 
