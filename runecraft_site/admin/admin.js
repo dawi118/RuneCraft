@@ -51,6 +51,13 @@ const progressValue = document.querySelector("#progress-value");
 const adminRegionFilter = document.querySelector("#admin-region-filter");
 const adminCategoryFilter = document.querySelector("#admin-category-filter");
 
+function shouldLoadRemoteBoard() {
+  const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+  if (!localHosts.has(window.location.hostname)) return true;
+
+  return window.location.port === "8888";
+}
+
 function setStatus(message, isError = false) {
   statusEl.textContent = message;
   statusEl.style.color = isError ? "#ffb29b" : "#f0d99b";
@@ -503,17 +510,19 @@ async function loadBoard(forceRemote = false) {
   }
 
   try {
-    const remote = await fetch(ADMIN_ENDPOINT, { cache: "no-store" });
-    if (remote.ok) {
-      board = normalizeBoard(await remote.json());
-      setStatus("Loaded board from GitHub.");
+    if (shouldLoadRemoteBoard()) {
+      const remote = await fetch(ADMIN_ENDPOINT, { cache: "no-store" });
+      if (remote.ok) {
+        board = normalizeBoard(await remote.json());
+        setStatus("Loaded board from GitHub.");
+      } else {
+        throw new Error(`Admin endpoint returned ${remote.status}`);
+      }
     } else {
-      throw new Error(`Admin endpoint returned ${remote.status}`);
+      await loadStaticBoard();
     }
   } catch {
-    const fallback = await fetch(STATIC_BOARD_PATH, { cache: "no-store" });
-    board = normalizeBoard(await fallback.json());
-    setStatus("Loaded static board JSON. GitHub saves need the Netlify Function.");
+    await loadStaticBoard();
   }
 
   selectedId = board.items[0]?.id || "";
@@ -521,6 +530,12 @@ async function loadBoard(forceRemote = false) {
   renderBoard();
   renderForm();
   updateSaveLabel();
+}
+
+async function loadStaticBoard() {
+  const fallback = await fetch(STATIC_BOARD_PATH, { cache: "no-store" });
+  board = normalizeBoard(await fallback.json());
+  setStatus("Loaded static board JSON. GitHub saves need the Netlify Function.");
 }
 
 async function saveBoard() {
