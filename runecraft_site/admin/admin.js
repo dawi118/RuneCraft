@@ -1,6 +1,7 @@
 const ADMIN_ENDPOINT = "/.netlify/functions/board";
 const STATIC_BOARD_PATH = "../data/board.json";
 const DRAFT_KEY = "runecraft-board-admin-draft";
+const LIVE_BOARD_KEY = "runecraft-board-live";
 const MAX_IMAGES = 10;
 const MAX_IMAGE_SIZE = 50 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]);
@@ -457,6 +458,17 @@ function findDuplicateId() {
   return "";
 }
 
+function publishSavedBoard(savedBoard) {
+  try {
+    localStorage.setItem(LIVE_BOARD_KEY, JSON.stringify({
+      savedAt: Date.now(),
+      board: savedBoard
+    }));
+  } catch {
+    // Saving to GitHub is the source of truth; local preview sync is best-effort.
+  }
+}
+
 function createTicket() {
   const base = {
     id: uniqueId("new-ticket", new Set(board.items.map((item) => item.id))),
@@ -569,6 +581,7 @@ async function saveBoard() {
     }
     board = normalizeBoard(result.board || board);
     localStorage.removeItem(DRAFT_KEY);
+    publishSavedBoard(board);
     dirty = false;
     renderBoard();
     renderForm();

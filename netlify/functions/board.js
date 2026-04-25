@@ -290,6 +290,9 @@ function respond(statusCode, body, extraHeaders = {}) {
       "Access-Control-Allow-Headers": "Authorization, Content-Type",
       "Access-Control-Allow-Methods": "GET, PUT, OPTIONS",
       "Access-Control-Allow-Origin": process.env.ADMIN_ALLOWED_ORIGIN || "*",
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
+      "CDN-Cache-Control": "no-store",
+      "Netlify-CDN-Cache-Control": "no-store",
       "Content-Type": isText ? "text/plain; charset=utf-8" : "application/json; charset=utf-8",
       ...extraHeaders
     },
