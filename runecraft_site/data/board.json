@@ -1,23 +1,6 @@
 {
   "items": [
     {
-      "id": "build-the-spire",
-      "name": "Build the spire",
-      "subtitle": "l...",
-      "location": "backlog",
-      "progress": 11,
-      "estimatedTotalTime": "100",
-      "estimatedTimeLeft": "10",
-      "why": "...",
-      "what": "...",
-      "images": [
-        {
-          "src": "assets/img/runecraft-pixel-map.svg",
-          "caption": "Build progress image."
-        }
-      ]
-    },
-    {
       "id": "draynor-manor",
       "name": "Draynor Manor and village approach",
       "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
