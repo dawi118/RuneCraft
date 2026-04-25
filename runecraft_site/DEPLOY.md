@@ -1,26 +1,25 @@
 # Project RuneCraft Deployment
 
-This site is now ready for static hosting with an admin CMS.
+This site is now ready for static hosting with a small admin board editor.
 
 ## Recommended Setup
 
 1. Create a GitHub repository and upload this project.
 2. Make sure `netlify.toml` exists at the repository root. It should publish the `runecraft_site` folder.
-3. Edit `runecraft_site/admin/config.yml` and replace:
+3. Deploy the repository to Netlify. The root `netlify.toml` publishes the `runecraft_site` folder and enables `netlify/functions`.
 
-   ```yaml
-   repo: YOUR_GITHUB_USERNAME/YOUR_REPO_NAME
+4. Add the environment variables used by the board editor:
+
+   ```text
+   ADMIN_TOKEN=shared-admin-password-for-this-low-stakes-tool
+   GITHUB_TOKEN=github-fine-grained-token-with-contents-read-write
+   GITHUB_REPO=dawi118/RuneCraft
+   GITHUB_BRANCH=main
+   BOARD_FILE_PATH=runecraft_site/data/board.json
    ```
 
-   with the real repository, for example:
-
-   ```yaml
-   repo: marc-and-david/project-runecraft
-   ```
-
-4. Deploy the repository to Netlify, Vercel, Cloudflare Pages, or GitHub Pages.
-5. For Decap CMS editing at `/admin`, use a host/OAuth setup that supports the GitHub backend. Only GitHub users with write access to the repository can publish board changes.
-6. Add admins by inviting them as GitHub collaborators with write access.
+5. Create `GITHUB_TOKEN` as a fine-grained GitHub token with read/write access to repository contents. Keep it server-side in Netlify only.
+6. Share `ADMIN_TOKEN` only with low-stakes test admins who should be allowed to publish board changes.
 
 For Netlify, keep the site connected to the repository root. The root `netlify.toml` publishes `runecraft_site`, so the Netlify UI can leave the publish directory blank unless you want to override it manually.
 
@@ -32,7 +31,7 @@ Admins visit:
 https://your-site-url/admin/
 ```
 
-The "Lumber Yard Board" editor can add, edit, remove, and reorder board items.
+The board editor can add, edit, delete, import, and export board items. It keeps a browser draft while admins work, then writes `data/board.json` to GitHub through the Netlify Function when they save.
 
 Each board item supports:
 
@@ -46,6 +45,10 @@ Each board item supports:
 - What we did
 - Images
 - Image captions
+
+## Why this replaced Decap
+
+The previous admin page used Decap CMS with the GitHub backend. That workflow depends on an OAuth/Git Gateway service; when that service is missing or misconfigured, the GitHub connection can return "Not Found". The current editor keeps the board's JSON source of truth, but moves GitHub writes into a small server-side function so the browser never needs a GitHub OAuth portal or a GitHub token.
 
 ## Donation Link
 

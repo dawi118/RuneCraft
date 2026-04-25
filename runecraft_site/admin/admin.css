@@ -1,0 +1,262 @@
+.admin-body {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(0deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0 / 24px 24px,
+    #172116;
+}
+
+.admin-shell {
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.admin-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 1rem 0 1.2rem;
+  border-bottom: 4px solid #0d0906;
+}
+
+.admin-header h1 {
+  font-size: clamp(2.4rem, 7vw, 5.4rem);
+}
+
+.admin-header p:not(.eyebrow),
+.admin-panel p {
+  max-width: 760px;
+  margin: .5rem 0 0;
+  color: #ead9ad;
+}
+
+.admin-header-actions,
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+  align-items: center;
+}
+
+.admin-panel,
+.ticket-row {
+  border: 4px solid #0f0a06;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 226, 122, .12), transparent 28%),
+    #2d1d15;
+  box-shadow: var(--shadow);
+}
+
+.admin-auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 360px) auto;
+  gap: 1rem;
+  align-items: end;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.admin-auth h2,
+.ticket-form h2 {
+  font-size: clamp(1.45rem, 3vw, 2.2rem);
+}
+
+.token-field,
+.remember-field,
+.ticket-form label,
+.image-card label {
+  display: grid;
+  gap: .35rem;
+  color: #ffe7a2;
+}
+
+.remember-field {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: #ead9ad;
+}
+
+.admin-toolbar {
+  margin: 1rem 0;
+}
+
+#admin-status {
+  color: #f0d99b;
+}
+
+.import-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.import-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.button.danger {
+  border-color: #6d241a;
+  color: #ffe9a5;
+  background: linear-gradient(#713423, #32150f);
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, .72fr) minmax(420px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-board {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-column {
+  display: grid;
+  gap: .65rem;
+}
+
+.admin-column h2 {
+  display: flex;
+  justify-content: space-between;
+  gap: .7rem;
+  align-items: center;
+  font-size: 1.35rem;
+}
+
+.ticket-row {
+  display: grid;
+  width: 100%;
+  gap: .35rem;
+  padding: .75rem;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ticket-row:hover,
+.ticket-row:focus-visible,
+.ticket-row.is-selected {
+  border-color: var(--gold);
+  filter: brightness(1.06);
+}
+
+.ticket-row strong {
+  color: #ffe9a5;
+  font-family: var(--display-font);
+}
+
+.ticket-row span {
+  color: #d7c18b;
+}
+
+.ticket-form {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: .9rem;
+  padding: 1rem;
+}
+
+.form-head,
+.images-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem;
+}
+
+.range-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px;
+  gap: .7rem;
+  align-items: center;
+}
+
+.range-row span {
+  color: var(--gold-bright);
+  font-family: var(--display-font);
+  text-align: right;
+}
+
+.ticket-form input,
+.ticket-form textarea,
+.ticket-form select,
+.token-field input,
+.image-card input {
+  width: 100%;
+  min-height: 44px;
+  padding: .6rem .7rem;
+  border: 3px solid rgba(255, 226, 122, .28);
+  border-radius: var(--radius);
+  color: #ffe9a5;
+  background: #17100c;
+}
+
+.ticket-form textarea {
+  resize: vertical;
+}
+
+.ticket-form input:focus,
+.ticket-form textarea:focus,
+.ticket-form select:focus,
+.token-field input:focus,
+.image-card input:focus {
+  outline: 3px solid rgba(255, 226, 122, .35);
+  border-color: var(--gold);
+}
+
+.image-list {
+  display: grid;
+  gap: .75rem;
+}
+
+.image-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: .65rem;
+  align-items: end;
+  padding: .75rem;
+  border: 2px solid rgba(255, 226, 122, .24);
+  border-radius: var(--radius);
+  background: rgba(0,0,0,.18);
+}
+
+@media (max-width: 980px) {
+  .admin-header,
+  .admin-auth,
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-form {
+    position: static;
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-header-actions,
+  .admin-toolbar,
+  .form-head,
+  .images-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .field-grid,
+  .image-card {
+    grid-template-columns: 1fr;
+  }
+}

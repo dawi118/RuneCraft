@@ -3,10 +3,130 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Project RuneCraft Admin</title>
+    <title>Project RuneCraft Board Admin</title>
+    <meta name="robots" content="noindex">
     <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="admin.css">
   </head>
-  <body>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <body class="admin-body">
+    <a class="skip-link" href="#editor">Skip to editor</a>
+    <main class="admin-shell">
+      <header class="admin-header">
+        <div>
+          <p class="eyebrow">Project RuneCraft</p>
+          <h1>Board Admin</h1>
+          <p>Manage Lumber Yard tickets without leaving the site.</p>
+        </div>
+        <div class="admin-header-actions">
+          <a class="button secondary" href="../#lumber">View board</a>
+          <button class="button primary" id="save-board" type="button">Save to GitHub</button>
+        </div>
+      </header>
+
+      <section class="admin-panel admin-auth" aria-labelledby="auth-heading">
+        <div>
+          <h2 id="auth-heading">Admin access</h2>
+          <p>Use the site admin token configured in Netlify. Local edits are kept as a browser draft until a save succeeds.</p>
+        </div>
+        <label class="token-field">
+          Admin token
+          <input id="admin-token" type="password" autocomplete="current-password" placeholder="Paste admin token">
+        </label>
+        <label class="remember-field">
+          <input id="remember-token" type="checkbox">
+          Remember on this browser
+        </label>
+      </section>
+
+      <section class="admin-toolbar" aria-label="Board controls">
+        <button class="button primary" id="new-ticket" type="button">New ticket</button>
+        <button class="button secondary" id="reload-board" type="button">Reload</button>
+        <button class="button secondary" id="export-board" type="button">Export JSON</button>
+        <label class="button secondary import-button">
+          Import JSON
+          <input id="import-board" type="file" accept="application/json,.json">
+        </label>
+        <button class="button secondary danger" id="discard-draft" type="button">Discard draft</button>
+        <span id="admin-status" role="status" aria-live="polite">Loading board data.</span>
+      </section>
+
+      <section class="admin-layout" id="editor">
+        <div class="admin-board" id="admin-board" aria-label="Editable ticket list"></div>
+
+        <form class="admin-panel ticket-form" id="ticket-form">
+          <div class="form-head">
+            <div>
+              <p class="eyebrow">Ticket</p>
+              <h2 id="form-title">Select a ticket</h2>
+            </div>
+            <button class="button secondary danger" id="delete-ticket" type="button">Delete</button>
+          </div>
+
+          <label>
+            Name
+            <input name="name" type="text" required>
+          </label>
+
+          <label>
+            ID
+            <input name="id" type="text" required pattern="[a-z0-9-]+">
+          </label>
+
+          <label>
+            Subtitle
+            <textarea name="subtitle" rows="3"></textarea>
+          </label>
+
+          <div class="field-grid">
+            <label>
+              Location
+              <select name="location">
+                <option value="backlog">Backlog</option>
+                <option value="progress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
+            </label>
+            <label>
+              Progress
+              <input name="progress" type="number" min="0" max="100" step="1">
+            </label>
+          </div>
+
+          <div class="range-row">
+            <input id="progress-range" type="range" min="0" max="100" step="1">
+            <span id="progress-value">0%</span>
+          </div>
+
+          <div class="field-grid">
+            <label>
+              Estimated total time
+              <input name="estimatedTotalTime" type="text">
+            </label>
+            <label>
+              Estimated time left
+              <input name="estimatedTimeLeft" type="text">
+            </label>
+          </div>
+
+          <label>
+            Why we built it
+            <textarea name="why" rows="5"></textarea>
+          </label>
+
+          <label>
+            What we did
+            <textarea name="what" rows="5"></textarea>
+          </label>
+
+          <div class="images-head">
+            <h3>Images</h3>
+            <button class="button secondary" id="add-image" type="button">Add image</button>
+          </div>
+          <div class="image-list" id="image-list"></div>
+        </form>
+      </section>
+    </main>
+    <script src="admin.js"></script>
   </body>
 </html>

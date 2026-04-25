@@ -1,6 +1,9 @@
 [build]
   publish = "runecraft_site"
 
+[functions]
+  directory = "netlify/functions"
+
 [[headers]]
   for = "/*"
   [headers.values]
