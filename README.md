@@ -87,7 +87,7 @@ For the low-stakes board workflow, this project now uses a smaller first-party e
 - Admins edit the same `runecraft_site/data/board.json` data that the public board already reads.
 - Drafts are saved in the admin's browser while they work.
 - Production saves go through `netlify/functions/board.js`, which commits the JSON to GitHub using a server-side token.
-- The GitHub token never appears in browser JavaScript.
+- The GitHub token never appears in browser JavaScript, and the admin token is not persisted in browser storage.
 
 Set these environment variables in Netlify:
 
@@ -102,6 +102,8 @@ BOARD_FILE_PATH=runecraft_site/data/board.json
 Only `ADMIN_TOKEN` and `GITHUB_TOKEN` are required for the default repository path. For production beyond this testing setup, move admin auth to an identity provider or a hosted CMS/database with role-based access.
 
 In Netlify, enter only the secret value in the value field. For example, the `GITHUB_TOKEN` value should be the token itself, not `GITHUB_TOKEN=...` or `Bearer ...`. The function trims those common paste mistakes, but a revoked, expired, or repo-restricted token will still be rejected by GitHub.
+
+The names of these environment variables are safe to document publicly. The secret values live in Netlify and are only read by the serverless function at runtime. Use a fine-grained GitHub token restricted to this repository's contents permission, give it an expiry date, and rotate it immediately if it is ever pasted into GitHub, chat, logs, or the browser.
 
 ## Editing Build Board Content
 

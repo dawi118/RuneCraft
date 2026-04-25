@@ -1,7 +1,6 @@
 const ADMIN_ENDPOINT = "/.netlify/functions/board";
 const STATIC_BOARD_PATH = "../data/board.json";
 const DRAFT_KEY = "runecraft-board-admin-draft";
-const TOKEN_KEY = "runecraft-board-admin-token";
 
 const columns = [
   ["backlog", "Backlog"],
@@ -21,7 +20,6 @@ const formTitle = document.querySelector("#form-title");
 const imageList = document.querySelector("#image-list");
 const statusEl = document.querySelector("#admin-status");
 const tokenInput = document.querySelector("#admin-token");
-const rememberInput = document.querySelector("#remember-token");
 const saveButton = document.querySelector("#save-board");
 const progressRange = document.querySelector("#progress-range");
 const progressValue = document.querySelector("#progress-value");
@@ -310,11 +308,7 @@ function deleteTicket() {
 }
 
 async function loadBoard(forceRemote = false) {
-  const storedToken = localStorage.getItem(TOKEN_KEY);
-  if (storedToken) {
-    tokenInput.value = storedToken;
-    rememberInput.checked = true;
-  }
+  localStorage.removeItem("runecraft-board-admin-token");
 
   if (!forceRemote) {
     const draft = localStorage.getItem(DRAFT_KEY);
@@ -368,7 +362,6 @@ async function saveBoard() {
     return;
   }
 
-  rememberToken();
   saveButton.disabled = true;
   setStatus("Saving board JSON to GitHub.");
 
@@ -396,14 +389,6 @@ async function saveBoard() {
     setStatus(`${error.message}. Draft is still saved in this browser.`, true);
   } finally {
     saveButton.disabled = false;
-  }
-}
-
-function rememberToken() {
-  if (rememberInput.checked) {
-    localStorage.setItem(TOKEN_KEY, tokenInput.value.trim());
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
   }
 }
 
@@ -466,8 +451,6 @@ progressRange.addEventListener("input", () => {
   form.elements.progress.value = progressRange.value;
   updateTicketFromForm();
 });
-rememberInput.addEventListener("change", rememberToken);
-tokenInput.addEventListener("change", rememberToken);
 document.querySelector("#new-ticket").addEventListener("click", createTicket);
 document.querySelector("#delete-ticket").addEventListener("click", deleteTicket);
 document.querySelector("#add-image").addEventListener("click", () => {

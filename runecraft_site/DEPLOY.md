@@ -23,6 +23,8 @@ This site is now ready for static hosting with a small admin board editor.
 
 When adding environment variables in Netlify, put only the value in the value field. For example, `GITHUB_TOKEN` should be set to the token string itself, not `GITHUB_TOKEN=...` or `Bearer ...`. If the admin page says "GitHub rejected GITHUB_TOKEN" or "Bad credentials", the admin token was accepted but GitHub rejected the server-side token value.
 
+The public repository only documents environment variable names and placeholders. The real values stay in Netlify and are read server-side by the function. For a safer setup, make the GitHub token fine-grained, restrict it to this repository, grant only contents read/write, set an expiry date, and rotate it whenever an admin leaves or a token may have been exposed.
+
 For Netlify, keep the site connected to the repository root. The root `netlify.toml` publishes `runecraft_site`, so the Netlify UI can leave the publish directory blank unless you want to override it manually.
 
 ## Editing Board Items

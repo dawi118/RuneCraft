@@ -64,19 +64,11 @@
 }
 
 .token-field,
-.remember-field,
 .ticket-form label,
 .image-card label {
   display: grid;
   gap: .35rem;
   color: #ffe7a2;
-}
-
-.remember-field {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  color: #ead9ad;
 }
 
 .admin-toolbar {
