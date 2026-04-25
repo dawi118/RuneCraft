@@ -1,3 +1,7 @@
+const BOARD_ENDPOINT = "/.netlify/functions/board";
+const STATIC_BOARD_PATH = "data/board.json";
+const LIVE_BOARD_KEY = "runecraft-board-live";
+
 const regionOptions = [
   "Misthalin",
   "Asgarnia",
@@ -241,17 +245,51 @@ function formatNumber(value) {
 
 async function loadBoardData() {
   try {
-    const response = await fetch("data/board.json", { cache: "no-store" });
-    if (!response.ok) throw new Error(`Board data returned ${response.status}`);
+    const response = await fetch(BOARD_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Board endpoint returned ${response.status}`);
     board = normalizeBoard(await response.json());
-    statusEl.textContent = "Board content loaded.";
+    statusEl.textContent = "Board content loaded live from GitHub.";
   } catch {
-    board = normalizeBoard(boardDefaults);
-    statusEl.textContent = "Board content is using bundled fallback data. Hosted deployments load data/board.json.";
+    try {
+      const response = await fetch(STATIC_BOARD_PATH, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Board data returned ${response.status}`);
+      board = normalizeBoard(await response.json());
+      statusEl.textContent = "Board content loaded from data/board.json.";
+    } catch {
+      const browserBoard = readSavedBoardFromBrowser();
+      board = browserBoard || normalizeBoard(boardDefaults);
+      statusEl.textContent = browserBoard
+        ? "Board content loaded from the latest saved admin update in this browser."
+        : "Board content is using bundled fallback data. Hosted deployments load data/board.json.";
+    }
   }
 
   renderBoard();
   handleHash();
+}
+
+function readSavedBoardFromBrowser(rawValue = null) {
+  try {
+    const value = rawValue ?? localStorage.getItem(LIVE_BOARD_KEY);
+    const payload = JSON.parse(value || "{}");
+    return payload?.board ? normalizeBoard(payload.board) : null;
+  } catch {
+    return null;
+  }
+}
+
+function applyLiveBoardUpdate(rawValue) {
+  const savedBoard = readSavedBoardFromBrowser(rawValue);
+  if (!savedBoard) return;
+
+  board = savedBoard;
+  statusEl.textContent = "Board content updated from the latest saved admin change.";
+  renderBoard();
+
+  const hash = window.location.hash.replace("#", "");
+  if (hash.startsWith("build-")) {
+    openBuildLog(hash.replace("build-", ""));
+  }
 }
 
 function groupedBoard() {
@@ -554,6 +592,11 @@ document.querySelectorAll(".region-chip").forEach((chip) => {
 window.addEventListener("hashchange", handleHash);
 regionFilter?.addEventListener("change", renderBoard);
 categoryFilter?.addEventListener("change", renderBoard);
+window.addEventListener("storage", (event) => {
+  if (event.key === LIVE_BOARD_KEY && event.newValue) {
+    applyLiveBoardUpdate(event.newValue);
+  }
+});
 window.addEventListener("scroll", () => {
   document.documentElement.style.setProperty("--scroll-shift", String(window.scrollY));
 }, { passive: true });
