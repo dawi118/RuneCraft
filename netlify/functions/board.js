@@ -33,13 +33,13 @@ exports.handler = async function handler(event) {
 };
 
 function authorize(event) {
-  const expected = process.env.ADMIN_TOKEN;
+  const expected = envSecret("ADMIN_TOKEN");
   if (!expected) {
     throw httpError(503, "ADMIN_TOKEN is not configured for this site");
   }
 
   const header = event.headers.authorization || event.headers.Authorization || "";
-  const token = header.replace(/^Bearer\s+/i, "").trim();
+  const token = cleanSecret(header.replace(/^Bearer\s+/i, ""), "ADMIN_TOKEN");
   if (!token || token !== expected) {
     throw httpError(401, "Invalid admin token");
   }
@@ -87,6 +87,9 @@ async function githubRequest(url, options) {
   const response = await fetch(url, options);
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 401 && body.message === "Bad credentials") {
+      throw httpError(401, "GitHub rejected GITHUB_TOKEN. Check the token value, expiry, and repository access in Netlify environment variables");
+    }
     throw httpError(response.status, body.message || "GitHub request failed");
   }
   return body;
@@ -201,7 +204,26 @@ function boardPath() {
 }
 
 function githubToken() {
-  return process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
+  return envSecret("GITHUB_TOKEN") || envSecret("GH_TOKEN");
+}
+
+function envSecret(name) {
+  return cleanSecret(process.env[name], name);
+}
+
+function cleanSecret(rawValue, name) {
+  let value = String(rawValue || "").trim();
+  if (!value) return "";
+
+  for (let index = 0; index < 3; index += 1) {
+    value = value
+      .replace(/^["']|["']$/g, "")
+      .replace(new RegExp(`^${name}\\s*=\\s*`, "i"), "")
+      .replace(/^Bearer\s+/i, "")
+      .trim();
+  }
+
+  return value;
 }
 
 function respond(statusCode, body, extraHeaders = {}) {

@@ -21,6 +21,8 @@ This site is now ready for static hosting with a small admin board editor.
 5. Create `GITHUB_TOKEN` as a fine-grained GitHub token with read/write access to repository contents. Keep it server-side in Netlify only.
 6. Share `ADMIN_TOKEN` only with low-stakes test admins who should be allowed to publish board changes.
 
+When adding environment variables in Netlify, put only the value in the value field. For example, `GITHUB_TOKEN` should be set to the token string itself, not `GITHUB_TOKEN=...` or `Bearer ...`. If the admin page says "GitHub rejected GITHUB_TOKEN" or "Bad credentials", the admin token was accepted but GitHub rejected the server-side token value.
+
 For Netlify, keep the site connected to the repository root. The root `netlify.toml` publishes `runecraft_site`, so the Netlify UI can leave the publish directory blank unless you want to override it manually.
 
 ## Editing Board Items

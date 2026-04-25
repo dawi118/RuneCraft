@@ -101,6 +101,8 @@ BOARD_FILE_PATH=runecraft_site/data/board.json
 
 Only `ADMIN_TOKEN` and `GITHUB_TOKEN` are required for the default repository path. For production beyond this testing setup, move admin auth to an identity provider or a hosted CMS/database with role-based access.
 
+In Netlify, enter only the secret value in the value field. For example, the `GITHUB_TOKEN` value should be the token itself, not `GITHUB_TOKEN=...` or `Bearer ...`. The function trims those common paste mistakes, but a revoked, expired, or repo-restricted token will still be rejected by GitHub.
+
 ## Editing Build Board Content
 
 Board content is stored in:
