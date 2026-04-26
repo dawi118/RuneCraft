@@ -11,7 +11,8 @@ const regionOptions = [
   "Fremennik Province",
   "Wilderness",
   "Karamja",
-  "Tirannwn Great Kourend",
+  "Tirannwn",
+  "Great Kourend",
   "Varlamore"
 ];
 
@@ -118,28 +119,15 @@ const boardDefaults = {
   ]
 };
 
-const regions = {
-  lumbridge: {
-    name: "Lumbridge",
-    progress: 68,
-    note: "Starter scale is locked. The castle courtyard test is done, and the road out is being measured against Minecraft walking speed."
-  },
-  varrock: {
-    name: "Varrock",
-    progress: 34,
-    note: "Central square massing is in progress. The big challenge is making dense rooftops readable without turning every street into a maze."
-  },
-  falador: {
-    name: "Falador",
-    progress: 18,
-    note: "White-stone palette tests are underway. We are treating the party room and park edge as early silhouette anchors."
-  },
-  ardougne: {
-    name: "Ardougne",
-    progress: 8,
-    note: "Only a rough territory pass exists. The market and river edge are likely to drive the first build decisions."
+const mapRegionStatus = "Terrain is in place. We haven't started building on this yet.";
+const regions = Object.fromEntries(regionOptions.map((name) => [
+  slugify(name),
+  {
+    name,
+    progress: 1,
+    note: mapRegionStatus
   }
-};
+]));
 
 let board = normalizeBoard(boardDefaults);
 
@@ -248,19 +236,17 @@ async function loadBoardData() {
     const response = await fetch(BOARD_ENDPOINT, { cache: "no-store" });
     if (!response.ok) throw new Error(`Board endpoint returned ${response.status}`);
     board = normalizeBoard(await response.json());
-    statusEl.textContent = "Board content loaded live from GitHub.";
+    setBoardStatus("");
   } catch {
     try {
       const response = await fetch(STATIC_BOARD_PATH, { cache: "no-store" });
       if (!response.ok) throw new Error(`Board data returned ${response.status}`);
       board = normalizeBoard(await response.json());
-      statusEl.textContent = "Board content loaded from data/board.json.";
+      setBoardStatus("");
     } catch {
       const browserBoard = readSavedBoardFromBrowser();
       board = browserBoard || normalizeBoard(boardDefaults);
-      statusEl.textContent = browserBoard
-        ? "Board content loaded from the latest saved admin update in this browser."
-        : "Board content is using bundled fallback data. Hosted deployments load data/board.json.";
+      setBoardStatus("");
     }
   }
 
@@ -283,13 +269,19 @@ function applyLiveBoardUpdate(rawValue) {
   if (!savedBoard) return;
 
   board = savedBoard;
-  statusEl.textContent = "Board content updated from the latest saved admin change.";
+  setBoardStatus("");
   renderBoard();
 
   const hash = window.location.hash.replace("#", "");
   if (hash.startsWith("build-")) {
     openBuildLog(hash.replace("build-", ""));
   }
+}
+
+function setBoardStatus(message) {
+  if (!statusEl) return;
+  statusEl.textContent = message;
+  statusEl.hidden = !message;
 }
 
 function groupedBoard() {
@@ -478,7 +470,7 @@ function handleHash() {
 }
 
 function renderRegion(name) {
-  const region = regions[name] || regions.lumbridge;
+  const region = regions[name] || regions[slugify(regionOptions[0])];
   document.querySelector("#region-panel").innerHTML = `
     <h3>${region.name}</h3>
     <p>${region.note}</p>
@@ -486,6 +478,24 @@ function renderRegion(name) {
       <span style="width: ${region.progress}%"></span>
     </div>
   `;
+}
+
+function renderRegionTabs() {
+  const tabsEl = document.querySelector("#region-tabs");
+  if (!tabsEl) return;
+
+  const firstRegion = slugify(regionOptions[0]);
+  tabsEl.innerHTML = regionOptions.map((region, index) => `
+    <button class="region-chip${index === 0 ? " is-active" : ""}" data-region="${escapeHtml(slugify(region))}" type="button">${escapeHtml(region)}</button>
+  `).join("");
+
+  tabsEl.querySelectorAll(".region-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      tabsEl.querySelectorAll(".region-chip").forEach((item) => item.classList.remove("is-active"));
+      chip.classList.add("is-active");
+      renderRegion(chip.dataset.region || firstRegion);
+    });
+  });
 }
 
 function getTaskProgress(task) {
@@ -520,8 +530,9 @@ function categoryLabel(category) {
 
 function progressBarTemplate(progress, tone, label) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  const toneClass = tone === "progress" ? "in-progress" : tone;
   return `
-    <div class="task-progress ${tone}" aria-label="${escapeHtml(label)}">
+    <div class="task-progress ${toneClass}" aria-label="${escapeHtml(label)}">
       <div class="progress-frame">
         <span style="width: ${safeProgress}%"></span>
       </div>
@@ -581,14 +592,6 @@ navToggle?.addEventListener("click", () => {
   navToggle.setAttribute("aria-expanded", String(open));
 });
 
-document.querySelectorAll(".region-chip").forEach((chip) => {
-  chip.addEventListener("click", () => {
-    document.querySelectorAll(".region-chip").forEach((item) => item.classList.remove("is-active"));
-    chip.classList.add("is-active");
-    renderRegion(chip.dataset.region);
-  });
-});
-
 window.addEventListener("hashchange", handleHash);
 regionFilter?.addEventListener("change", renderBoard);
 categoryFilter?.addEventListener("change", renderBoard);
@@ -603,5 +606,6 @@ window.addEventListener("scroll", () => {
 
 renderBoardFilters();
 renderBoard();
-renderRegion("lumbridge");
+renderRegionTabs();
+renderRegion(slugify(regionOptions[0]));
 loadBoardData();

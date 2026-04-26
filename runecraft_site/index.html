@@ -105,11 +105,11 @@
             <div class="section-inner reveal">
               <p class="eyebrow">Lumber Yard</p>
               <h2>What we're building</h2>
-              <p class="lede compact">A live storyboard for the build. Public visitors can follow progress; admins update the board through the secure CMS.</p>
+              <p class="lede compact">A live storyboard for our build. Track our progress for each project we undertake!</p>
             </div>
           </section>
 
-          <section class="section-band">
+          <section class="section-band board-band">
             <div class="section-inner">
               <div class="board-tools reveal">
                 <div class="board-filters" aria-label="Board filters">
@@ -122,7 +122,7 @@
                     <select id="board-category-filter"></select>
                   </label>
                 </div>
-                <span id="board-status" role="status" aria-live="polite">Board content loads from the hosted project data file.</span>
+                <span id="board-status" role="status" aria-live="polite"></span>
               </div>
               <div id="current-build" class="current-build reveal" aria-live="polite"></div>
               <div class="kanban-board" id="kanban-board" aria-label="Project build board"></div>
@@ -141,7 +141,7 @@
           <section class="section-band title-band">
             <div class="section-inner reveal">
               <p class="eyebrow">World Map</p>
-              <h2>The atlas of the build</h2>
+              <h2>The atlas of our build</h2>
               <p class="lede compact">A high-level progress map for the places we want to connect first, from starter towns to the big hubs.</p>
             </div>
           </section>
@@ -151,10 +151,7 @@
                 <img class="map-greyscale" src="assets/img/runecraft-pixel-map.svg" alt="Greyscale no-label Project RuneCraft map to colour as regions are completed.">
               </figure>
               <div class="region-list reveal">
-                <button class="region-chip is-active" data-region="lumbridge" type="button">Lumbridge</button>
-                <button class="region-chip" data-region="varrock" type="button">Varrock</button>
-                <button class="region-chip" data-region="falador" type="button">Falador</button>
-                <button class="region-chip" data-region="ardougne" type="button">Ardougne</button>
+                <div class="region-tabs" id="region-tabs" aria-label="World map regions"></div>
                 <div class="region-panel" id="region-panel"></div>
               </div>
             </div>

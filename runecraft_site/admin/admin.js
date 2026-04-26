@@ -15,7 +15,8 @@ const regionOptions = [
   "Fremennik Province",
   "Wilderness",
   "Karamja",
-  "Tirannwn Great Kourend",
+  "Tirannwn",
+  "Great Kourend",
   "Varlamore"
 ];
 
@@ -51,6 +52,8 @@ const progressRange = document.querySelector("#progress-range");
 const progressValue = document.querySelector("#progress-value");
 const adminRegionFilter = document.querySelector("#admin-region-filter");
 const adminCategoryFilter = document.querySelector("#admin-category-filter");
+const uploadErrorBanner = document.querySelector("#upload-error-banner");
+let uploadErrorTimer = 0;
 
 function shouldLoadRemoteBoard() {
   const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
@@ -481,7 +484,20 @@ function readFileAsBase64(file) {
 function showImageUploadError(message, inlineStatus) {
   const fullMessage = `Image upload failed: ${message}`;
   if (inlineStatus) inlineStatus.textContent = fullMessage;
-  setStatus(fullMessage, true);
+  showUploadErrorBanner(fullMessage);
+  setStatus("Ready for edits.");
+}
+
+function showUploadErrorBanner(message) {
+  if (!uploadErrorBanner) return;
+  window.clearTimeout(uploadErrorTimer);
+  uploadErrorBanner.textContent = message;
+  uploadErrorBanner.hidden = false;
+  uploadErrorBanner.classList.add("is-visible");
+  uploadErrorTimer = window.setTimeout(() => {
+    uploadErrorBanner.classList.remove("is-visible");
+    uploadErrorBanner.hidden = true;
+  }, 5200);
 }
 
 function handleDrag(event) {

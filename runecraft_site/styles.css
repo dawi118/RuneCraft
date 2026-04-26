@@ -483,21 +483,33 @@ h3 {
 }
 
 .title-band {
+  display: grid;
+  align-items: center;
+  min-height: clamp(220px, 24vw, 280px);
+  padding-block: clamp(2.25rem, 5vw, 3.5rem);
   background:
     linear-gradient(120deg, rgba(30,42,26,.96), rgba(45,66,81,.92)),
     #22311f;
   border-bottom: 5px solid #0d0906;
 }
 
+.board-band {
+  padding-top: clamp(1.25rem, 3vw, 2rem);
+}
+
 .board-tools {
-  margin: 0 0 1.2rem;
+  margin: 0 0 .75rem;
 }
 
 .board-filters {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 230px));
   gap: .75rem;
   align-items: end;
+}
+
+.board-filters .filter-control {
+  min-width: 0;
 }
 
 .filter-control {
@@ -636,28 +648,29 @@ h3 {
   position: relative;
   height: 22px;
   border: 3px solid #0c0805;
-  background:
-    linear-gradient(90deg, rgba(255,255,255,.05) 2px, transparent 2px) 0 0 / 18px 100%,
-    #17110d;
+  background: #17110d;
   box-shadow: inset 0 3px 0 rgba(255,255,255,.08), 0 3px 0 rgba(0,0,0,.24);
   overflow: hidden;
 }
 
 .progress-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(90deg, transparent 0 16px, rgba(0,0,0,.38) 16px 18px);
+  display: none;
 }
 
 .progress-frame span {
   display: block;
-  height: 100%;
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: auto;
   width: 0;
   background: #4c4c4c;
 }
 
-.task-progress.progress .progress-frame span {
+.task-progress.in-progress .progress-frame {
+  background: #17110d;
+}
+
+.task-progress.in-progress .progress-frame span {
   background: linear-gradient(#ffe78b, #d39322);
 }
 
@@ -793,6 +806,12 @@ h3 {
 
 .region-list {
   display: grid;
+  gap: .6rem;
+}
+
+.region-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: .6rem;
 }
 
@@ -1113,7 +1132,8 @@ h3 {
   .stat-strip,
   .post-grid,
   .build-facts,
-  .build-gallery {
+  .build-gallery,
+  .region-tabs {
     grid-template-columns: 1fr;
   }
 

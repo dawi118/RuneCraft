@@ -79,6 +79,28 @@
   color: #f0d99b;
 }
 
+.upload-error-banner {
+  position: fixed;
+  z-index: 60;
+  top: 1rem;
+  left: 50%;
+  width: min(720px, calc(100vw - 2rem));
+  padding: .85rem 1rem;
+  border: 4px solid #6d241a;
+  border-radius: var(--radius);
+  color: #ffe9a5;
+  background:
+    linear-gradient(180deg, rgba(255, 226, 122, .12), transparent 42%),
+    #3a1711;
+  box-shadow: var(--shadow);
+  transform: translate(-50%, -140%);
+  transition: transform .22s ease;
+}
+
+.upload-error-banner.is-visible {
+  transform: translate(-50%, 0);
+}
+
 .import-button {
   position: relative;
   overflow: hidden;
