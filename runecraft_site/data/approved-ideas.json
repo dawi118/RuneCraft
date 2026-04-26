@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "title": "Draynor Manor and village approach",
+      "summary": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
+      "region": "Misthalin",
+      "approvedAt": "2026-04-26"
+    },
+    {
+      "title": "Karamja docks and banana route",
+      "summary": "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
+      "region": "Karamja",
+      "approvedAt": "2026-04-26"
+    },
+    {
+      "title": "Grand Exchange market ring",
+      "summary": "A hub zone with market stalls, circular paths, bank flow, and screenshot-friendly overlooks.",
+      "region": "Misthalin",
+      "approvedAt": "2026-04-26"
+    }
+  ]
+}

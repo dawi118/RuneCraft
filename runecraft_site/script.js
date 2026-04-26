@@ -1,6 +1,10 @@
 const BOARD_ENDPOINT = "/.netlify/functions/board";
+const SOCIAL_FEED_ENDPOINT = "/.netlify/functions/social-feed";
 const STATIC_BOARD_PATH = "data/board.json";
+const APPROVED_IDEAS_PATH = "data/approved-ideas.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
+const IDEA_EMAIL = "dm370473@gmail.com";
+const CAROUSEL_INTERVAL_MS = 4200;
 
 const regionOptions = [
   "Misthalin",
@@ -119,6 +123,53 @@ const boardDefaults = {
   ]
 };
 
+const approvedIdeasDefaults = {
+  items: [
+    {
+      title: "Draynor Manor and village approach",
+      summary: "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
+      region: "Misthalin",
+      approvedAt: "2026-04-26"
+    },
+    {
+      title: "Karamja docks and banana route",
+      summary: "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
+      region: "Karamja",
+      approvedAt: "2026-04-26"
+    },
+    {
+      title: "Grand Exchange market ring",
+      summary: "A hub zone with market stalls, circular paths, bank flow, and screenshot-friendly overlooks.",
+      region: "Misthalin",
+      approvedAt: "2026-04-26"
+    }
+  ]
+};
+
+const fallbackSubstackFeed = [
+  {
+    title: "Build notes and world decisions",
+    summary: "Longer posts can hold build mistakes, texture tests, votes, and region write-ups.",
+    image: "assets/img/grand-exchange-stalls.svg",
+    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+    date: "Substack"
+  },
+  {
+    title: "Progress diary",
+    summary: "A place for the story behind each board move and milestone.",
+    image: "assets/img/varrock-rooftops.svg",
+    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+    date: "Substack"
+  },
+  {
+    title: "What comes next",
+    summary: "Short notes on next regions, downloads, and community requests.",
+    image: "assets/img/runecraft-pixel-map.svg",
+    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+    date: "Substack"
+  }
+];
+
 const mapRegionStatus = "Terrain is in place. We haven't started building on this yet.";
 const regions = Object.fromEntries(regionOptions.map((name) => [
   slugify(name),
@@ -142,6 +193,11 @@ const detailSection = document.querySelector("#build-detail");
 const detailArticle = document.querySelector("#build-article");
 const regionFilter = document.querySelector("#board-region-filter");
 const categoryFilter = document.querySelector("#board-category-filter");
+const ideaForm = document.querySelector("#idea-form");
+const ideaFormStatus = document.querySelector("#idea-form-status");
+const approvedIdeasCarousel = document.querySelector("#approved-ideas-carousel");
+const carouselTimers = new Map();
+const timeInvestedStat = document.querySelector("#time-invested-stat");
 
 function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
@@ -231,6 +287,136 @@ function formatNumber(value) {
   return Number.isInteger(value) ? String(value) : String(value).replace(/\.?0+$/, "");
 }
 
+async function loadSubstackFeed() {
+  renderCarousel("substack", fallbackSubstackFeed);
+
+  try {
+    const response = await fetch(SOCIAL_FEED_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Social feed endpoint returned ${response.status}`);
+    const feeds = await response.json();
+    renderCarousel("substack", normalizeFeedItems(feeds.substack, fallbackSubstackFeed, 3));
+  } catch {
+    renderCarousel("substack", fallbackSubstackFeed);
+  }
+}
+
+function renderCompletedBuildCarousel() {
+  const completedBuilds = allTasks()
+    .filter((task) => task.location === "done")
+    .slice(-5)
+    .reverse()
+    .map(completedBuildToCarouselItem);
+
+  renderCarousel("completed-builds", completedBuilds);
+}
+
+function completedBuildToCarouselItem(task) {
+  const primaryImage = task.images[0] || {};
+  return {
+    title: task.name,
+    summary: task.subtitle || task.what || "Completed build.",
+    image: primaryImage.src || "assets/img/grand-exchange-stalls.svg",
+    url: `#build-${task.id}`,
+    date: `${task.region} - ${categoryLabel(task.category)}`,
+    action: "Open build log"
+  };
+}
+
+function normalizeFeedItems(items, fallback, limit) {
+  const normalized = Array.isArray(items)
+    ? items.map((item) => ({
+      title: limitText(item?.title || item?.caption || "Untitled update", 90),
+      summary: limitText(item?.summary || item?.caption || "", 170),
+      image: item?.image || item?.thumbnail || "",
+      url: item?.url || item?.permalink || "",
+      date: formatFeedDate(item?.date || item?.timestamp || "")
+    })).filter((item) => item.title && item.url)
+    : [];
+
+  return (normalized.length ? normalized : fallback).slice(0, limit);
+}
+
+function renderCarousel(feedName, items) {
+  const track = document.querySelector(`#${feedName}-carousel`);
+  const dots = document.querySelector(`#${feedName}-dots`);
+  if (!track || !dots) return;
+
+  const feedItems = items.length ? items : [];
+  if (!feedItems.length) {
+    track.innerHTML = `<p class="carousel-empty">Completed build tickets will appear here when they move to Done.</p>`;
+    dots.innerHTML = "";
+    window.clearInterval(carouselTimers.get(feedName));
+    return;
+  }
+
+  track.innerHTML = feedItems.map((item, index) => carouselCardTemplate(item, index)).join("");
+  dots.innerHTML = feedItems.map((item, index) => `
+    <button class="${index === 0 ? "is-active" : ""}" type="button" data-feed="${escapeHtml(feedName)}" data-slide="${index}" aria-label="Show ${escapeHtml(item.title)}">${index + 1}</button>
+  `).join("");
+
+  setActiveCarouselSlide(feedName, 0);
+  dots.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+      setActiveCarouselSlide(feedName, Number(button.dataset.slide) || 0);
+      startCarousel(feedName, feedItems.length);
+    });
+  });
+  startCarousel(feedName, feedItems.length);
+}
+
+function carouselCardTemplate(item, index) {
+  const image = item.image || "assets/img/grand-exchange-stalls.svg";
+  const summary = item.summary ? `<p>${escapeHtml(item.summary)}</p>` : "";
+  const date = item.date ? `<time>${escapeHtml(item.date)}</time>` : "";
+  const isExternal = /^https?:\/\//i.test(item.url);
+  const linkAttributes = isExternal ? ` target="_blank" rel="noreferrer"` : "";
+  const action = item.action || "Read more";
+  return `
+    <article class="carousel-card${index === 0 ? " is-active" : ""}" data-slide="${index}">
+      <img src="${escapeHtml(image)}" alt="">
+      <div>
+        <h5>${escapeHtml(item.title)}</h5>
+        ${summary}
+        ${date}
+        <p><a href="${escapeHtml(item.url)}"${linkAttributes}>${escapeHtml(action)}</a></p>
+      </div>
+    </article>
+  `;
+}
+
+function setActiveCarouselSlide(feedName, nextIndex) {
+  const cards = [...document.querySelectorAll(`#${feedName}-carousel .carousel-card`)];
+  const dots = [...document.querySelectorAll(`#${feedName}-dots button`)];
+  if (!cards.length) return;
+  const activeIndex = ((nextIndex % cards.length) + cards.length) % cards.length;
+  cards.forEach((card, index) => card.classList.toggle("is-active", index === activeIndex));
+  dots.forEach((dot, index) => dot.classList.toggle("is-active", index === activeIndex));
+}
+
+function startCarousel(feedName, length) {
+  window.clearInterval(carouselTimers.get(feedName));
+  if (length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const timer = window.setInterval(() => {
+    const cards = [...document.querySelectorAll(`#${feedName}-carousel .carousel-card`)];
+    const currentIndex = cards.findIndex((card) => card.classList.contains("is-active"));
+    setActiveCarouselSlide(feedName, currentIndex + 1);
+  }, CAROUSEL_INTERVAL_MS);
+  carouselTimers.set(feedName, timer);
+}
+
+function formatFeedDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function limitText(value, maxLength) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1).trim()}...` : text;
+}
+
 async function loadBoardData() {
   try {
     const response = await fetch(BOARD_ENDPOINT, { cache: "no-store" });
@@ -252,6 +438,16 @@ async function loadBoardData() {
 
   renderBoard();
   handleHash();
+}
+
+async function loadApprovedIdeas() {
+  try {
+    const response = await fetch(APPROVED_IDEAS_PATH, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Approved ideas returned ${response.status}`);
+    renderApprovedIdeas(normalizeApprovedIdeas(await response.json()));
+  } catch {
+    renderApprovedIdeas(normalizeApprovedIdeas(approvedIdeasDefaults));
+  }
 }
 
 function readSavedBoardFromBrowser(rawValue = null) {
@@ -325,6 +521,7 @@ function renderBoardFilters() {
 
 function renderBoard() {
   const groups = groupedBoard();
+  renderTimeInvested();
   renderCurrentBuild(groups.progress[0]);
 
   const columns = [
@@ -343,6 +540,90 @@ function renderBoard() {
   boardEl.querySelectorAll(".open-log").forEach((button) => {
     button.addEventListener("click", () => openBuildLog(button.dataset.id));
   });
+  renderCompletedBuildCarousel();
+}
+
+function normalizeApprovedIdeas(source) {
+  const items = Array.isArray(source?.items) ? source.items : [];
+  return items
+    .map((item) => ({
+      title: String(item?.title || "").trim(),
+      summary: String(item?.summary || "").trim(),
+      region: String(item?.region || "Gielinor").trim(),
+      approvedAt: String(item?.approvedAt || "").trim()
+    }))
+    .filter((item) => item.title && item.summary)
+    .sort((a, b) => Date.parse(b.approvedAt || "1970-01-01") - Date.parse(a.approvedAt || "1970-01-01"))
+    .slice(0, 12);
+}
+
+function renderApprovedIdeas(items) {
+  if (!approvedIdeasCarousel) return;
+
+  if (!items.length) {
+    approvedIdeasCarousel.innerHTML = `
+      <article class="approved-idea-card">
+        <span>No approved ideas yet</span>
+        <h4>Feature list coming soon</h4>
+        <p>Once ideas are reviewed and accepted, the newest ones will appear here.</p>
+      </article>
+    `;
+    return;
+  }
+
+  approvedIdeasCarousel.innerHTML = items.map((item) => `
+    <article class="approved-idea-card">
+      <span>${escapeHtml(item.region)}</span>
+      <h4>${escapeHtml(item.title)}</h4>
+      <p>${escapeHtml(item.summary)}</p>
+    </article>
+  `).join("");
+}
+
+function scrollApprovedIdeas(direction) {
+  if (!approvedIdeasCarousel) return;
+  const firstCard = approvedIdeasCarousel.querySelector(".approved-idea-card");
+  const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 320;
+  approvedIdeasCarousel.scrollBy({
+    left: direction * (cardWidth + 16),
+    behavior: "smooth"
+  });
+}
+
+function handleIdeaFormSubmit(event) {
+  event.preventDefault();
+
+  const formData = new FormData(ideaForm);
+  const idea = String(formData.get("idea") || "").trim();
+  const reason = String(formData.get("reason") || "").trim();
+  const subject = idea ? `RuneCraft idea: ${idea}` : "RuneCraft idea";
+  const body = [
+    "Build idea:",
+    idea || "",
+    "",
+    "Why it matters:",
+    reason || ""
+  ].join("\n");
+
+  window.location.href = `mailto:${IDEA_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  if (ideaFormStatus) {
+    ideaFormStatus.textContent = `Opening an email to ${IDEA_EMAIL}.`;
+  }
+}
+
+function renderTimeInvested() {
+  if (!timeInvestedStat) return;
+  timeInvestedStat.textContent = formatBuildHours(Number(timeInvestedToDate().toFixed(1)));
+}
+
+function timeInvestedToDate() {
+  return board.items.reduce((total, task) => {
+    if (!["progress", "done"].includes(task.location)) return total;
+    const estimatedTotalTime = Number(task.estimatedTotalTime);
+    if (!Number.isFinite(estimatedTotalTime)) return total;
+    if (task.location === "done") return total + estimatedTotalTime;
+    return total + (estimatedTotalTime * (getTaskProgress(task) / 100));
+  }, 0);
 }
 
 function taskTemplate(task, column, index) {
@@ -595,6 +876,12 @@ navToggle?.addEventListener("click", () => {
 window.addEventListener("hashchange", handleHash);
 regionFilter?.addEventListener("change", renderBoard);
 categoryFilter?.addEventListener("change", renderBoard);
+ideaForm?.addEventListener("submit", handleIdeaFormSubmit);
+document.querySelectorAll("[data-idea-scroll]").forEach((button) => {
+  button.addEventListener("click", () => {
+    scrollApprovedIdeas(button.dataset.ideaScroll === "next" ? 1 : -1);
+  });
+});
 window.addEventListener("storage", (event) => {
   if (event.key === LIVE_BOARD_KEY && event.newValue) {
     applyLiveBoardUpdate(event.newValue);
@@ -608,4 +895,6 @@ renderBoardFilters();
 renderBoard();
 renderRegionTabs();
 renderRegion(slugify(regionOptions[0]));
+loadSubstackFeed();
 loadBoardData();
+loadApprovedIdeas();
