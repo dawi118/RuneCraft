@@ -55,9 +55,21 @@ Each board item supports:
 
 The previous admin page used Decap CMS with the GitHub backend. That workflow depends on an OAuth/Git Gateway service; when that service is missing or misconfigured, the GitHub connection can return "Not Found". The current editor keeps the board's JSON source of truth, but moves GitHub writes into a small server-side function so the browser never needs a GitHub OAuth portal or a GitHub token.
 
+## Grand Exchange Updates
+
+The completed-build carousel is populated from the board data and uses the most recent five tickets marked `Done`.
+
+The Substack carousel has local fallback cards. In production, Substack posts are read from:
+
+```text
+https://dhmorgan.substack.com/feed
+```
+
+Set `SUBSTACK_FEED_URL` in Netlify only if that changes.
+
 ## Donation Link
 
-The Asgarnian ale donation button points to:
+The donation button points to:
 
 ```text
 https://gofund.me/7dc3fc541
