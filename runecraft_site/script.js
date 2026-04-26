@@ -181,6 +181,7 @@ const detailArticle = document.querySelector("#build-article");
 const regionFilter = document.querySelector("#board-region-filter");
 const categoryFilter = document.querySelector("#board-category-filter");
 const carouselTimers = new Map();
+const timeInvestedStat = document.querySelector("#time-invested-stat");
 
 function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
@@ -490,6 +491,7 @@ function renderBoardFilters() {
 
 function renderBoard() {
   const groups = groupedBoard();
+  renderTimeInvested();
   renderCurrentBuild(groups.progress[0]);
 
   const columns = [
@@ -509,6 +511,21 @@ function renderBoard() {
     button.addEventListener("click", () => openBuildLog(button.dataset.id));
   });
   renderCompletedBuildCarousel();
+}
+
+function renderTimeInvested() {
+  if (!timeInvestedStat) return;
+  timeInvestedStat.textContent = formatBuildHours(Number(timeInvestedToDate().toFixed(1)));
+}
+
+function timeInvestedToDate() {
+  return board.items.reduce((total, task) => {
+    if (!["progress", "done"].includes(task.location)) return total;
+    const estimatedTotalTime = Number(task.estimatedTotalTime);
+    if (!Number.isFinite(estimatedTotalTime)) return total;
+    if (task.location === "done") return total + estimatedTotalTime;
+    return total + (estimatedTotalTime * (getTaskProgress(task) / 100));
+  }, 0);
 }
 
 function taskTemplate(task, column, index) {
