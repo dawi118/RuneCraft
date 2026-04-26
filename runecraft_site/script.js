@@ -182,6 +182,7 @@ const categoryFilter = document.querySelector("#board-category-filter");
 const ideaForm = document.querySelector("#idea-form");
 const ideaFormStatus = document.querySelector("#idea-form-status");
 const approvedIdeasCarousel = document.querySelector("#approved-ideas-carousel");
+const timeInvestedStat = document.querySelector("#time-invested-stat");
 
 function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
@@ -371,6 +372,7 @@ function renderBoardFilters() {
 
 function renderBoard() {
   const groups = groupedBoard();
+  renderTimeInvested();
   renderCurrentBuild(groups.progress[0]);
 
   const columns = [
@@ -457,6 +459,21 @@ function handleIdeaFormSubmit(event) {
   if (ideaFormStatus) {
     ideaFormStatus.textContent = `Opening an email to ${IDEA_EMAIL}.`;
   }
+}
+
+function renderTimeInvested() {
+  if (!timeInvestedStat) return;
+  timeInvestedStat.textContent = formatBuildHours(Number(timeInvestedToDate().toFixed(1)));
+}
+
+function timeInvestedToDate() {
+  return board.items.reduce((total, task) => {
+    if (!["progress", "done"].includes(task.location)) return total;
+    const estimatedTotalTime = Number(task.estimatedTotalTime);
+    if (!Number.isFinite(estimatedTotalTime)) return total;
+    if (task.location === "done") return total + estimatedTotalTime;
+    return total + (estimatedTotalTime * (getTaskProgress(task) / 100));
+  }, 0);
 }
 
 function taskTemplate(task, column, index) {
