@@ -968,9 +968,90 @@ h3 {
   padding: .7rem;
 }
 
+.form-note {
+  margin: -.25rem 0 0;
+  color: #5e3a20;
+}
+
 .parchment .idea-card h3,
 .parchment .idea-card p {
   color: #ffe9a5;
+}
+
+.approved-ideas {
+  margin-top: 1.25rem;
+}
+
+.approved-ideas-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .8rem;
+}
+
+.approved-ideas h3 {
+  margin: .15rem 0 0;
+  color: #ffe9a5;
+}
+
+.carousel-controls {
+  display: flex;
+  gap: .45rem;
+}
+
+.carousel-control {
+  min-height: 40px;
+  padding: .45rem .7rem;
+  border: 3px solid #160e09;
+  border-radius: var(--radius);
+  background: linear-gradient(#594232, #2f1e16);
+  color: #ffe9a5;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0,0,0,.28);
+}
+
+.approved-carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: inline mandatory;
+  scrollbar-color: var(--gold) rgba(0,0,0,.28);
+  padding-bottom: .55rem;
+}
+
+.approved-idea-card {
+  flex: 0 0 min(460px, 86vw);
+  min-height: 210px;
+  scroll-snap-align: start;
+  padding: 1rem;
+  border: 4px solid #5e3a20;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.08)),
+    #7b4e2d;
+  color: #fff1bb;
+}
+
+.approved-idea-card span {
+  display: inline-block;
+  margin-bottom: .55rem;
+  padding: .2rem .45rem;
+  border: 2px solid rgba(255, 226, 122, .3);
+  border-radius: var(--radius);
+  color: var(--gold-bright);
+  background: rgba(0,0,0,.22);
+}
+
+.approved-idea-card h4 {
+  margin: 0 0 .45rem;
+  color: #fff1bb;
+}
+
+.approved-idea-card p {
+  margin: 0;
+  color: #f1dfa9;
 }
 
 .quest-layout {
@@ -1091,6 +1172,10 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .approved-idea-card {
+    flex-basis: min(420px, 72vw);
+  }
+
   .post-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1115,6 +1200,15 @@ h3 {
   .build-facts,
   .build-gallery {
     grid-template-columns: 1fr;
+  }
+
+  .approved-ideas-header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .approved-idea-card {
+    flex-basis: min(340px, 88vw);
   }
 
   .section-band {

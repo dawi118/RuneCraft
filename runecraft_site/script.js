@@ -1,6 +1,8 @@
 const BOARD_ENDPOINT = "/.netlify/functions/board";
 const STATIC_BOARD_PATH = "data/board.json";
+const APPROVED_IDEAS_PATH = "data/approved-ideas.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
+const IDEA_EMAIL = "dm370473@gmail.com";
 
 const regionOptions = [
   "Misthalin",
@@ -118,6 +120,29 @@ const boardDefaults = {
   ]
 };
 
+const approvedIdeasDefaults = {
+  items: [
+    {
+      title: "Draynor Manor and village approach",
+      summary: "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
+      region: "Misthalin",
+      approvedAt: "2026-04-26"
+    },
+    {
+      title: "Karamja docks and banana route",
+      summary: "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
+      region: "Karamja",
+      approvedAt: "2026-04-26"
+    },
+    {
+      title: "Grand Exchange market ring",
+      summary: "A hub zone with market stalls, circular paths, bank flow, and screenshot-friendly overlooks.",
+      region: "Misthalin",
+      approvedAt: "2026-04-26"
+    }
+  ]
+};
+
 const regions = {
   lumbridge: {
     name: "Lumbridge",
@@ -154,6 +179,9 @@ const detailSection = document.querySelector("#build-detail");
 const detailArticle = document.querySelector("#build-article");
 const regionFilter = document.querySelector("#board-region-filter");
 const categoryFilter = document.querySelector("#board-category-filter");
+const ideaForm = document.querySelector("#idea-form");
+const ideaFormStatus = document.querySelector("#idea-form-status");
+const approvedIdeasCarousel = document.querySelector("#approved-ideas-carousel");
 
 function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
@@ -268,6 +296,16 @@ async function loadBoardData() {
   handleHash();
 }
 
+async function loadApprovedIdeas() {
+  try {
+    const response = await fetch(APPROVED_IDEAS_PATH, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Approved ideas returned ${response.status}`);
+    renderApprovedIdeas(normalizeApprovedIdeas(await response.json()));
+  } catch {
+    renderApprovedIdeas(normalizeApprovedIdeas(approvedIdeasDefaults));
+  }
+}
+
 function readSavedBoardFromBrowser(rawValue = null) {
   try {
     const value = rawValue ?? localStorage.getItem(LIVE_BOARD_KEY);
@@ -351,6 +389,74 @@ function renderBoard() {
   boardEl.querySelectorAll(".open-log").forEach((button) => {
     button.addEventListener("click", () => openBuildLog(button.dataset.id));
   });
+}
+
+function normalizeApprovedIdeas(source) {
+  const items = Array.isArray(source?.items) ? source.items : [];
+  return items
+    .map((item) => ({
+      title: String(item?.title || "").trim(),
+      summary: String(item?.summary || "").trim(),
+      region: String(item?.region || "Gielinor").trim(),
+      approvedAt: String(item?.approvedAt || "").trim()
+    }))
+    .filter((item) => item.title && item.summary)
+    .sort((a, b) => Date.parse(b.approvedAt || "1970-01-01") - Date.parse(a.approvedAt || "1970-01-01"))
+    .slice(0, 12);
+}
+
+function renderApprovedIdeas(items) {
+  if (!approvedIdeasCarousel) return;
+
+  if (!items.length) {
+    approvedIdeasCarousel.innerHTML = `
+      <article class="approved-idea-card">
+        <span>No approved ideas yet</span>
+        <h4>Feature list coming soon</h4>
+        <p>Once ideas are reviewed and accepted, the newest ones will appear here.</p>
+      </article>
+    `;
+    return;
+  }
+
+  approvedIdeasCarousel.innerHTML = items.map((item) => `
+    <article class="approved-idea-card">
+      <span>${escapeHtml(item.region)}</span>
+      <h4>${escapeHtml(item.title)}</h4>
+      <p>${escapeHtml(item.summary)}</p>
+    </article>
+  `).join("");
+}
+
+function scrollApprovedIdeas(direction) {
+  if (!approvedIdeasCarousel) return;
+  const firstCard = approvedIdeasCarousel.querySelector(".approved-idea-card");
+  const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 320;
+  approvedIdeasCarousel.scrollBy({
+    left: direction * (cardWidth + 16),
+    behavior: "smooth"
+  });
+}
+
+function handleIdeaFormSubmit(event) {
+  event.preventDefault();
+
+  const formData = new FormData(ideaForm);
+  const idea = String(formData.get("idea") || "").trim();
+  const reason = String(formData.get("reason") || "").trim();
+  const subject = idea ? `RuneCraft idea: ${idea}` : "RuneCraft idea";
+  const body = [
+    "Build idea:",
+    idea || "",
+    "",
+    "Why it matters:",
+    reason || ""
+  ].join("\n");
+
+  window.location.href = `mailto:${IDEA_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  if (ideaFormStatus) {
+    ideaFormStatus.textContent = `Opening an email to ${IDEA_EMAIL}.`;
+  }
 }
 
 function taskTemplate(task, column, index) {
@@ -592,6 +698,12 @@ document.querySelectorAll(".region-chip").forEach((chip) => {
 window.addEventListener("hashchange", handleHash);
 regionFilter?.addEventListener("change", renderBoard);
 categoryFilter?.addEventListener("change", renderBoard);
+ideaForm?.addEventListener("submit", handleIdeaFormSubmit);
+document.querySelectorAll("[data-idea-scroll]").forEach((button) => {
+  button.addEventListener("click", () => {
+    scrollApprovedIdeas(button.dataset.ideaScroll === "next" ? 1 : -1);
+  });
+});
 window.addEventListener("storage", (event) => {
   if (event.key === LIVE_BOARD_KEY && event.newValue) {
     applyLiveBoardUpdate(event.newValue);
@@ -605,3 +717,4 @@ renderBoardFilters();
 renderBoard();
 renderRegion("lumbridge");
 loadBoardData();
+loadApprovedIdeas();

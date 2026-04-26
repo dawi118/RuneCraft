@@ -14,7 +14,7 @@ The app is built with plain HTML, CSS, and JavaScript. It does not require a Jav
 - **JSON-driven content**: Board entries are loaded from `runecraft_site/data/board.json`, with bundled fallback data in `script.js` if the JSON request fails.
 - **World map progress view**: Region chips show progress notes and percentage bars for Lumbridge, Varrock, Falador, and Ardougne.
 - **Support and social area**: The Grand Exchange section includes placeholder social links, progress post cards, an optional blog note area, and a GoFundMe donation link.
-- **Idea submission placeholder**: The Falador Party Room section includes a contact link and placeholder idea form for future community suggestions.
+- **Idea email handoff and approved ideas**: The Falador Party Room section opens an email draft for new suggestions, then shows a carousel of the newest approved ideas from `runecraft_site/data/approved-ideas.json`.
 - **Admin board editor**: The `/admin/` UI can add, edit, delete, import, and export Lumber Yard tickets. In production it saves `runecraft_site/data/board.json` back to GitHub through a Netlify Function.
 - **Static hosting ready**: Netlify configuration and redirects are included for publishing the `runecraft_site` folder.
 
@@ -43,6 +43,7 @@ The app is built with plain HTML, CSS, and JavaScript. It does not require a Jav
     |   |-- fonts/
     |   `-- img/
     `-- data/
+        |-- approved-ideas.json
         `-- board.json
 ```
 
@@ -128,6 +129,19 @@ Each board item supports:
 - `images`
 
 The same fields are exposed in the custom admin editor at `runecraft_site/admin/`.
+
+## Community Idea Storage
+
+The public Party Room page currently avoids storing visitor submissions on the site. The form opens an email draft to `dm370473@gmail.com`, which keeps the static site from collecting personal data before there is a moderated, GDPR-aware submission workflow.
+
+Good future storage options:
+
+- **Netlify Forms**: Fastest fit for this Netlify site. Use spam filtering, a short retention period, a clear privacy notice, and manual review before copying approved ideas into `runecraft_site/data/approved-ideas.json`.
+- **Supabase or another managed Postgres service**: Best fit if submissions need statuses, reviewer notes, deletion requests, audit logs, and an admin queue. Choose an EU region, enable row-level security, and store only the minimum contact details needed.
+- **Hosted form tools such as Typeform or Google Forms**: Quick to launch, but check data processing terms, region controls, retention, access permissions, and export/deletion workflows before using them for public submissions.
+- **GitHub issues or direct commits**: Not recommended for raw user submissions because inappropriate content and personal data can become public, cached, or difficult to erase.
+
+For GDPR compliance, publish a privacy notice before collecting submissions, collect only the idea plus optional contact email, record consent for follow-up, protect the review queue behind admin authentication, reject or delete inappropriate submissions, and keep an approval step between raw submissions and the public "Features we've taken on" carousel.
 
 ## Deployment
 

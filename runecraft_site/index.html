@@ -216,28 +216,42 @@
             <div class="section-inner reveal">
               <p class="eyebrow">Falador Party Room</p>
               <h2>Ideas, corrections, and fan requests.</h2>
-              <p class="lede compact">Tell us which quest spot, bank chest, alleyway, dungeon entrance, or weird little nostalgia corner needs to make the cut.</p>
+              <p class="lede compact">Tell us which quest spot, bank chest, alleyway, dungeon entrance, needs to make the cut.</p>
             </div>
           </section>
           <section class="section-band parchment">
             <div class="section-inner idea-layout">
               <div class="idea-card reveal">
                 <h3>Send an idea</h3>
-                <p>Use this placeholder until the project inbox is ready.</p>
-                <a class="contact-link" href="mailto:your.email@example.com">your.email@example.com</a>
+                <p>Contact us via email and we'll get right back to you when we get the chance.</p>
+                <a class="contact-link" href="mailto:dm370473@gmail.com">dm370473@gmail.com</a>
               </div>
-              <form class="idea-form reveal">
+              <form class="idea-form reveal" id="idea-form">
                 <label>
                   Build idea
-                  <input type="text" placeholder="e.g. Draynor Manor, Port Sarim docks">
+                  <input name="idea" type="text" placeholder="e.g. Draynor Manor, Port Sarim docks">
                 </label>
                 <label>
                   Why it matters
-                  <textarea rows="5" placeholder="Tell us what makes it iconic, useful, or funny."></textarea>
+                  <textarea name="reason" rows="5" placeholder="Tell us what makes it iconic, useful, or funny."></textarea>
                 </label>
-                <button class="button primary" type="button">Submit placeholder</button>
+                <button class="button primary" type="submit">Email idea</button>
+                <p class="form-note" id="idea-form-status" aria-live="polite">Your email app will open before anything is sent.</p>
               </form>
             </div>
+            <section class="section-inner approved-ideas reveal" aria-labelledby="approved-ideas-title">
+              <div class="approved-ideas-header">
+                <div>
+                  <p class="eyebrow">Reviewed requests</p>
+                  <h3 id="approved-ideas-title">Features we've taken on</h3>
+                </div>
+                <div class="carousel-controls" aria-label="Approved idea carousel controls">
+                  <button class="carousel-control" type="button" data-idea-scroll="previous" aria-label="Previous approved idea">Prev</button>
+                  <button class="carousel-control" type="button" data-idea-scroll="next" aria-label="Next approved idea">Next</button>
+                </div>
+              </div>
+              <div class="approved-carousel" id="approved-ideas-carousel" aria-live="polite"></div>
+            </section>
           </section>
         </section>
       </main>
