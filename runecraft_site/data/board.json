@@ -1,19 +1,6 @@
 {
   "items": [
     {
-      "id": "new-ticket",
-      "name": "New build ticket",
-      "subtitle": "",
-      "location": "backlog",
-      "region": "Misthalin",
-      "category": "other",
-      "progress": 0,
-      "estimatedTotalTime": "",
-      "estimatedTimeLeft": "TBC",
-      "what": "",
-      "images": []
-    },
-    {
       "id": "scoping-the-wildy",
       "name": "Scoping the Wildy",
       "subtitle": "Conducting a flyover of the wildy to check for dungeons and what needs to be done.",
