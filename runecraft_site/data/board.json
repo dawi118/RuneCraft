@@ -3,7 +3,7 @@
     {
       "id": "download-supporting-mods",
       "name": "Download supporting mods",
-      "subtitle": "Figure out exactly what we need to build this well. Adding WorldEdit + supporting packs (CUI)",
+      "subtitle": "Figure out exactly what we need to build this well. Adding WorldEdit + supporting packs (CUI).",
       "location": "progress",
       "region": "Misthalin",
       "category": "other",
@@ -11,8 +11,13 @@
       "fanRequest": false,
       "estimatedTotalTime": 6,
       "estimatedTimeLeft": "1 hour 50 minutes",
-      "what": "25/04: Identified WorldEdit mod builds compatible with conquest reforged and trialled in sandbox",
-      "images": []
+      "what": "25/04: Identified WorldEdit mod builds compatible with conquest reforged and trialled in sandbox by building the wizard’s tower.",
+      "images": [
+        {
+          "src": "assets/uploads/1777285250007-66bec20f-395f-4492-9810-0aff121e324e.jpg",
+          "caption": "Wizard’s Tower Exterior POC"
+        }
+      ]
     },
     {
       "id": "identify-gielinor-map",
@@ -30,25 +35,6 @@
         {
           "src": "assets/uploads/1777284936704-img-4787.png",
           "caption": "Black Knights fortress"
-        }
-      ]
-    },
-    {
-      "id": "scoping-the-wildy",
-      "name": "Scoping the Wildy",
-      "subtitle": "Conducting a flyover of the wildy to check for dungeons and what needs to be done.",
-      "location": "done",
-      "region": "Wilderness",
-      "category": "other",
-      "progress": 100,
-      "fanRequest": false,
-      "estimatedTotalTime": 1,
-      "estimatedTimeLeft": "0 hours",
-      "what": "We swept through and took some beautiful pictures!",
-      "images": [
-        {
-          "src": "assets/uploads/1777159353187-screenshot-2026-04-26-at-00-14-35.png",
-          "caption": "Sweeping the Wildy"
         }
       ]
     },
