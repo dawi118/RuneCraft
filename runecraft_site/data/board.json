@@ -1,17 +1,45 @@
 {
   "items": [
     {
+      "id": "wizard-s-tower",
+      "name": "Wizard's Tower",
+      "subtitle": "Our first building! Testing out WorldEdit on the Wizard's Tower near Draynor. Trialling a landscaping - foundation planning - walls and exterior - roof exterior - decorate exterior - design interior - design underground - lighting - homely touches. Includes connecting bridge",
+      "location": "progress",
+      "region": "Misthalin",
+      "category": "building",
+      "progress": 1,
+      "fanRequest": false,
+      "estimatedTotalTime": 10,
+      "estimatedTimeLeft": "9 hours 50 minutes",
+      "what": "Quest not started!",
+      "images": []
+    },
+    {
+      "id": "lumbridge-west-exterior",
+      "name": "Lumbridge West exterior",
+      "subtitle": "Building the chapel, houses, paths, flora, graveyard and bridge. Don't forget Bob's axes!",
+      "location": "backlog",
+      "region": "Misthalin",
+      "category": "building",
+      "progress": 0,
+      "fanRequest": false,
+      "estimatedTotalTime": 20,
+      "estimatedTimeLeft": "20 hours",
+      "what": "Quest not started!",
+      "images": []
+    },
+    {
       "id": "agree-block-palette",
       "name": "Agree block palette",
       "subtitle": "Test out and agree palette for housing and landmarks across Misthalin.",
-      "location": "progress",
+      "location": "backlog",
       "region": "Misthalin",
       "category": "other",
-      "progress": 5,
+      "progress": 0,
       "fanRequest": false,
       "estimatedTotalTime": 1,
       "estimatedTimeLeft": "1 hour",
-      "what": "Tested out on wizard's tower, let's use this palette.",
+      "what": "Quest not yet started!",
       "images": [
         {
           "src": "assets/uploads/1777319296894-600px-wizards-tower.png",
@@ -23,14 +51,14 @@
       "id": "download-supporting-mods",
       "name": "Download supporting mods",
       "subtitle": "Figure out exactly what we need to build this well. Adding WorldEdit + supporting packs (CUI).",
-      "location": "progress",
+      "location": "done",
       "region": "Misthalin",
       "category": "other",
-      "progress": 70,
+      "progress": 100,
       "fanRequest": false,
       "estimatedTotalTime": 6,
-      "estimatedTimeLeft": "1 hour 50 minutes",
-      "what": "25/04: Identified WorldEdit mod builds compatible with conquest reforged and trialled in sandbox by building the wizard’s tower.",
+      "estimatedTimeLeft": "0 hours",
+      "what": "25/04: Identified WorldEdit mod builds compatible with conquest reforged and trialled in sandbox by building a wizard’s tower POC.\n\n27/04: Investigated Ardacraft's modpacks - some good content including Conquest:Architects and Conquest:Hearthfire (as well as minor packs). We decided not to include Create at this stage. We will use native tree functionality. \n\nQuest Complete!",
       "images": [
         {
           "src": "assets/uploads/1777285250007-66bec20f-395f-4492-9810-0aff121e324e.jpg",
@@ -49,7 +77,7 @@
       "fanRequest": false,
       "estimatedTotalTime": 5,
       "estimatedTimeLeft": "0 hours",
-      "what": "26/04: We’ve had a look at a few options for maps and found some great contenders. Major thanks to Nosferatu for the excellent foundations of their map design - we will be building from this 👍",
+      "what": "26/04: We’ve had a look at a few options for maps and found some great contenders. Major thanks to Nosferatu8 for the excellent foundations of their map design - we will be building from this 👍\n\nQuest complete!",
       "images": [
         {
           "src": "assets/uploads/1777284936704-img-4787.png",
@@ -81,9 +109,9 @@
       ]
     },
     {
-      "id": "lumbridge-build",
-      "name": "Lumbridge build",
-      "subtitle": "Our first major build ticket! Foundations, castle walls, chapel, houses, paths, flora, graveyard and bridge.",
+      "id": "lumbridge-castle-build",
+      "name": "Lumbridge Castle build",
+      "subtitle": "Our first major build ticket! Foundations, castle walls, and castle design.",
       "location": "backlog",
       "region": "Misthalin",
       "category": "building",
@@ -91,7 +119,7 @@
       "fanRequest": false,
       "estimatedTotalTime": 20,
       "estimatedTimeLeft": "20 hours",
-      "what": "To be started.",
+      "what": "Quest not yet started!",
       "images": [
         {
           "src": "assets/img/lumbridge-courtyard.svg",
