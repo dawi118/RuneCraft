@@ -756,13 +756,32 @@ h3 {
 }
 
 .open-log {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
   justify-self: start;
+  min-height: 32px;
+  padding: .2rem .55rem .2rem .25rem;
+  border: 2px solid rgba(255, 226, 122, .34);
+  border-radius: 6px;
   color: var(--gold-bright);
-  border: 0;
-  background: transparent;
-  padding: .15rem 0;
+  background: rgba(0,0,0,.2);
   cursor: pointer;
-  text-decoration: underline;
+  font: inherit;
+  font-size: .9rem;
+  text-decoration: none;
+}
+
+.open-log:hover,
+.open-log:focus-visible {
+  border-color: var(--gold);
+  background: #4b3222;
+}
+
+.open-log img {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
 }
 
 .detail-view {
@@ -788,6 +807,70 @@ h3 {
 
 .build-primary-image {
   margin: 0;
+}
+
+.build-image-carousel {
+  display: grid;
+  gap: .65rem;
+}
+
+.build-image-track {
+  position: relative;
+  min-height: 360px;
+}
+
+.build-image-slide {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+.build-image-slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.build-image-controls {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 36px;
+  gap: .55rem;
+  align-items: center;
+}
+
+.build-image-controls > button,
+.build-image-dots button {
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid rgba(255, 226, 122, .32);
+  border-radius: 0;
+  color: var(--gold-bright);
+  background: #2f2118;
+  cursor: pointer;
+}
+
+.build-image-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .35rem;
+}
+
+.build-image-controls button.is-active,
+.build-image-controls button:hover,
+.build-image-controls button:focus-visible {
+  border-color: var(--gold);
+  background: #4b3222;
+}
+
+.build-image-carousel .build-primary-image img {
+  min-height: 0;
 }
 
 .build-hero img {
@@ -927,7 +1010,11 @@ h3 {
 
 .exchange-grid.section-inner {
   margin: 0 auto;
-  grid-template-columns: minmax(180px, .72fr) minmax(0, 1.55fr) minmax(220px, .73fr);
+  align-items: start;
+  grid-template-columns: minmax(0, 1.55fr) minmax(240px, .85fr);
+  grid-template-areas:
+    "feed donation"
+    "feed social";
 }
 
 .social-panel,
@@ -939,9 +1026,18 @@ h3 {
 }
 
 .social-panel {
+  grid-area: social;
   display: grid;
   align-content: start;
   gap: .65rem;
+}
+
+.feed-panel {
+  grid-area: feed;
+}
+
+.donation-panel {
+  grid-area: donation;
 }
 
 .social-panel a,
@@ -982,6 +1078,7 @@ h3 {
 .carousel-track {
   position: relative;
   min-height: 176px;
+  transition: min-height .25s ease;
 }
 
 .carousel-card {
@@ -1337,6 +1434,14 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .exchange-grid.section-inner {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "feed"
+      "donation"
+      "social";
+  }
+
   .approved-idea-card {
     flex-basis: min(420px, 72vw);
   }
@@ -1379,6 +1484,10 @@ h3 {
   }
 
   .carousel-track {
+    min-height: 300px;
+  }
+
+  .build-image-track {
     min-height: 300px;
   }
 
