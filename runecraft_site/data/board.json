@@ -1,6 +1,20 @@
 {
   "items": [
     {
+      "id": "identify-gielinor-map",
+      "name": "Identify Gielinor map",
+      "subtitle": "Scout out different options for the foundation of Gielinor. Scan ProjectMC and forums for pre-designed terrain in WorldPainter.",
+      "location": "done",
+      "region": "Misthalin",
+      "category": "landscape",
+      "progress": 6,
+      "fanRequest": false,
+      "estimatedTotalTime": 5,
+      "estimatedTimeLeft": "4 hours 40 minutes",
+      "what": "We’ve had a look at a few options for maps and found some great contenders. Major thanks to Nosferstu for their map design - we will be using this 👍",
+      "images": []
+    },
+    {
       "id": "scoping-the-wildy",
       "name": "Scoping the Wildy",
       "subtitle": "Conducting a flyover of the wildy to check for dungeons and what needs to be done.",
