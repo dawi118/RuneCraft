@@ -80,7 +80,7 @@ function normalizeBoard(source) {
       const baseId = slugify(item?.id || fallbackId);
       const id = uniqueId(baseId, seen);
       const progress = clampProgress(item?.progress, item?.location);
-      const location = normalizeLocation(item?.location, progress);
+      const location = normalizeLocation(item?.location);
       const estimatedTotalTime = normalizeBuildHours(item?.estimatedTotalTime);
       return {
         id,
@@ -133,8 +133,7 @@ function text(value) {
   return String(value ?? "").trim();
 }
 
-function normalizeLocation(location, progress = 0) {
-  if (Number(progress) >= 100) return "done";
+function normalizeLocation(location) {
   const value = String(location || "").toLowerCase().replace(/\s+/g, "-");
   if (["progress", "in-progress", "inprogress"].includes(value)) return "progress";
   if (["done", "complete", "completed"].includes(value)) return "done";
@@ -335,7 +334,7 @@ function readTicketFromForm() {
     id: uniqueIdForCurrent(slugify(form.elements.name.value || "ticket")),
     name: text(form.elements.name.value || "Untitled ticket"),
     subtitle: text(form.elements.subtitle.value),
-    location: normalizeLocation(form.elements.location.value, progress),
+    location: normalizeLocation(form.elements.location.value),
     region: normalizeRegion(form.elements.region.value),
     category: normalizeCategory(form.elements.category.value),
     progress,

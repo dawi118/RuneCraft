@@ -188,7 +188,7 @@ function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
   const items = sourceItems.map((item, index) => {
     const progress = getClampedProgress(item.progress, item.location);
-    const location = normalizeLocation(item.location, progress);
+    const location = normalizeLocation(item.location);
     const estimatedTotalTime = normalizeBuildHours(item.estimatedTotalTime || item.duration);
     const images = Array.isArray(item.images) ? item.images : (item.image ? [{ src: item.image, caption: "" }] : []);
     return {
@@ -223,8 +223,7 @@ function normalizeFanRequest(value) {
   return ["yes", "y", "true", "1"].includes(normalized);
 }
 
-function normalizeLocation(location, progress = 0) {
-  if (Number(progress) >= 100) return "done";
+function normalizeLocation(location) {
   const value = String(location || "").toLowerCase().replace(/\s+/g, "-");
   if (["progress", "in-progress", "inprogress"].includes(value)) return "progress";
   if (["done", "complete", "completed"].includes(value)) return "done";
