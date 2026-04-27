@@ -4,13 +4,13 @@
       "id": "agree-block-palette",
       "name": "Agree block palette",
       "subtitle": "Test out and agree palette for housing and landmarks across Misthalin.",
-      "location": "backlog",
+      "location": "done",
       "region": "Misthalin",
       "category": "other",
-      "progress": 0,
+      "progress": 100,
       "fanRequest": false,
       "estimatedTotalTime": 1,
-      "estimatedTimeLeft": "1 hour",
+      "estimatedTimeLeft": "0 hours",
       "what": "Not started yet!",
       "images": []
     },
@@ -57,35 +57,16 @@
       ]
     },
     {
-      "id": "varrock-square-and-rooftops",
-      "name": "Varrock square and rooftops",
-      "subtitle": "Banks, streets, roofs, walls, market stalls, and the first dense city. To break up into smaller tickets.",
+      "id": "lumbridge-build-west",
+      "name": "Lumbridge build West",
+      "subtitle": "Our first major build ticket! Landscapes, foundations, castle walls, chapel, houses, paths, flora, graveyard and bridge west of the river Lum.",
       "location": "backlog",
       "region": "Misthalin",
       "category": "building",
       "progress": 0,
       "fanRequest": false,
-      "estimatedTotalTime": 40,
-      "estimatedTimeLeft": "40 hours",
-      "what": "Not started.",
-      "images": [
-        {
-          "src": "assets/img/varrock-rooftops.svg",
-          "caption": "Current roof palette and street density test."
-        }
-      ]
-    },
-    {
-      "id": "lumbridge-build",
-      "name": "Lumbridge build",
-      "subtitle": "Our first major build ticket! Foundations, castle walls, chapel, houses, paths, flora, graveyard and bridge.",
-      "location": "backlog",
-      "region": "Misthalin",
-      "category": "building",
-      "progress": 0,
-      "fanRequest": false,
-      "estimatedTotalTime": 20,
-      "estimatedTimeLeft": "20 hours",
+      "estimatedTotalTime": 30,
+      "estimatedTimeLeft": "30 hours",
       "what": "To be started.",
       "images": [
         {
