@@ -20,8 +20,8 @@
       ]
     },
     {
-      "id": "identify-gielinor-map",
-      "name": "Identify Gielinor map",
+      "id": "identify-foundation-map",
+      "name": "Identify foundation map",
       "subtitle": "Scout out different options for the foundation of Gielinor. Scan ProjectMC and forums for pre-designed terrain in WorldPainter.",
       "location": "done",
       "region": "Misthalin",
@@ -34,55 +34,26 @@
       "images": [
         {
           "src": "assets/uploads/1777284936704-img-4787.png",
-          "caption": "Black Knights fortress"
-        }
-      ]
-    },
-    {
-      "id": "draynor-manor-and-village-approaches",
-      "name": "Draynor Manor and village approaches",
-      "subtitle": "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
-      "location": "done",
-      "region": "Misthalin",
-      "category": "building",
-      "progress": 36,
-      "fanRequest": false,
-      "estimatedTotalTime": 15,
-      "estimatedTimeLeft": "9 hours 40 minutes",
-      "what": "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
-      "images": []
-    },
-    {
-      "id": "karamja-docks-and-banana-route",
-      "name": "Karamja docks and banana route",
-      "subtitle": "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
-      "location": "backlog",
-      "region": "Karamja",
-      "category": "infrastructure",
-      "progress": 0,
-      "fanRequest": true,
-      "estimatedTotalTime": 12,
-      "estimatedTimeLeft": "12 hours",
-      "what": "We are testing water scale, shore transitions, and how much island compression still feels right.",
-      "images": [
+          "caption": "Wilderness"
+        },
         {
-          "src": "assets/img/runecraft-pixel-map.svg",
-          "caption": "Route planning view for the Port Sarim to Karamja crossing."
+          "src": "assets/uploads/1777285605171-27f51d27-a0c4-483f-a7f7-83c01a1c78a3.jpg",
+          "caption": "Black Knights’ fortress"
         }
       ]
     },
     {
       "id": "varrock-square-and-rooftops",
       "name": "Varrock square and rooftops",
-      "subtitle": "Banks, streets, roof language, market stalls, and the first dense city pass.",
-      "location": "progress",
+      "subtitle": "Banks, streets, roofs, walls, market stalls, and the first dense city. To break up into smaller tickets.",
+      "location": "backlog",
       "region": "Misthalin",
       "category": "building",
-      "progress": 70,
+      "progress": 0,
       "fanRequest": false,
-      "estimatedTotalTime": 38,
-      "estimatedTimeLeft": "11 hours 20 minutes",
-      "what": "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
+      "estimatedTotalTime": 40,
+      "estimatedTimeLeft": "40 hours",
+      "what": "Not started.",
       "images": [
         {
           "src": "assets/img/varrock-rooftops.svg",
@@ -91,36 +62,17 @@
       ]
     },
     {
-      "id": "grand-exchange",
-      "name": "Grand Exchange market ring",
-      "subtitle": "A hub zone with market stalls, circular paths, bank flow, and screenshot-friendly overlooks.",
-      "location": "progress",
-      "region": "Misthalin",
-      "category": "infrastructure",
-      "progress": 32,
-      "fanRequest": false,
-      "estimatedTotalTime": 28,
-      "estimatedTimeLeft": "19 hours",
-      "what": "The stall rhythm, central floor shape, and first donor board location are roughed in.",
-      "images": [
-        {
-          "src": "assets/img/grand-exchange-stalls.svg",
-          "caption": "Market stall layout and donor-board sightline test."
-        }
-      ]
-    },
-    {
-      "id": "lumbridge-courtyard",
-      "name": "Lumbridge courtyard scale test",
-      "subtitle": "A starter-area proof of scale for castle walls, chapel angle, paths, and bridge distance.",
-      "location": "done",
+      "id": "lumbridge-build",
+      "name": "Lumbridge Build",
+      "subtitle": "Our first major build ticket! Foundations, castle walls, chapel, houses, paths, flora, graveyard and bridge.",
+      "location": "backlog",
       "region": "Misthalin",
       "category": "building",
-      "progress": 100,
+      "progress": 0,
       "fanRequest": false,
-      "estimatedTotalTime": 7,
-      "estimatedTimeLeft": "0 hours",
-      "what": "We settled the first scale rules, chose a castle palette, and created path widths that work in Minecraft first-person.",
+      "estimatedTotalTime": 20,
+      "estimatedTimeLeft": "20 hours",
+      "what": "To be started.",
       "images": [
         {
           "src": "assets/img/lumbridge-courtyard.svg",
