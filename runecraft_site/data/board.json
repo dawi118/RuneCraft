@@ -11,8 +11,13 @@
       "fanRequest": false,
       "estimatedTotalTime": 1,
       "estimatedTimeLeft": "1 hour",
-      "what": "Not started yet!",
-      "images": []
+      "what": "Tested out on wizard's tower, let's use this palette.",
+      "images": [
+        {
+          "src": "assets/uploads/1777319296894-600px-wizards-tower.png",
+          "caption": "Wizards tower"
+        }
+      ]
     },
     {
       "id": "download-supporting-mods",
