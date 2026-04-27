@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
-  <title id="title">World</title>
-  <circle cx="32" cy="32" r="25" fill="#090909" opacity=".72"/>
-  <circle cx="32" cy="32" r="22" fill="#4578b0"/>
-  <path fill="#78ad52" d="M18 20h12v7H18zm13 8h9v7H29zm-6 9h14v8H25zm18-15h7v12h-8v-6h-5v-6zM13 33h10v9h-7v-4h-3z"/>
-  <path fill="#d6c08a" d="M42 43h9v6h-9zM20 47h10v4H20z"/>
-</svg>
