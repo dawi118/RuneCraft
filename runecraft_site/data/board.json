@@ -34,14 +34,14 @@
       "images": []
     },
     {
-      "id": "karamja-docks",
+      "id": "karamja-docks-and-banana-route",
       "name": "Karamja docks and banana route",
       "subtitle": "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
       "location": "backlog",
       "region": "Karamja",
       "category": "infrastructure",
       "progress": 0,
-      "fanRequest": false,
+      "fanRequest": true,
       "estimatedTotalTime": 12,
       "estimatedTimeLeft": "12 hours",
       "what": "We are testing water scale, shore transitions, and how much island compression still feels right.",
@@ -59,10 +59,10 @@
       "location": "progress",
       "region": "Misthalin",
       "category": "building",
-      "progress": 62,
+      "progress": 70,
       "fanRequest": false,
       "estimatedTotalTime": 38,
-      "estimatedTimeLeft": "14 hours 30 minutes",
+      "estimatedTimeLeft": "11 hours 20 minutes",
       "what": "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
       "images": [
         {
