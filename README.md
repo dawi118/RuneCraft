@@ -142,7 +142,9 @@ Each board item supports:
 - `what`
 - `images`
 
-The same fields are exposed in the custom admin editor at `runecraft_site/admin/`.
+The same fields are exposed in the custom admin editor at `runecraft_site/admin/`. Use the `General` region for tickets that do not belong to a specific map region. When a ticket is moved to `done`, the editor and board API normalize its progress to `100`.
+
+The admin image uploader accepts up to 10 images per ticket. JPEG, PNG, and WebP photos up to 10 MB are compressed in the browser before upload so the Netlify Function payload stays below the platform request limit.
 
 ## Community Idea Storage
 

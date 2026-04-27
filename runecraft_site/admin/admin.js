@@ -3,10 +3,14 @@ const STATIC_BOARD_PATH = "../data/board.json";
 const DRAFT_KEY = "runecraft-board-admin-draft";
 const LIVE_BOARD_KEY = "runecraft-board-live";
 const MAX_IMAGES = 10;
-const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
+const MAX_SOURCE_IMAGE_SIZE = 10 * 1024 * 1024;
+const MAX_UPLOAD_SIZE = 4 * 1024 * 1024;
+const COMPRESSED_IMAGE_MIME = "image/jpeg";
 const ACCEPTED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]);
+const COMPRESSIBLE_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 
 const regionOptions = [
+  "General",
   "Misthalin",
   "Asgarnia",
   "Kandarin",
@@ -138,6 +142,7 @@ function normalizeLocation(location, progress = 0) {
 }
 
 function clampProgress(progress, location) {
+  if (normalizeLocation(location) === "done") return 100;
   if (Number.isFinite(Number(progress))) {
     return Math.max(0, Math.min(100, Math.round(Number(progress))));
   }
@@ -146,7 +151,7 @@ function clampProgress(progress, location) {
 
 function normalizeRegion(region) {
   const match = regionOptions.find((option) => option.toLowerCase() === String(region || "").trim().toLowerCase());
-  return match || "Misthalin";
+  return match || "General";
 }
 
 function normalizeCategory(category) {
@@ -443,9 +448,10 @@ async function uploadImageToGitHub(file, inlineStatus) {
   }
 
   if (inlineStatus) inlineStatus.textContent = `Uploading ${file.name}...`;
-  setStatus(`Uploading image ${file.name}.`);
+  setStatus(file.size > MAX_UPLOAD_SIZE ? `Preparing image ${file.name}.` : `Uploading image ${file.name}.`);
 
-  const data = await readFileAsBase64(file);
+  const prepared = await prepareImageForUpload(file);
+  setStatus(prepared.wasCompressed ? `Uploading compressed image ${file.name}.` : `Uploading image ${file.name}.`);
   const response = await fetch(ADMIN_ENDPOINT, {
     method: "POST",
     headers: {
@@ -453,9 +459,9 @@ async function uploadImageToGitHub(file, inlineStatus) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      fileName: file.name,
-      contentType: file.type,
-      data
+      fileName: prepared.fileName,
+      contentType: prepared.contentType,
+      data: prepared.data
     })
   });
   const result = await response.json().catch(() => ({}));
@@ -472,25 +478,134 @@ function validateImageFile(file) {
   if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
     throw new Error(`"${file.name}" is not a supported image. Choose a PNG, JPG, GIF, WebP, or SVG file.`);
   }
-  if (file.size > MAX_IMAGE_SIZE) {
-    throw new Error(`"${file.name}" is too large. Image uploads must be 4 MB or smaller.`);
+  if (file.size > MAX_SOURCE_IMAGE_SIZE) {
+    throw new Error(`"${file.name}" is too large. Image uploads must be 10 MB or smaller.`);
+  }
+  if (file.size > MAX_UPLOAD_SIZE && !COMPRESSIBLE_IMAGE_TYPES.has(file.type)) {
+    throw new Error(`"${file.name}" is too large for direct upload. Use a JPEG, PNG, or WebP photo up to 10 MB, or keep GIF/SVG uploads under 4 MB.`);
   }
 }
 
+async function prepareImageForUpload(file) {
+  if (file.size <= MAX_UPLOAD_SIZE) {
+    return {
+      fileName: file.name,
+      contentType: file.type,
+      data: await readFileAsBase64(file),
+      wasCompressed: false
+    };
+  }
+
+  const compressed = await compressImageFile(file);
+  if (compressed.blob.size > MAX_UPLOAD_SIZE) {
+    throw new Error(`"${file.name}" could not be compressed enough for upload. Try exporting it closer to 4 MB.`);
+  }
+
+  return {
+    fileName: jpegFileName(file.name),
+    contentType: COMPRESSED_IMAGE_MIME,
+    data: await readBlobAsBase64(compressed.blob),
+    wasCompressed: true
+  };
+}
+
+async function compressImageFile(file) {
+  const image = await loadImageForCompression(file);
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error(`"${file.name}" could not be prepared for upload.`);
+
+  const maxDimension = 2400;
+  let scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+  let quality = 0.88;
+  let blob = null;
+
+  for (let attempt = 0; attempt < 9; attempt += 1) {
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    blob = await canvasToBlob(canvas, COMPRESSED_IMAGE_MIME, quality);
+    if (blob.size <= MAX_UPLOAD_SIZE) break;
+
+    if (quality > 0.62) {
+      quality -= 0.1;
+    } else {
+      scale *= 0.82;
+      quality = 0.82;
+    }
+  }
+
+  revokeLoadedImage(image);
+  return { blob };
+}
+
+async function loadImageForCompression(file) {
+  if ("createImageBitmap" in window) {
+    try {
+      return await createImageBitmap(file);
+    } catch {
+      // Fall back to HTMLImageElement below.
+    }
+  }
+
+  const url = URL.createObjectURL(file);
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      image.dataset.objectUrl = url;
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error(`"${file.name}" could not be loaded as an image.`));
+    };
+    image.src = url;
+  });
+}
+
+function revokeLoadedImage(image) {
+  if (typeof image.close === "function") {
+    image.close();
+    return;
+  }
+  if (image.dataset?.objectUrl) {
+    URL.revokeObjectURL(image.dataset.objectUrl);
+  }
+}
+
+function canvasToBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("The browser could not compress this image."));
+    }, type, quality);
+  });
+}
+
+function jpegFileName(fileName) {
+  return `${String(fileName || "story-image").replace(/\.[^.]+$/, "")}.jpg`;
+}
+
 function readFileAsBase64(file) {
+  return readBlobAsBase64(file);
+}
+
+function readBlobAsBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       const value = String(reader.result || "");
       const base64 = value.includes(",") ? value.split(",").pop() : value;
       if (!base64) {
-        reject(new Error(`Could not read "${file.name}". Try exporting the image again, then upload it once more.`));
+        reject(new Error("Could not read this image. Try exporting it again, then upload it once more."));
         return;
       }
       resolve(base64);
     });
-    reader.addEventListener("error", () => reject(reader.error || new Error(`The browser could not read "${file.name}". Check the file and try again.`)));
-    reader.readAsDataURL(file);
+    reader.addEventListener("error", () => reject(reader.error || new Error("The browser could not read this image. Check the file and try again.")));
+    reader.readAsDataURL(blob);
   });
 }
 
@@ -560,7 +675,7 @@ function createTicket() {
     name: "New build ticket",
     subtitle: "",
     location: "backlog",
-    region: "Misthalin",
+    region: "General",
     category: "other",
     progress: 0,
     fanRequest: false,

@@ -52,6 +52,10 @@ Each board item supports:
 - Images
 - Image captions
 
+Use the `General` region for tickets that do not belong to one map region. Moving a ticket to Done automatically saves its progress as 100%.
+
+JPEG, PNG, and WebP photos up to 10 MB can be added in the admin editor; larger files are compressed in-browser before the Netlify Function receives them. GIF and SVG uploads must remain below the function-safe direct upload size.
+
 ## Why this replaced Decap
 
 The previous admin page used Decap CMS with the GitHub backend. That workflow depends on an OAuth/Git Gateway service; when that service is missing or misconfigured, the GitHub connection can return "Not Found". The current editor keeps the board's JSON source of truth, but moves GitHub writes into a small server-side function so the browser never needs a GitHub OAuth portal or a GitHub token.

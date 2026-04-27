@@ -37,6 +37,7 @@ collections:
                 name: "region"
                 widget: "select"
                 options:
+                  - "General"
                   - "Misthalin"
                   - "Asgarnia"
                   - "Kandarin"
@@ -45,7 +46,8 @@ collections:
                   - "Fremennik Province"
                   - "Wilderness"
                   - "Karamja"
-                  - "Tirannwn Great Kourend"
+                  - "Tirannwn"
+                  - "Great Kourend"
                   - "Varlamore"
               - label: "Type"
                 name: "category"

@@ -6,6 +6,7 @@ const IDEA_EMAIL = "dm370473@gmail.com";
 const CAROUSEL_INTERVAL_MS = 4200;
 
 const regionOptions = [
+  "General",
   "Misthalin",
   "Asgarnia",
   "Kandarin",
@@ -18,6 +19,7 @@ const regionOptions = [
   "Great Kourend",
   "Varlamore"
 ];
+const mapRegionOptions = regionOptions.filter((region) => region !== "General");
 
 const categoryOptions = [
   ["landscape", "Landscape"],
@@ -152,7 +154,7 @@ const fallbackSubstackFeed = [
 ];
 
 const mapRegionStatus = "Terrain is in place. We haven't started building on this yet.";
-const regions = Object.fromEntries(regionOptions.map((name) => [
+const regions = Object.fromEntries(mapRegionOptions.map((name) => [
   slugify(name),
   {
     name,
@@ -229,7 +231,7 @@ function normalizeLocation(location, progress = 0) {
 
 function normalizeRegion(region) {
   const match = regionOptions.find((option) => option.toLowerCase() === String(region || "").trim().toLowerCase());
-  return match || "Misthalin";
+  return match || "General";
 }
 
 function normalizeCategory(category) {
@@ -728,7 +730,7 @@ function handleHash() {
 }
 
 function renderRegion(name) {
-  const region = regions[name] || regions[slugify(regionOptions[0])];
+  const region = regions[name] || regions[slugify(mapRegionOptions[0])];
   document.querySelector("#region-panel").innerHTML = `
     <h3>${region.name}</h3>
     <p>${region.note}</p>
@@ -742,8 +744,8 @@ function renderRegionTabs() {
   const tabsEl = document.querySelector("#region-tabs");
   if (!tabsEl) return;
 
-  const firstRegion = slugify(regionOptions[0]);
-  tabsEl.innerHTML = regionOptions.map((region, index) => `
+  const firstRegion = slugify(mapRegionOptions[0]);
+  tabsEl.innerHTML = mapRegionOptions.map((region, index) => `
     <button class="region-chip${index === 0 ? " is-active" : ""}" data-region="${escapeHtml(slugify(region))}" type="button">${escapeHtml(region)}</button>
   `).join("");
 
@@ -761,6 +763,7 @@ function getTaskProgress(task) {
 }
 
 function getClampedProgress(progress, location) {
+  if (normalizeLocation(location) === "done") return 100;
   if (Number.isFinite(Number(progress))) {
     return Math.max(0, Math.min(100, Number(progress)));
   }
@@ -871,6 +874,6 @@ window.addEventListener("scroll", () => {
 renderBoardFilters();
 renderBoard();
 renderRegionTabs();
-renderRegion(slugify(regionOptions[0]));
+renderRegion(slugify(mapRegionOptions[0]));
 loadSubstackFeed();
 loadBoardData();

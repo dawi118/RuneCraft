@@ -3,6 +3,7 @@ const DEFAULT_BRANCH = "main";
 const DEFAULT_BOARD_PATH = "runecraft_site/data/board.json";
 const DEFAULT_UPLOADS_PATH = "runecraft_site/assets/uploads";
 const REGION_OPTIONS = [
+  "General",
   "Misthalin",
   "Asgarnia",
   "Kandarin",
@@ -11,7 +12,8 @@ const REGION_OPTIONS = [
   "Fremennik Province",
   "Wilderness",
   "Karamja",
-  "Tirannwn Great Kourend",
+  "Tirannwn",
+  "Great Kourend",
   "Varlamore"
 ];
 const CATEGORY_OPTIONS = ["landscape", "monument", "building", "infrastructure", "other"];
@@ -260,7 +262,7 @@ function normalizeUpload(payload) {
     throw httpError(400, "Image upload data was empty");
   }
   if (buffer.length > MAX_UPLOAD_BYTES) {
-    throw httpError(413, "Image upload is too large. Use an image that is 4 MB or smaller");
+    throw httpError(413, "Image upload is too large after compression. Use an image that is 10 MB or smaller, or export it closer to 4 MB");
   }
 
   return {
@@ -284,6 +286,7 @@ function normalizeLocation(location, progress = 0) {
 }
 
 function clampProgress(progress, location) {
+  if (normalizeLocation(location) === "done") return 100;
   if (Number.isFinite(Number(progress))) {
     return Math.max(0, Math.min(100, Math.round(Number(progress))));
   }
@@ -292,7 +295,7 @@ function clampProgress(progress, location) {
 
 function normalizeRegion(region) {
   const match = REGION_OPTIONS.find((option) => option.toLowerCase() === String(region || "").trim().toLowerCase());
-  return match || "Misthalin";
+  return match || "General";
 }
 
 function normalizeCategory(category) {
