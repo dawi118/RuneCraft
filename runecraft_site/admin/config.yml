@@ -21,7 +21,7 @@ collections:
           - label: "Board Items"
             name: "items"
             widget: "list"
-            summary: "{{fields.name}} - {{fields.location}} - {{fields.progress}}%"
+            summary: "{{fields.name}} - {{fields.location}} - Fan request: {{fields.fanRequest}}"
             fields:
               - { label: "ID", name: "id", widget: "string", hint: "Unique slug, e.g. varrock-core. Use lowercase letters, numbers and hyphens." }
               - { label: "Name", name: "name", widget: "string" }
@@ -56,6 +56,7 @@ collections:
                   - { label: "Building", value: "building" }
                   - { label: "Infrastructure", value: "infrastructure" }
                   - { label: "Other", value: "other" }
+              - { label: "Fan request", name: "fanRequest", widget: "boolean", default: false, required: false }
               - { label: "Progress (%)", name: "progress", widget: "number", min: 0, max: 100, value_type: "int" }
               - { label: "Estimated build time (hours)", name: "estimatedTotalTime", widget: "number", min: 0, value_type: "float" }
               - { label: "Estimated time left", name: "estimatedTimeLeft", widget: "string", required: false }

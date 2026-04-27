@@ -44,6 +44,7 @@ Each board item supports:
 - Location: backlog, in progress, done
 - Region
 - Type: landscape, monument, building, infrastructure, other
+- Fan request: yes/no
 - Progress percentage
 - Estimated build time in hours
 - Estimated time left, calculated from build time and progress

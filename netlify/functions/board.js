@@ -220,6 +220,7 @@ function normalizeBoard(source) {
         region: normalizeRegion(item?.region),
         category: normalizeCategory(item?.category),
         progress,
+        fanRequest: normalizeFanRequest(item?.fanRequest ?? item?.fan_request ?? item?.["fan request"]),
         estimatedTotalTime,
         estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
         what: limitText(item?.what || "", 4000),
@@ -266,6 +267,12 @@ function normalizeUpload(payload) {
     fileName: uploadFileName(payload.fileName, contentType),
     content
   };
+}
+
+function normalizeFanRequest(value) {
+  if (typeof value === "boolean") return value;
+  const normalized = String(value || "").trim().toLowerCase();
+  return ["yes", "y", "true", "1"].includes(normalized);
 }
 
 function normalizeLocation(location, progress = 0) {

@@ -86,6 +86,7 @@ function normalizeBoard(source) {
         region: normalizeRegion(item?.region),
         category: normalizeCategory(item?.category),
         progress,
+        fanRequest: normalizeFanRequest(item?.fanRequest ?? item?.fan_request ?? item?.["fan request"]),
         estimatedTotalTime,
         estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
         what: text(item?.what || ""),
@@ -101,6 +102,16 @@ function normalizeImages(images) {
     src: text(image?.src || ""),
     caption: text(image?.caption || "")
   })).filter((image) => image.src);
+}
+
+function normalizeFanRequest(value) {
+  if (typeof value === "boolean") return value;
+  const normalized = String(value || "").trim().toLowerCase();
+  return ["yes", "y", "true", "1"].includes(normalized);
+}
+
+function fanRequestLabel(value) {
+  return normalizeFanRequest(value) ? "Yes" : "No";
 }
 
 function uniqueId(baseId, seen) {
@@ -229,7 +240,7 @@ function ticketRowTemplate(ticket) {
   return `
     <button class="ticket-row${selectedClass}" type="button" data-id="${escapeHtml(ticket.id)}">
       <strong>${escapeHtml(ticket.name)}</strong>
-      <span>${escapeHtml(ticket.progress)}% complete</span>
+      <span>Fan request: ${escapeHtml(fanRequestLabel(ticket.fanRequest))}</span>
       <span>${escapeHtml(ticket.region)} / ${escapeHtml(categoryLabel(ticket.category))}</span>
       <span>${escapeHtml(ticket.estimatedTimeLeft)} left</span>
     </button>
@@ -265,6 +276,7 @@ function renderForm() {
   form.elements.region.value = ticket.region;
   form.elements.category.value = ticket.category;
   form.elements.progress.value = ticket.progress;
+  form.elements.fanRequest.value = ticket.fanRequest ? "yes" : "no";
   progressRange.value = ticket.progress;
   progressValue.textContent = `${ticket.progress}%`;
   form.elements.estimatedTotalTime.value = ticket.estimatedTotalTime;
@@ -322,6 +334,7 @@ function readTicketFromForm() {
     region: normalizeRegion(form.elements.region.value),
     category: normalizeCategory(form.elements.category.value),
     progress,
+    fanRequest: normalizeFanRequest(form.elements.fanRequest.value),
     estimatedTotalTime,
     estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
     what: text(form.elements.what.value),
@@ -368,7 +381,7 @@ function updateTicketFromForm(event) {
   formTitle.textContent = ticket.name;
   markDirty();
 
-  if (previousId !== ticket.id || previousLocation !== ticket.location || event?.target?.name === "region" || event?.target?.name === "category") {
+  if (previousId !== ticket.id || previousLocation !== ticket.location || event?.target?.name === "region" || event?.target?.name === "category" || event?.target?.name === "fanRequest") {
     renderBoard();
   }
 }
@@ -550,6 +563,7 @@ function createTicket() {
     region: "Misthalin",
     category: "other",
     progress: 0,
+    fanRequest: false,
     estimatedTotalTime: "",
     estimatedTimeLeft: "TBC",
     what: "",

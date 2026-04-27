@@ -1,7 +1,6 @@
 const BOARD_ENDPOINT = "/.netlify/functions/board";
 const SOCIAL_FEED_ENDPOINT = "/.netlify/functions/social-feed";
 const STATIC_BOARD_PATH = "data/board.json";
-const APPROVED_IDEAS_PATH = "data/approved-ideas.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
 const IDEA_EMAIL = "dm370473@gmail.com";
 const CAROUSEL_INTERVAL_MS = 4200;
@@ -38,6 +37,7 @@ const boardDefaults = {
       region: "Misthalin",
       category: "building",
       progress: 0,
+      fanRequest: false,
       estimatedTotalTime: 14,
       estimatedTimeLeft: "14 hours",
       what: "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
@@ -56,6 +56,7 @@ const boardDefaults = {
       region: "Karamja",
       category: "infrastructure",
       progress: 0,
+      fanRequest: false,
       estimatedTotalTime: 12,
       estimatedTimeLeft: "12 hours",
       what: "We are testing water scale, shore transitions, and how much island compression still feels right.",
@@ -74,6 +75,7 @@ const boardDefaults = {
       region: "Misthalin",
       category: "building",
       progress: 48,
+      fanRequest: false,
       estimatedTotalTime: 38,
       estimatedTimeLeft: "19 hours 50 minutes",
       what: "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
@@ -92,6 +94,7 @@ const boardDefaults = {
       region: "Misthalin",
       category: "infrastructure",
       progress: 32,
+      fanRequest: false,
       estimatedTotalTime: 28,
       estimatedTimeLeft: "19 hours",
       what: "The stall rhythm, central floor shape, and first donor board location are roughed in.",
@@ -110,6 +113,7 @@ const boardDefaults = {
       region: "Misthalin",
       category: "building",
       progress: 100,
+      fanRequest: false,
       estimatedTotalTime: 7,
       estimatedTimeLeft: "0 hours",
       what: "We settled the first scale rules, chose a castle palette, and created path widths that work in Minecraft first-person.",
@@ -119,29 +123,6 @@ const boardDefaults = {
           caption: "Completed castle-courtyard scale and path-width proof."
         }
       ]
-    }
-  ]
-};
-
-const approvedIdeasDefaults = {
-  items: [
-    {
-      title: "Draynor Manor and village approach",
-      summary: "A spooky early-game landmark with twisted trees, locked rooms, and a tight path into the village.",
-      region: "Misthalin",
-      approvedAt: "2026-04-26"
-    },
-    {
-      title: "Karamja docks and banana route",
-      summary: "A compact island landing with ships, crates, palms, and a readable route from Port Sarim.",
-      region: "Karamja",
-      approvedAt: "2026-04-26"
-    },
-    {
-      title: "Grand Exchange market ring",
-      summary: "A hub zone with market stalls, circular paths, bank flow, and screenshot-friendly overlooks.",
-      region: "Misthalin",
-      approvedAt: "2026-04-26"
     }
   ]
 };
@@ -214,6 +195,7 @@ function normalizeBoard(source) {
       region: normalizeRegion(item.region),
       category: normalizeCategory(item.category),
       progress,
+      fanRequest: normalizeFanRequest(item.fanRequest ?? item.fan_request ?? item["fan request"]),
       estimatedTotalTime,
       estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
       what: item.what || item.did || "",
@@ -229,6 +211,12 @@ function normalizeImage(image) {
     src: image?.src || "",
     caption: image?.caption || ""
   };
+}
+
+function normalizeFanRequest(value) {
+  if (typeof value === "boolean") return value;
+  const normalized = String(value || "").trim().toLowerCase();
+  return ["yes", "y", "true", "1"].includes(normalized);
 }
 
 function normalizeLocation(location, progress = 0) {
@@ -440,16 +428,6 @@ async function loadBoardData() {
   handleHash();
 }
 
-async function loadApprovedIdeas() {
-  try {
-    const response = await fetch(APPROVED_IDEAS_PATH, { cache: "no-store" });
-    if (!response.ok) throw new Error(`Approved ideas returned ${response.status}`);
-    renderApprovedIdeas(normalizeApprovedIdeas(await response.json()));
-  } catch {
-    renderApprovedIdeas(normalizeApprovedIdeas(approvedIdeasDefaults));
-  }
-}
-
 function readSavedBoardFromBrowser(rawValue = null) {
   try {
     const value = rawValue ?? localStorage.getItem(LIVE_BOARD_KEY);
@@ -541,31 +519,25 @@ function renderBoard() {
     button.addEventListener("click", () => openBuildLog(button.dataset.id));
   });
   renderCompletedBuildCarousel();
+  renderFanRequestedIdeas();
 }
 
-function normalizeApprovedIdeas(source) {
-  const items = Array.isArray(source?.items) ? source.items : [];
-  return items
-    .map((item) => ({
-      title: String(item?.title || "").trim(),
-      summary: String(item?.summary || "").trim(),
-      region: String(item?.region || "Gielinor").trim(),
-      approvedAt: String(item?.approvedAt || "").trim()
-    }))
-    .filter((item) => item.title && item.summary)
-    .sort((a, b) => Date.parse(b.approvedAt || "1970-01-01") - Date.parse(a.approvedAt || "1970-01-01"))
-    .slice(0, 12);
-}
-
-function renderApprovedIdeas(items) {
+function renderFanRequestedIdeas() {
   if (!approvedIdeasCarousel) return;
+  const items = allTasks()
+    .filter((task) => task.fanRequest)
+    .map((task) => ({
+      title: task.name,
+      summary: task.subtitle || task.what || "A fan-requested build added to the board.",
+      region: task.region
+    }));
 
   if (!items.length) {
     approvedIdeasCarousel.innerHTML = `
       <article class="approved-idea-card">
-        <span>No approved ideas yet</span>
+        <span>No fan requests yet</span>
         <h4>Feature list coming soon</h4>
-        <p>Once ideas are reviewed and accepted, the newest ones will appear here.</p>
+        <p>Once a board story is marked as a fan request, it will appear here.</p>
       </article>
     `;
     return;
@@ -596,13 +568,18 @@ function handleIdeaFormSubmit(event) {
   const formData = new FormData(ideaForm);
   const idea = String(formData.get("idea") || "").trim();
   const reason = String(formData.get("reason") || "").trim();
-  const subject = idea ? `RuneCraft idea: ${idea}` : "RuneCraft idea";
+  const subject = idea ? `Project RuneCraft fan request: ${idea}` : "Project RuneCraft fan request";
   const body = [
-    "Build idea:",
+    "PROJECT RUNECRAFT FAN REQUEST",
+    "==============================",
+    "",
+    "I want to see...",
     idea || "",
     "",
-    "Why it matters:",
-    reason || ""
+    "What it means to me",
+    reason || "",
+    "",
+    "Submitted from the Falador Party Room idea form."
   ].join("\n");
 
   window.location.href = `mailto:${IDEA_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -897,4 +874,3 @@ renderRegionTabs();
 renderRegion(slugify(regionOptions[0]));
 loadSubstackFeed();
 loadBoardData();
-loadApprovedIdeas();

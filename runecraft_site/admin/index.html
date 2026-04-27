@@ -91,8 +91,11 @@
               </select>
             </label>
             <label>
-              Progress (%)
-              <input name="progress" type="number" min="0" max="100" step="1">
+              Fan request
+              <select name="fanRequest">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
             </label>
           </div>
 
@@ -108,7 +111,7 @@
           </div>
 
           <div class="range-row">
-            <input id="progress-range" type="range" min="0" max="100" step="1">
+            <input id="progress-range" name="progress" type="range" min="0" max="100" step="1">
             <span id="progress-value">0%</span>
           </div>
 
