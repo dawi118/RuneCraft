@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
-  <title id="title">Saw</title>
-  <path fill="#050505" d="M5 42h31l16-20h7v9h-5L40 49H5z"/>
-  <path fill="#8b5e32" d="M7 39h26l16-19h7v6h-5L37 45H7z"/>
-  <path fill="#c3c2af" d="M7 34h30l-4 5H7z"/>
-  <path fill="#d7d4c5" d="M35 34h7l-5 6h-7z"/>
-  <path fill="#4d3421" d="M42 23h7l-12 15h-7z"/>
-  <path fill="#c3c2af" d="M6 45h6v7H6zm10 0h6v7h-6zm10 0h6v7h-6z"/>
-</svg>
