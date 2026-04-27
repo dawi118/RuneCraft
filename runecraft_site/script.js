@@ -4,6 +4,7 @@ const STATIC_BOARD_PATH = "data/board.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
 const IDEA_EMAIL = "dm370473@gmail.com";
 const CAROUSEL_INTERVAL_MS = 4200;
+const BUILD_IMAGE_CAROUSEL_INTERVAL_MS = 3600;
 
 const regionOptions = [
   "General",
@@ -180,6 +181,7 @@ const ideaForm = document.querySelector("#idea-form");
 const ideaFormStatus = document.querySelector("#idea-form-status");
 const approvedIdeasCarousel = document.querySelector("#approved-ideas-carousel");
 const carouselTimers = new Map();
+let buildImageCarouselTimer = null;
 const timeInvestedStat = document.querySelector("#time-invested-stat");
 
 function normalizeBoard(source) {
@@ -343,6 +345,9 @@ function renderCarousel(feedName, items) {
   dots.innerHTML = feedItems.map((item, index) => `
     <button class="${index === 0 ? "is-active" : ""}" type="button" data-feed="${escapeHtml(feedName)}" data-slide="${index}" aria-label="Show ${escapeHtml(item.title)}">${index + 1}</button>
   `).join("");
+  track.querySelectorAll("img").forEach((image) => {
+    image.addEventListener("load", () => updateCarouselTrackHeight(feedName), { once: true });
+  });
 
   setActiveCarouselSlide(feedName, 0);
   dots.querySelectorAll("button").forEach((button) => {
@@ -381,6 +386,18 @@ function setActiveCarouselSlide(feedName, nextIndex) {
   const activeIndex = ((nextIndex % cards.length) + cards.length) % cards.length;
   cards.forEach((card, index) => card.classList.toggle("is-active", index === activeIndex));
   dots.forEach((dot, index) => dot.classList.toggle("is-active", index === activeIndex));
+  updateCarouselTrackHeight(feedName);
+}
+
+function updateCarouselTrackHeight(feedName) {
+  const track = document.querySelector(`#${feedName}-carousel`);
+  const activeCard = track?.querySelector(".carousel-card.is-active");
+  if (!track || !activeCard) return;
+
+  window.requestAnimationFrame(() => {
+    const height = activeCard.scrollHeight;
+    if (height > 0) track.style.minHeight = `${height}px`;
+  });
 }
 
 function startCarousel(feedName, length) {
@@ -621,7 +638,10 @@ function taskTemplate(task, column, index) {
         <span>${escapeHtml(task.estimatedTimeLeft)} left</span>
       </div>
       ${progressBarTemplate(progress, tone, `${task.name} progress ${progress}%`)}
-      <button class="open-log" type="button" data-id="${escapeHtml(task.id)}">Open build log</button>
+      <button class="open-log" type="button" data-id="${escapeHtml(task.id)}">
+        <img src="assets/img/image.png" alt="" aria-hidden="true">
+        <span>Open build log</span>
+      </button>
     </article>
   `;
 }
@@ -659,15 +679,11 @@ function openBuildLog(id) {
   if (!task) return;
 
   const primaryImage = task.images[0] || null;
+  clearBuildImageCarousel();
 
   detailArticle.innerHTML = `
     <div class="build-hero${primaryImage ? "" : " no-image"}">
-      ${primaryImage ? `
-        <figure class="build-primary-image">
-          <img src="${escapeHtml(primaryImage.src)}" alt="">
-          ${primaryImage.caption ? `<figcaption>${escapeHtml(primaryImage.caption)}</figcaption>` : ""}
-        </figure>
-      ` : ""}
+      ${primaryImage ? buildImageCarouselTemplate(task.images) : ""}
       <div class="build-copy">
         <p class="eyebrow">${escapeHtml(statusForLocation(task.location))}</p>
         <h2>${escapeHtml(task.name)}</h2>
@@ -684,9 +700,91 @@ function openBuildLog(id) {
     </div>
     ${imageGalleryTemplate(task.images)}
   `;
+  initializeBuildImageCarousel();
   detailSection.hidden = false;
   detailSection.scrollIntoView({ behavior: "smooth", block: "start" });
   history.replaceState(null, "", `#build-${task.id}`);
+}
+
+function buildImageCarouselTemplate(images) {
+  if (images.length < 2) {
+    const image = images[0];
+    return `
+      <figure class="build-primary-image">
+        <img src="${escapeHtml(image.src)}" alt="">
+        ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
+      </figure>
+    `;
+  }
+
+  return `
+    <div class="build-image-carousel" data-build-image-carousel>
+      <div class="build-image-track">
+        ${images.map((image, index) => `
+          <figure class="build-primary-image build-image-slide${index === 0 ? " is-active" : ""}" data-build-image-slide="${index}">
+            <img src="${escapeHtml(image.src)}" alt="">
+            ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
+          </figure>
+        `).join("")}
+      </div>
+      <div class="build-image-controls">
+        <button type="button" data-build-image-prev aria-label="Previous build image">‹</button>
+        <div class="build-image-dots" aria-label="Build images">
+          ${images.map((image, index) => `
+            <button class="${index === 0 ? "is-active" : ""}" type="button" data-build-image-dot="${index}" aria-label="Show image ${index + 1}">${index + 1}</button>
+          `).join("")}
+        </div>
+        <button type="button" data-build-image-next aria-label="Next build image">›</button>
+      </div>
+    </div>
+  `;
+}
+
+function initializeBuildImageCarousel() {
+  const carousel = detailArticle.querySelector("[data-build-image-carousel]");
+  if (!carousel) return;
+
+  const slides = [...carousel.querySelectorAll("[data-build-image-slide]")];
+  const dots = [...carousel.querySelectorAll("[data-build-image-dot]")];
+  const previousButton = carousel.querySelector("[data-build-image-prev]");
+  const nextButton = carousel.querySelector("[data-build-image-next]");
+  if (slides.length < 2) return;
+
+  const setActiveImage = (nextIndex) => {
+    const activeIndex = ((nextIndex % slides.length) + slides.length) % slides.length;
+    slides.forEach((slide, index) => slide.classList.toggle("is-active", index === activeIndex));
+    dots.forEach((dot, index) => dot.classList.toggle("is-active", index === activeIndex));
+  };
+
+  const activeImageIndex = () => slides.findIndex((slide) => slide.classList.contains("is-active"));
+  const restartTimer = () => {
+    clearBuildImageCarousel();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    buildImageCarouselTimer = window.setInterval(() => {
+      setActiveImage(activeImageIndex() + 1);
+    }, BUILD_IMAGE_CAROUSEL_INTERVAL_MS);
+  };
+
+  previousButton?.addEventListener("click", () => {
+    setActiveImage(activeImageIndex() - 1);
+    restartTimer();
+  });
+  nextButton?.addEventListener("click", () => {
+    setActiveImage(activeImageIndex() + 1);
+    restartTimer();
+  });
+  dots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      setActiveImage(Number(dot.dataset.buildImageDot) || 0);
+      restartTimer();
+    });
+  });
+  restartTimer();
+}
+
+function clearBuildImageCarousel() {
+  window.clearInterval(buildImageCarouselTimer);
+  buildImageCarouselTimer = null;
 }
 
 function imageGalleryTemplate(images) {
@@ -704,6 +802,7 @@ function imageGalleryTemplate(images) {
 }
 
 function closeBuildLog() {
+  clearBuildImageCarousel();
   detailSection.hidden = true;
   history.replaceState(null, "", "#lumber");
   document.querySelector("#lumber").scrollIntoView({ behavior: "smooth" });
@@ -715,8 +814,13 @@ function activateTab(tabName) {
   tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tab === selected));
   nav.classList.remove("is-open");
   navToggle?.setAttribute("aria-expanded", "false");
+  clearBuildImageCarousel();
   detailSection.hidden = true;
   refreshReveals();
+  if (selected === "exchange") {
+    updateCarouselTrackHeight("completed-builds");
+    updateCarouselTrackHeight("substack");
+  }
 }
 
 function handleHash() {
@@ -854,6 +958,10 @@ navToggle?.addEventListener("click", () => {
 });
 
 window.addEventListener("hashchange", handleHash);
+window.addEventListener("resize", () => {
+  updateCarouselTrackHeight("completed-builds");
+  updateCarouselTrackHeight("substack");
+});
 regionFilter?.addEventListener("change", renderBoard);
 categoryFilter?.addEventListener("change", renderBoard);
 ideaForm?.addEventListener("submit", handleIdeaFormSubmit);
