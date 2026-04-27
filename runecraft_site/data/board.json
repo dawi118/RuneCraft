@@ -77,7 +77,7 @@
     },
     {
       "id": "lumbridge-build",
-      "name": "Lumbridge Build",
+      "name": "Lumbridge build",
       "subtitle": "Our first major build ticket! Foundations, castle walls, chapel, houses, paths, flora, graveyard and bridge.",
       "location": "backlog",
       "region": "Misthalin",
