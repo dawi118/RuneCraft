@@ -1,6 +1,20 @@
 {
   "items": [
     {
+      "id": "agree-block-palette",
+      "name": "Agree block palette",
+      "subtitle": "Test out and agree palette for housing and landmarks across Misthalin.",
+      "location": "backlog",
+      "region": "Misthalin",
+      "category": "other",
+      "progress": 0,
+      "fanRequest": false,
+      "estimatedTotalTime": 1,
+      "estimatedTimeLeft": "1 hour",
+      "what": "Not started yet!",
+      "images": []
+    },
+    {
       "id": "download-supporting-mods",
       "name": "Download supporting mods",
       "subtitle": "Figure out exactly what we need to build this well. Adding WorldEdit + supporting packs (CUI).",
