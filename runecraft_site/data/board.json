@@ -7,12 +7,49 @@
       "location": "progress",
       "region": "Misthalin",
       "category": "building",
-      "progress": 1,
+      "progress": 50,
       "fanRequest": false,
       "estimatedTotalTime": 10,
-      "estimatedTimeLeft": "9 hours 50 minutes",
-      "what": "Quest not started!",
-      "images": []
+      "estimatedTimeLeft": "5 hours",
+      "what": "28/04 - Check out the pretty pictures! Landscaping, foundations, walls, exterior, roof and environment completed. Cycled through a couple of techniques and building materials for this. We now have some decent stencils (trees, walls, bricks, roads) we can copy to new buildings :)\n\nNext step - interior!",
+      "images": [
+        {
+          "src": "assets/uploads/1777415087990-exterior-wizards-tower-5.jpg",
+          "caption": "exterior - south east"
+        },
+        {
+          "src": "assets/uploads/1777415089285-exterior-wizards-tower-6.jpg",
+          "caption": "exterior - fairy ring"
+        },
+        {
+          "src": "assets/uploads/1777415090776-exterior-wizards-tower-7.jpg",
+          "caption": "exterior - south west"
+        },
+        {
+          "src": "assets/uploads/1777415092189-exterior-wizards-tower-8.jpg",
+          "caption": "exterior - front door"
+        },
+        {
+          "src": "assets/uploads/1777415093811-exterior-wizards-tower-9.jpg",
+          "caption": "exterior - footbridge"
+        },
+        {
+          "src": "assets/uploads/1777415094992-exterior-wizards-tower-1.jpg",
+          "caption": "exterior - north east"
+        },
+        {
+          "src": "assets/uploads/1777415096152-exterior-wizards-tower-2.jpg",
+          "caption": "exterior - north west"
+        },
+        {
+          "src": "assets/uploads/1777415097398-exterior-wizards-tower-3.jpg",
+          "caption": "exterior - front view"
+        },
+        {
+          "src": "assets/uploads/1777415098668-exterior-wizards-tower-4.jpg",
+          "caption": "exterior - aerial view"
+        }
+      ]
     },
     {
       "id": "lumbridge-west-exterior",
@@ -86,6 +123,14 @@
         {
           "src": "assets/uploads/1777285605171-27f51d27-a0c4-483f-a7f7-83c01a1c78a3.jpg",
           "caption": "Black Knights’ fortress"
+        },
+        {
+          "src": "assets/uploads/1777415275308-white-wolf-mountain.jpg",
+          "caption": "white wolf mountain"
+        },
+        {
+          "src": "assets/uploads/1777415331854-fremennik-province-troll-county.jpg",
+          "caption": "fremennik province + troll county"
         }
       ]
     },
