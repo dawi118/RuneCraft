@@ -3,16 +3,20 @@
     {
       "id": "wizard-s-tower",
       "name": "Wizard's Tower",
-      "subtitle": "Our first building! Testing out WorldEdit on the Wizard's Tower near Draynor. Trialling a landscaping - foundation planning - walls and exterior - roof exterior - decorate exterior - design interior - design underground - lighting - homely touches. Includes connecting bridge",
+      "subtitle": "Our first building! Testing out WorldEdit on the Wizard's Tower near Draynor. Trialling a landscaping - foundation planning - walls and exterior - roof exterior - decorating exterior - designing interior - designing underground - placing lighting - finishing homely touches. Includes the connecting bridge with the STASH",
       "location": "progress",
       "region": "Misthalin",
       "category": "building",
-      "progress": 50,
+      "progress": 55,
       "fanRequest": false,
       "estimatedTotalTime": 10,
-      "estimatedTimeLeft": "5 hours",
+      "estimatedTimeLeft": "4 hours 30 minutes",
       "what": "28/04 - Check out the pretty pictures! Landscaping, foundations, walls, exterior, roof and environment completed. Cycled through a couple of techniques and building materials for this. We now have some decent stencils (trees, walls, bricks, roads) we can copy to new buildings :)\n\nNext step - interior!",
       "images": [
+        {
+          "src": "assets/uploads/1777415094992-exterior-wizards-tower-1.jpg",
+          "caption": "exterior - north east"
+        },
         {
           "src": "assets/uploads/1777415087990-exterior-wizards-tower-5.jpg",
           "caption": "exterior - south east"
@@ -32,10 +36,6 @@
         {
           "src": "assets/uploads/1777415093811-exterior-wizards-tower-9.jpg",
           "caption": "exterior - footbridge"
-        },
-        {
-          "src": "assets/uploads/1777415094992-exterior-wizards-tower-1.jpg",
-          "caption": "exterior - north east"
         },
         {
           "src": "assets/uploads/1777415096152-exterior-wizards-tower-2.jpg",
