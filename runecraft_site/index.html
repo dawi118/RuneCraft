@@ -206,12 +206,12 @@
               <a href="https://www.instagram.com/incisive_insights/?hl=en" target="_blank" rel="noreferrer">Instagram</a>
               <a href="https://dhmorgan.substack.com/?utm_campaign=profile_chips" target="_blank" rel="noreferrer">See our blog</a>
             </aside>
-            <aside class="donation-panel reveal">
+            <aside class="donation-panel reveal" data-donation-panel>
               <h3>Buy us an Asgarnian Ale</h3>
               <p>To share, obviously. Current round:</p>
-              <div class="coin-row"><span>&pound;5</span><span>&pound;100</span></div>
-              <div class="progress" aria-label="Donation progress: 5 pounds of 100 pounds">
-                <span style="width: 5%"></span>
+              <div class="coin-row"><span id="donation-raised">&pound;0</span><span id="donation-goal">&pound;150</span></div>
+              <div class="progress" id="donation-progress" role="progressbar" aria-label="Donation progress: 0 pounds of 150 pounds" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0">
+                <span id="donation-progress-bar" style="width: 0%"></span>
               </div>
               <a class="button primary" href="https://gofund.me/7dc3fc541" target="_blank" rel="noreferrer">Donate</a>
             </aside>
@@ -224,7 +224,7 @@
             <div class="section-inner reveal">
               <p class="eyebrow">Falador Party Room</p>
               <h2>Ideas, corrections, and fan requests.</h2>
-              <p class="lede compact">Tell us which quest spot, bank chest, alleyway, dungeon entrance, needs to make the cut.</p>
+              <p class="lede compact">Tell us which quest spot, bank chest, alleyway or dungeon entrance needs to make the cut.</p>
             </div>
           </section>
           <section class="section-band parchment">
