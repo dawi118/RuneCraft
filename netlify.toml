@@ -1,5 +1,6 @@
 [build]
   publish = "runecraft_site"
+  ignore = "node ./scripts/netlify-ignore-build.js"
 
 [functions]
   directory = "netlify/functions"

@@ -15,7 +15,7 @@ The app is built with plain HTML, CSS, and JavaScript. It does not require a Jav
 - **World map progress view**: Region chips show progress notes and percentage bars for Lumbridge, Varrock, Falador, and Ardougne.
 - **Support and social area**: The Grand Exchange section includes Instagram, email, Substack, a completed-build carousel, a Substack carousel, and a GoFundMe donation link.
 - **Idea email handoff and fan-requested features**: The Falador Party Room section opens an email draft for new suggestions, then shows board stories marked as fan requests.
-- **Admin board editor**: The `/admin/` UI can add, edit, delete, import, and export Lumber Yard tickets. In production it saves `runecraft_site/data/board.json` back to GitHub through a Netlify Function.
+- **Admin board editor**: The `/admin/` UI can add, edit, delete, import, and export Lumber Yard tickets. In production it saves board data and new uploads through a Netlify Function backed by Netlify Blobs, so content edits do not require a production redeploy.
 - **Static hosting ready**: Netlify configuration and redirects are included for publishing the `runecraft_site` folder.
 
 ## Project Structure
@@ -78,7 +78,7 @@ Because the board loads `data/board.json` with `fetch`, run the site through a l
    http://localhost:8000/admin/
    ```
 
-The public site works locally with no install step. The admin editor also works locally for drafting, importing, and exporting board JSON. Saving directly to GitHub requires the Netlify Function and environment variables described below.
+The public site works locally with no install step. The admin editor also works locally for drafting, importing, and exporting board JSON. Publishing live data requires the Netlify Function and environment variables described below.
 
 ## Admin Editing Approach
 
@@ -88,24 +88,37 @@ For the low-stakes board workflow, this project now uses a smaller first-party e
 
 - Admins edit the same `runecraft_site/data/board.json` data that the public board already reads.
 - Drafts are saved in the admin's browser while they work.
-- Production saves go through `netlify/functions/board.js`, which commits the JSON to GitHub using a server-side token.
+- Production saves go through `netlify/functions/board.js`, which writes the live board JSON to Netlify Blobs by default.
+- New admin-uploaded images are stored in Netlify Blobs and served by the same function, so they are available immediately without needing a new static deploy.
+- GitHub backup commits are optional. Set `BOARD_GITHUB_BACKUP=true` only if you want each board save mirrored to `runecraft_site/data/board.json`; the included Netlify ignore script skips data-only backup commits.
 - The GitHub token never appears in browser JavaScript, and the admin token is not persisted in browser storage.
 
 Set these environment variables in Netlify:
 
 ```text
 ADMIN_TOKEN=shared-admin-password-for-this-low-stakes-tool
-GITHUB_TOKEN=github-fine-grained-token-with-contents-read-write
 GITHUB_REPO=dawi118/RuneCraft
 GITHUB_BRANCH=main
 BOARD_FILE_PATH=runecraft_site/data/board.json
+BOARD_STORAGE=blob
 ```
 
-Only `ADMIN_TOKEN` and `GITHUB_TOKEN` are required for the default repository path. For production beyond this testing setup, move admin auth to an identity provider or a hosted CMS/database with role-based access.
+Only `ADMIN_TOKEN` is required for the default Blob-backed live board. Keep `BOARD_STORAGE=blob` or leave it unset to use Netlify Blobs. To force the older commit-based mode, set `BOARD_STORAGE=github` and configure `GITHUB_TOKEN`. To mirror Blob saves back to GitHub as a backup, set `BOARD_GITHUB_BACKUP=true` and configure `GITHUB_TOKEN`.
 
-In Netlify, enter only the secret value in the value field. For example, the `GITHUB_TOKEN` value should be the token itself, not `GITHUB_TOKEN=...` or `Bearer ...`. The function trims those common paste mistakes, but a revoked, expired, or repo-restricted token will still be rejected by GitHub.
+In Netlify, enter only the secret value in the value field. For example, if you use `GITHUB_TOKEN`, the value should be the token itself, not `GITHUB_TOKEN=...` or `Bearer ...`. The function trims those common paste mistakes, but a revoked, expired, or repo-restricted token will still be rejected by GitHub.
 
-The names of these environment variables are safe to document publicly. The secret values live in Netlify and are only read by the serverless function at runtime. Use a fine-grained GitHub token restricted to this repository's contents permission, give it an expiry date, and rotate it immediately if it is ever pasted into GitHub, chat, logs, or the browser.
+The names of these environment variables are safe to document publicly. The secret values live in Netlify and are only read by the serverless function at runtime. If GitHub backup mode is enabled, use a fine-grained GitHub token restricted to this repository's contents permission, give it an expiry date, and rotate it immediately if it is ever pasted into GitHub, chat, logs, or the browser.
+
+The root `netlify.toml` also includes a build `ignore` command. If a future backup commit changes only `runecraft_site/data/board.json`, Netlify will skip the build. Build hooks and ordinary code changes still deploy normally.
+
+When the board schema changes, call the board function with `PATCH` and the admin token to rewrite the live Blob board through the current normalizer:
+
+```sh
+curl -X PATCH https://your-site-url/.netlify/functions/board \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+The normalizer preserves unknown board, ticket, and image metadata so future fields such as `completedAt`, `carouselGroup`, or image `focalPoint` survive admin saves.
 
 ## Grand Exchange Updates
 

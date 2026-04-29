@@ -2,6 +2,9 @@ const DEFAULT_REPO = "dawi118/RuneCraft";
 const DEFAULT_BRANCH = "main";
 const DEFAULT_BOARD_PATH = "runecraft_site/data/board.json";
 const DEFAULT_UPLOADS_PATH = "runecraft_site/assets/uploads";
+const DEFAULT_BOARD_BLOB_STORE = "runecraft-board";
+const DEFAULT_BOARD_BLOB_KEY = "board.json";
+const DEFAULT_UPLOADS_BLOB_STORE = "runecraft-uploads";
 const REGION_OPTIONS = [
   "General",
   "Misthalin",
@@ -17,8 +20,34 @@ const REGION_OPTIONS = [
   "Varlamore"
 ];
 const CATEGORY_OPTIONS = ["landscape", "monument", "building", "infrastructure", "other"];
+const BOARD_SCHEMA_VERSION = 2;
 const MAX_IMAGES = 10;
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+const MAX_EXTRA_FIELD_BYTES = 64 * 1024;
+const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion"]);
+const TICKET_KNOWN_KEYS = new Set([
+  "id",
+  "name",
+  "title",
+  "subtitle",
+  "summary",
+  "location",
+  "region",
+  "category",
+  "progress",
+  "fanRequest",
+  "fan_request",
+  "fan request",
+  "estimatedTotalTime",
+  "duration",
+  "estimatedTimeLeft",
+  "what",
+  "did",
+  "why",
+  "image",
+  "images"
+]);
+const IMAGE_KNOWN_KEYS = new Set(["src", "caption"]);
 const IMAGE_TYPES = {
   "image/gif": "gif",
   "image/jpeg": "jpg",
@@ -26,6 +55,7 @@ const IMAGE_TYPES = {
   "image/svg+xml": "svg",
   "image/webp": "webp"
 };
+let blobsModulePromise = null;
 
 exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
@@ -33,7 +63,13 @@ exports.handler = async function handler(event) {
   }
 
   try {
+    const url = requestUrl(event);
     if (event.httpMethod === "GET") {
+      const asset = url.searchParams.get("asset");
+      if (asset) {
+        return readUploadAsset(asset);
+      }
+
       const { board } = await readBoardFile();
       return respond(200, board);
     }
@@ -45,9 +81,19 @@ exports.handler = async function handler(event) {
       const result = await writeBoardFile(board);
       return respond(200, {
         board,
+        storage: result.storage || "",
+        etag: result.etag || "",
         commitSha: result.commit?.sha || "",
-        commitUrl: result.commit?.html_url || ""
+        commitUrl: result.commit?.html_url || "",
+        backupCommitSha: result.backupCommit?.commit?.sha || "",
+        backupCommitUrl: result.backupCommit?.commit?.html_url || ""
       });
+    }
+
+    if (event.httpMethod === "PATCH") {
+      authorize(event);
+      const result = await migrateBoardFile();
+      return respond(200, result);
     }
 
     if (event.httpMethod === "POST") {
@@ -56,14 +102,15 @@ exports.handler = async function handler(event) {
       const upload = normalizeUpload(payload);
       const result = await writeUploadFile(upload);
       return respond(200, {
-        path: publicPathForUpload(result.path),
+        path: result.publicPath || publicPathForUpload(result.path),
         fileName: result.fileName,
+        storage: result.storage || "",
         commitSha: result.commit?.sha || "",
         commitUrl: result.commit?.html_url || ""
       });
     }
 
-    return respond(405, { error: "Method not allowed" }, { Allow: "GET, PUT, POST, OPTIONS" });
+    return respond(405, { error: "Method not allowed" }, { Allow: "GET, PUT, PATCH, POST, OPTIONS" });
   } catch (error) {
     const statusCode = Number(error.statusCode || 500);
     return respond(statusCode, { error: error.message || "Board admin request failed" });
@@ -84,6 +131,15 @@ function authorize(event) {
 }
 
 async function readBoardFile() {
+  if (useBlobStorage()) {
+    const blobBoard = await readBlobBoardFile();
+    if (blobBoard) return blobBoard;
+  }
+
+  return readGitHubBoardFile();
+}
+
+async function readGitHubBoardFile() {
   const token = githubToken();
   if (token) {
     const file = await githubRequest(contentsUrl(true), {
@@ -134,12 +190,22 @@ async function readGitHubFileContent(file, token) {
 }
 
 async function writeBoardFile(board) {
+  if (useBlobStorage()) {
+    const blobResult = await writeBlobBoardFile(board);
+    const backupCommit = await maybeWriteGitHubBoardBackup(board);
+    return { ...blobResult, backupCommit };
+  }
+
+  return writeGitHubBoardFile(board);
+}
+
+async function writeGitHubBoardFile(board) {
   const token = githubToken();
   if (!token) {
     throw httpError(503, "GITHUB_TOKEN is not configured for this site");
   }
 
-  const current = await readBoardFile();
+  const current = await readGitHubBoardFile();
   return githubRequest(contentsUrl(false), {
     method: "PUT",
     headers: githubHeaders(token),
@@ -153,6 +219,10 @@ async function writeBoardFile(board) {
 }
 
 async function writeUploadFile(upload) {
+  if (useBlobStorage()) {
+    return writeBlobUploadFile(upload);
+  }
+
   const token = githubToken();
   if (!token) {
     throw httpError(503, "GITHUB_TOKEN is not configured, so images cannot be uploaded to GitHub");
@@ -170,6 +240,122 @@ async function writeUploadFile(upload) {
   });
 
   return { path: uploadPath, fileName: upload.fileName, commit };
+}
+
+async function readBlobBoardFile() {
+  const store = await blobStore(boardBlobStore(), true);
+  if (!store) return null;
+
+  const board = await store.get(boardBlobKey(), { type: "json", consistency: "strong" });
+  return board ? { board: normalizeBoard(board), sha: "", storage: "blob" } : null;
+}
+
+async function writeBlobBoardFile(board) {
+  const store = await blobStore(boardBlobStore(), true);
+  if (!store) {
+    throw httpError(503, "Netlify Blobs are not available. Install @netlify/blobs or set BOARD_STORAGE=github to use GitHub commits");
+  }
+
+  const result = await store.setJSON(boardBlobKey(), board, {
+    metadata: {
+      updatedAt: new Date().toISOString(),
+      source: "runecraft-admin"
+    }
+  });
+  return { storage: "blob", etag: result.etag || "" };
+}
+
+async function writeBlobUploadFile(upload) {
+  const store = await blobStore(uploadsBlobStore(), true);
+  if (!store) {
+    throw httpError(503, "Netlify Blobs are not available. Install @netlify/blobs or set BOARD_STORAGE=github to use GitHub commits");
+  }
+
+  const bytes = Buffer.from(upload.content, "base64");
+  await store.set(upload.fileName, bytes, {
+    metadata: {
+      contentType: upload.contentType,
+      fileName: upload.fileName,
+      uploadedAt: new Date().toISOString(),
+      source: "runecraft-admin"
+    }
+  });
+
+  return {
+    storage: "blob",
+    path: upload.fileName,
+    publicPath: uploadAssetPublicPath(upload.fileName),
+    fileName: upload.fileName
+  };
+}
+
+async function readUploadAsset(rawAsset) {
+  const fileName = assetFileName(rawAsset);
+  if (!fileName) {
+    return respond(400, { error: "Missing uploaded image name" });
+  }
+
+  const store = await blobStore(uploadsBlobStore(), true);
+  if (!store) {
+    return respond(404, { error: "Uploaded image storage is not available" });
+  }
+
+  const entry = await store.getWithMetadata(fileName, {
+    type: "arrayBuffer",
+    consistency: "strong"
+  });
+  if (!entry?.data) {
+    return respond(404, { error: "Uploaded image was not found" });
+  }
+
+  return {
+    statusCode: 200,
+    headers: {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Type": entry.metadata?.contentType || contentTypeForFileName(fileName)
+    },
+    isBase64Encoded: true,
+    body: Buffer.from(entry.data).toString("base64")
+  };
+}
+
+async function maybeWriteGitHubBoardBackup(board) {
+  if (!githubBackupEnabled()) return null;
+  return writeGitHubBoardFile(board);
+}
+
+async function migrateBoardFile() {
+  if (!useBlobStorage()) {
+    throw httpError(400, "Set BOARD_STORAGE=blob or leave it unset before migrating the live board to Netlify Blobs");
+  }
+
+  const current = await readBoardFile();
+  const board = normalizeBoard(current.board);
+  const result = await writeBlobBoardFile(board);
+  return {
+    board,
+    storage: result.storage,
+    etag: result.etag || "",
+    schemaVersion: BOARD_SCHEMA_VERSION,
+    migratedAt: new Date().toISOString()
+  };
+}
+
+async function blobStore(name, strong = false) {
+  try {
+    const { getStore } = await blobsModule();
+    return strong ? getStore({ name, consistency: "strong" }) : getStore(name);
+  } catch (error) {
+    if (useBlobStorageExplicitly()) {
+      throw error;
+    }
+    return null;
+  }
+}
+
+function blobsModule() {
+  blobsModulePromise ||= import("@netlify/blobs");
+  return blobsModulePromise;
 }
 
 async function githubRequest(url, options) {
@@ -205,6 +391,8 @@ function normalizeBoard(source) {
 
   const seen = new Set();
   return {
+    ...normalizeExtraFields(source, BOARD_KNOWN_KEYS),
+    schemaVersion: BOARD_SCHEMA_VERSION,
     items: items.map((item, index) => {
       const id = slugify(item?.id || item?.name || `ticket-${index + 1}`);
       if (seen.has(id)) throw httpError(400, `Duplicate ticket ID: ${id}`);
@@ -215,6 +403,7 @@ function normalizeBoard(source) {
       const estimatedTotalTime = normalizeBuildHours(item?.estimatedTotalTime);
 
       return {
+        ...normalizeExtraFields(item, TICKET_KNOWN_KEYS),
         id,
         name: limitText(item?.name || "Untitled ticket", 120),
         subtitle: limitText(item?.subtitle || "", 320),
@@ -237,12 +426,57 @@ function normalizeImages(images) {
   const normalized = sourceImages
     .slice(0, MAX_IMAGES)
     .map((image) => ({
+      ...normalizeExtraFields(image, IMAGE_KNOWN_KEYS),
       src: limitText(image?.src || "", 70 * 1024 * 1024),
       caption: limitText(image?.caption || "", 240)
     }))
     .filter((image) => image.src);
 
   return normalized;
+}
+
+function normalizeExtraFields(source, knownKeys) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) return {};
+
+  const extra = {};
+  let usedBytes = 0;
+  for (const [key, value] of Object.entries(source)) {
+    if (knownKeys.has(key) || !isSafeExtraKey(key)) continue;
+    const cleanValue = normalizeExtraValue(value, 0);
+    if (cleanValue === undefined) continue;
+    const entryBytes = Buffer.byteLength(JSON.stringify(cleanValue), "utf8");
+    if (usedBytes + entryBytes > MAX_EXTRA_FIELD_BYTES) continue;
+    extra[key] = cleanValue;
+    usedBytes += entryBytes;
+  }
+  return extra;
+}
+
+function normalizeExtraValue(value, depth) {
+  if (value === null || typeof value === "boolean") return value;
+  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+  if (typeof value === "string") return limitText(value, 4000);
+  if (depth >= 4) return undefined;
+  if (Array.isArray(value)) {
+    return value
+      .slice(0, 50)
+      .map((item) => normalizeExtraValue(item, depth + 1))
+      .filter((item) => item !== undefined);
+  }
+  if (typeof value === "object") {
+    const output = {};
+    for (const [key, childValue] of Object.entries(value)) {
+      if (!isSafeExtraKey(key)) continue;
+      const cleanValue = normalizeExtraValue(childValue, depth + 1);
+      if (cleanValue !== undefined) output[key] = cleanValue;
+    }
+    return output;
+  }
+  return undefined;
+}
+
+function isSafeExtraKey(key) {
+  return /^(?!__proto__$|constructor$|prototype$)[A-Za-z0-9_-]{1,64}$/.test(String(key || ""));
 }
 
 function normalizeUpload(payload) {
@@ -267,7 +501,8 @@ function normalizeUpload(payload) {
 
   return {
     fileName: uploadFileName(payload.fileName, contentType),
-    content
+    content,
+    contentType
   };
 }
 
@@ -379,6 +614,53 @@ function publicPathForUpload(path) {
   return path.replace(/^runecraft_site\//, "");
 }
 
+function boardBlobStore() {
+  return process.env.BOARD_BLOB_STORE || DEFAULT_BOARD_BLOB_STORE;
+}
+
+function boardBlobKey() {
+  return process.env.BOARD_BLOB_KEY || DEFAULT_BOARD_BLOB_KEY;
+}
+
+function uploadsBlobStore() {
+  return process.env.UPLOADS_BLOB_STORE || DEFAULT_UPLOADS_BLOB_STORE;
+}
+
+function uploadAssetPublicPath(fileName) {
+  return `/.netlify/functions/board?asset=${encodeURIComponent(fileName)}`;
+}
+
+function assetFileName(value) {
+  return String(value || "").split(/[\\/]/).pop().replace(/[^a-zA-Z0-9._-]/g, "");
+}
+
+function contentTypeForFileName(fileName) {
+  const extension = String(fileName || "").split(".").pop()?.toLowerCase();
+  const match = Object.entries(IMAGE_TYPES).find(([, imageExtension]) => imageExtension === extension);
+  return match?.[0] || "application/octet-stream";
+}
+
+function useBlobStorage() {
+  return storageMode() !== "github";
+}
+
+function useBlobStorageExplicitly() {
+  return Boolean(process.env.BOARD_STORAGE) && storageMode() === "blob";
+}
+
+function storageMode() {
+  return String(process.env.BOARD_STORAGE || "blob").trim().toLowerCase();
+}
+
+function githubBackupEnabled() {
+  return ["1", "true", "yes", "on"].includes(String(process.env.BOARD_GITHUB_BACKUP || "").trim().toLowerCase());
+}
+
+function requestUrl(event) {
+  const rawUrl = event.rawUrl || `${event.headers?.["x-forwarded-proto"] || "https"}://${event.headers?.host || "runecraft.local"}${event.path || "/"}`;
+  return new URL(rawUrl);
+}
+
 function detectContentType(data) {
   const match = String(data || "").match(/^data:([^;,]+)[;,]/i);
   return match ? match[1] : "";
@@ -424,7 +706,7 @@ function respond(statusCode, body, extraHeaders = {}) {
     statusCode,
     headers: {
       "Access-Control-Allow-Headers": "Authorization, Content-Type",
-      "Access-Control-Allow-Methods": "GET, PUT, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, PUT, PATCH, POST, OPTIONS",
       "Access-Control-Allow-Origin": process.env.ADMIN_ALLOWED_ORIGIN || "*",
       "Cache-Control": "no-store, max-age=0, must-revalidate",
       "CDN-Cache-Control": "no-store",

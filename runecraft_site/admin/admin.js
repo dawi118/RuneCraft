@@ -8,6 +8,31 @@ const MAX_UPLOAD_SIZE = 4 * 1024 * 1024;
 const COMPRESSED_IMAGE_MIME = "image/jpeg";
 const ACCEPTED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]);
 const COMPRESSIBLE_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+const BOARD_SCHEMA_VERSION = 2;
+const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion"]);
+const TICKET_KNOWN_KEYS = new Set([
+  "id",
+  "name",
+  "title",
+  "subtitle",
+  "summary",
+  "location",
+  "region",
+  "category",
+  "progress",
+  "fanRequest",
+  "fan_request",
+  "fan request",
+  "estimatedTotalTime",
+  "duration",
+  "estimatedTimeLeft",
+  "what",
+  "did",
+  "why",
+  "image",
+  "images"
+]);
+const IMAGE_KNOWN_KEYS = new Set(["src", "caption"]);
 
 const regionOptions = [
   "General",
@@ -75,6 +100,8 @@ function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
   const seen = new Set();
   return {
+    ...copyExtraFields(source, BOARD_KNOWN_KEYS),
+    schemaVersion: BOARD_SCHEMA_VERSION,
     items: sourceItems.map((item, index) => {
       const fallbackId = slugify(item?.name || `ticket-${index + 1}`);
       const baseId = slugify(item?.id || fallbackId);
@@ -83,6 +110,7 @@ function normalizeBoard(source) {
       const location = normalizeLocation(item?.location);
       const estimatedTotalTime = normalizeBuildHours(item?.estimatedTotalTime);
       return {
+        ...copyExtraFields(item, TICKET_KNOWN_KEYS),
         id,
         name: text(item?.name || "Untitled ticket"),
         subtitle: text(item?.subtitle || ""),
@@ -103,9 +131,22 @@ function normalizeBoard(source) {
 function normalizeImages(images) {
   const list = Array.isArray(images) ? images : [];
   return list.slice(0, MAX_IMAGES).map((image) => ({
+    ...copyExtraFields(image, IMAGE_KNOWN_KEYS),
     src: text(image?.src || ""),
     caption: text(image?.caption || "")
   })).filter((image) => image.src);
+}
+
+function copyExtraFields(source, knownKeys) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) return {};
+
+  return Object.fromEntries(Object.entries(source).filter(([key]) => {
+    return !knownKeys.has(key) && isSafeExtraKey(key);
+  }));
+}
+
+function isSafeExtraKey(key) {
+  return /^(?!__proto__$|constructor$|prototype$)[A-Za-z0-9_-]{1,64}$/.test(String(key || ""));
 }
 
 function normalizeFanRequest(value) {
@@ -372,8 +413,10 @@ function readTicketFromForm() {
 }
 
 function readImagesFromForm() {
+  const ticket = currentTicket();
   const cards = [...imageList.querySelectorAll(".image-card")];
   const images = cards.map((card) => ({
+    ...copyExtraFields(ticket?.images?.[Number(card.dataset.index)], IMAGE_KNOWN_KEYS),
     src: text(card.querySelector('[data-image-field="src"]').value),
     caption: text(card.querySelector('[data-image-field="caption"]').value)
   })).filter((image) => image.src);
@@ -689,7 +732,7 @@ function publishSavedBoard(savedBoard) {
       board: savedBoard
     }));
   } catch {
-    // Saving to GitHub is the source of truth; local preview sync is best-effort.
+    // The server-side board store is the source of truth; local preview sync is best-effort.
   }
 }
 
@@ -751,7 +794,7 @@ async function loadBoard(forceRemote = false) {
       const remote = await fetch(ADMIN_ENDPOINT, { cache: "no-store" });
       if (remote.ok) {
         board = normalizeBoard(await remote.json());
-        setStatus("Loaded board from GitHub.");
+        setStatus("Loaded live board.");
       } else {
         throw new Error(`Admin endpoint returned ${remote.status}`);
       }
@@ -772,7 +815,7 @@ async function loadBoard(forceRemote = false) {
 async function loadStaticBoard() {
   const fallback = await fetch(STATIC_BOARD_PATH, { cache: "no-store" });
   board = normalizeBoard(await fallback.json());
-  setStatus("Loaded static board JSON. GitHub saves need the Netlify Function.");
+  setStatus("Loaded static board JSON. Publishing needs the Netlify Function.");
 }
 
 async function saveBoard() {
@@ -784,12 +827,12 @@ async function saveBoard() {
 
   const token = tokenInput.value.trim();
   if (!token) {
-    setStatus("Enter the admin token before saving to GitHub.", true);
+    setStatus("Enter the admin token before publishing.", true);
     return;
   }
 
   saveButton.disabled = true;
-  setStatus("Saving board JSON to GitHub.");
+  setStatus("Publishing board updates.");
 
   try {
     const response = await fetch(ADMIN_ENDPOINT, {
@@ -811,7 +854,8 @@ async function saveBoard() {
     renderBoard();
     renderForm();
     updateSaveLabel();
-    setStatus(result.commitUrl ? `Saved to GitHub: ${result.commitUrl}` : "Saved to GitHub.");
+    const backupUrl = result.backupCommitUrl || result.commitUrl;
+    setStatus(backupUrl ? `Published live. GitHub backup: ${backupUrl}` : "Published live without a production redeploy.");
   } catch (error) {
     setStatus(`${error.message}. Draft is still saved in this browser.`, true);
   } finally {
