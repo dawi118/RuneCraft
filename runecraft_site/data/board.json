@@ -1,6 +1,25 @@
 {
   "items": [
     {
+      "id": "share-our-first-post-on-substack",
+      "name": "Share our first post on Substack!",
+      "subtitle": "Write our first post on Substack - introduce ourselves and a bit about Project Runecraft",
+      "location": "done",
+      "region": "General",
+      "category": "other",
+      "progress": 100,
+      "fanRequest": false,
+      "estimatedTotalTime": 1,
+      "estimatedTimeLeft": "0 hours",
+      "what": "Our first article is now live! Check it out!\n\nQuest complete!",
+      "images": [
+        {
+          "src": "assets/uploads/1777458004489-composed.jpg",
+          "caption": "Our article"
+        }
+      ]
+    },
+    {
       "id": "wizard-s-tower",
       "name": "Wizard's Tower",
       "subtitle": "Our first building! Testing out WorldEdit on the Wizard's Tower near Draynor. Trialling a landscaping - foundation planning - walls and exterior - roof exterior - decorating exterior - designing interior - designing underground - placing lighting - finishing homely touches. Includes the connecting bridge with the STASH",
