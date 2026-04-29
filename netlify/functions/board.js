@@ -63,6 +63,7 @@ exports.handler = async function handler(event) {
   }
 
   try {
+    await connectBlobLambda(event);
     const url = requestUrl(event);
     if (event.httpMethod === "GET") {
       const asset = url.searchParams.get("asset");
@@ -243,15 +244,15 @@ async function writeUploadFile(upload) {
 }
 
 async function readBlobBoardFile() {
-  const store = await blobStore(boardBlobStore(), true);
+  const store = await blobStore(boardBlobStore());
   if (!store) return null;
 
-  const board = await store.get(boardBlobKey(), { type: "json", consistency: "strong" });
+  const board = await store.get(boardBlobKey(), { type: "json" });
   return board ? { board: normalizeBoard(board), sha: "", storage: "blob" } : null;
 }
 
 async function writeBlobBoardFile(board) {
-  const store = await blobStore(boardBlobStore(), true);
+  const store = await blobStore(boardBlobStore());
   if (!store) {
     throw httpError(503, "Netlify Blobs are not available. Install @netlify/blobs or set BOARD_STORAGE=github to use GitHub commits");
   }
@@ -266,7 +267,7 @@ async function writeBlobBoardFile(board) {
 }
 
 async function writeBlobUploadFile(upload) {
-  const store = await blobStore(uploadsBlobStore(), true);
+  const store = await blobStore(uploadsBlobStore());
   if (!store) {
     throw httpError(503, "Netlify Blobs are not available. Install @netlify/blobs or set BOARD_STORAGE=github to use GitHub commits");
   }
@@ -295,14 +296,13 @@ async function readUploadAsset(rawAsset) {
     return respond(400, { error: "Missing uploaded image name" });
   }
 
-  const store = await blobStore(uploadsBlobStore(), true);
+  const store = await blobStore(uploadsBlobStore());
   if (!store) {
     return respond(404, { error: "Uploaded image storage is not available" });
   }
 
   const entry = await store.getWithMetadata(fileName, {
-    type: "arrayBuffer",
-    consistency: "strong"
+    type: "arrayBuffer"
   });
   if (!entry?.data) {
     return respond(404, { error: "Uploaded image was not found" });
@@ -341,16 +341,23 @@ async function migrateBoardFile() {
   };
 }
 
-async function blobStore(name, strong = false) {
+async function blobStore(name) {
   try {
     const { getStore } = await blobsModule();
-    return strong ? getStore({ name, consistency: "strong" }) : getStore(name);
+    const explicitOptions = explicitBlobOptions();
+    return explicitOptions ? getStore({ name, ...explicitOptions }) : getStore(name);
   } catch (error) {
     if (useBlobStorageExplicitly()) {
       throw error;
     }
     return null;
   }
+}
+
+async function connectBlobLambda(event) {
+  if (!useBlobStorage() || explicitBlobOptions()) return;
+  const { connectLambda } = await blobsModule();
+  if (event.blobs) connectLambda(event);
 }
 
 function blobsModule() {
@@ -624,6 +631,12 @@ function boardBlobKey() {
 
 function uploadsBlobStore() {
   return process.env.UPLOADS_BLOB_STORE || DEFAULT_UPLOADS_BLOB_STORE;
+}
+
+function explicitBlobOptions() {
+  const siteID = process.env.NETLIFY_BLOBS_SITE_ID || process.env.NETLIFY_SITE_ID || "";
+  const token = process.env.NETLIFY_BLOBS_TOKEN || "";
+  return siteID && token ? { siteID, token } : null;
 }
 
 function uploadAssetPublicPath(fileName) {
