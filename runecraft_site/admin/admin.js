@@ -308,12 +308,23 @@ function renderImageFields(images) {
         Image caption
         <input data-image-field="caption" type="text" value="${escapeHtml(image.caption)}" placeholder="Short caption for this image">
       </label>
-      <button class="button secondary danger remove-image" type="button">Remove</button>
+      <div class="image-actions">
+        <button class="button secondary move-image-up" type="button" ${index === 0 ? "disabled" : ""}>Move up</button>
+        <button class="button secondary move-image-down" type="button" ${index === images.length - 1 ? "disabled" : ""}>Move down</button>
+        <button class="button secondary danger remove-image" type="button">Remove</button>
+      </div>
     </div>
   `).join("");
 
   imageList.querySelectorAll('[data-image-field="caption"]').forEach((input) => {
     input.addEventListener("input", updateImagesFromForm);
+  });
+  imageList.querySelectorAll(".move-image-up, .move-image-down").forEach((button) => {
+    button.addEventListener("click", () => {
+      const card = button.closest(".image-card");
+      if (!card) return;
+      moveImage(Number(card.dataset.index), button.classList.contains("move-image-up") ? -1 : 1);
+    });
   });
   imageList.querySelectorAll(".remove-image").forEach((button) => {
     button.addEventListener("click", () => {
@@ -325,6 +336,20 @@ function renderImageFields(images) {
       renderForm();
     });
   });
+}
+
+function moveImage(index, direction) {
+  const ticket = currentTicket();
+  if (!ticket) return;
+
+  ticket.images = readImagesFromForm();
+  const nextIndex = index + direction;
+  if (nextIndex < 0 || nextIndex >= ticket.images.length) return;
+
+  const [image] = ticket.images.splice(index, 1);
+  ticket.images.splice(nextIndex, 0, image);
+  markDirty();
+  renderForm();
 }
 
 function readTicketFromForm() {

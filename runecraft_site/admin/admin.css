@@ -306,6 +306,21 @@
   object-fit: cover;
 }
 
+.image-actions {
+  display: grid;
+  gap: .35rem;
+}
+
+.image-actions .button {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.image-actions .button:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
 @media (max-width: 980px) {
   .admin-header,
   .admin-auth,
@@ -335,5 +350,13 @@
   .image-preview {
     width: 100%;
     max-width: 160px;
+  }
+
+  .image-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .image-actions .button {
+    white-space: normal;
   }
 }

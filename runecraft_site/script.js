@@ -1,5 +1,6 @@
 const BOARD_ENDPOINT = "/.netlify/functions/board";
 const SOCIAL_FEED_ENDPOINT = "/.netlify/functions/social-feed";
+const DONATION_ENDPOINT = "/.netlify/functions/donation";
 const STATIC_BOARD_PATH = "data/board.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
 const IDEA_EMAIL = "dm370473@gmail.com";
@@ -183,6 +184,11 @@ const approvedIdeasCarousel = document.querySelector("#approved-ideas-carousel")
 const carouselTimers = new Map();
 let buildImageCarouselTimer = null;
 const timeInvestedStat = document.querySelector("#time-invested-stat");
+const donationRaisedEl = document.querySelector("#donation-raised");
+const donationGoalEl = document.querySelector("#donation-goal");
+const donationProgressEl = document.querySelector("#donation-progress");
+const donationProgressBarEl = document.querySelector("#donation-progress-bar");
+let imageViewer = null;
 
 function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
@@ -289,6 +295,56 @@ async function loadSubstackFeed() {
   } catch {
     renderCarousel("substack", fallbackSubstackFeed);
   }
+}
+
+async function loadDonationProgress() {
+  try {
+    const response = await fetch(DONATION_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Donation endpoint returned ${response.status}`);
+    renderDonationProgress(await response.json());
+  } catch {
+    renderDonationProgress({
+      raised: numericText(donationRaisedEl?.textContent),
+      goal: numericText(donationGoalEl?.textContent) || 1,
+      currencyCode: "GBP"
+    });
+  }
+}
+
+function renderDonationProgress(donation) {
+  const raised = Math.max(0, Number(donation?.raised) || 0);
+  const goal = Math.max(0, Number(donation?.goal) || 0);
+  const currencyCode = donation?.currencyCode || "GBP";
+  const percent = goal > 0 ? Math.min(100, (raised / goal) * 100) : 0;
+  const raisedLabel = formatCurrency(raised, currencyCode);
+  const goalLabel = formatCurrency(goal, currencyCode);
+
+  if (donationRaisedEl) donationRaisedEl.textContent = raisedLabel;
+  if (donationGoalEl) donationGoalEl.textContent = goalLabel;
+  if (donationProgressBarEl) donationProgressBarEl.style.width = `${percent}%`;
+  if (donationProgressEl) {
+    donationProgressEl.setAttribute("aria-label", `Donation progress: ${raisedLabel} of ${goalLabel}`);
+    donationProgressEl.setAttribute("aria-valuemin", "0");
+    donationProgressEl.setAttribute("aria-valuemax", String(goal));
+    donationProgressEl.setAttribute("aria-valuenow", String(raised));
+  }
+}
+
+function formatCurrency(value, currencyCode = "GBP") {
+  try {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: currencyCode,
+      maximumFractionDigits: Number.isInteger(Number(value)) ? 0 : 2
+    }).format(Number(value) || 0);
+  } catch {
+    return `${currencyCode} ${formatNumber(Number(value) || 0)}`;
+  }
+}
+
+function numericText(value) {
+  const match = String(value || "").replace(/,/g, "").match(/\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) : 0;
 }
 
 function renderCompletedBuildCarousel() {
@@ -700,6 +756,7 @@ function openBuildLog(id) {
     ${imageGalleryTemplate(task.images)}
   `;
   initializeBuildImageCarousel();
+  initializeImageViewer();
   detailSection.hidden = false;
   detailSection.scrollIntoView({ behavior: "smooth", block: "start" });
   history.replaceState(null, "", `#build-${task.id}`);
@@ -710,7 +767,7 @@ function buildImageCarouselTemplate(images) {
     const image = images[0];
     return `
       <figure class="build-primary-image">
-        <img src="${escapeHtml(image.src)}" alt="">
+        ${buildImageButtonTemplate(image)}
         ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
       </figure>
     `;
@@ -721,7 +778,7 @@ function buildImageCarouselTemplate(images) {
       <div class="build-image-track">
         ${images.map((image, index) => `
           <figure class="build-primary-image build-image-slide${index === 0 ? " is-active" : ""}" data-build-image-slide="${index}">
-            <img src="${escapeHtml(image.src)}" alt="">
+            ${buildImageButtonTemplate(image)}
             ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
           </figure>
         `).join("")}
@@ -736,6 +793,15 @@ function buildImageCarouselTemplate(images) {
         <button type="button" data-build-image-next aria-label="Next build image">›</button>
       </div>
     </div>
+  `;
+}
+
+function buildImageButtonTemplate(image) {
+  return `
+    <button class="image-zoom" type="button" data-fullscreen-image="${escapeHtml(image.src)}" data-fullscreen-caption="${escapeHtml(image.caption || "")}" aria-label="View image fullscreen">
+      <img src="${escapeHtml(image.src)}" alt="">
+      <span>View fullscreen</span>
+    </button>
   `;
 }
 
@@ -792,12 +858,66 @@ function imageGalleryTemplate(images) {
     <div class="build-gallery">
       ${images.map((image) => `
         <figure>
-          <img src="${escapeHtml(image.src)}" alt="">
+          ${buildImageButtonTemplate(image)}
           ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
         </figure>
       `).join("")}
     </div>
   `;
+}
+
+function initializeImageViewer() {
+  detailArticle.querySelectorAll("[data-fullscreen-image]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openImageViewer(button.dataset.fullscreenImage, button.dataset.fullscreenCaption || "");
+    });
+  });
+}
+
+function openImageViewer(src, caption) {
+  if (!src) return;
+  const viewer = ensureImageViewer();
+  const image = viewer.querySelector("img");
+  const captionEl = viewer.querySelector("figcaption");
+  image.src = src;
+  image.alt = caption || "Build image";
+  captionEl.textContent = caption;
+  captionEl.hidden = !caption;
+
+  if (typeof viewer.showModal === "function" && !viewer.open) {
+    viewer.showModal();
+  } else {
+    viewer.hidden = false;
+  }
+}
+
+function ensureImageViewer() {
+  if (imageViewer) return imageViewer;
+
+  imageViewer = document.createElement("dialog");
+  imageViewer.className = "image-lightbox";
+  imageViewer.innerHTML = `
+    <button class="image-lightbox-close" type="button" aria-label="Close fullscreen image">×</button>
+    <figure>
+      <img src="" alt="">
+      <figcaption hidden></figcaption>
+    </figure>
+  `;
+  imageViewer.querySelector(".image-lightbox-close")?.addEventListener("click", closeImageViewer);
+  imageViewer.addEventListener("click", (event) => {
+    if (event.target === imageViewer) closeImageViewer();
+  });
+  document.body.append(imageViewer);
+  return imageViewer;
+}
+
+function closeImageViewer() {
+  if (!imageViewer) return;
+  if (typeof imageViewer.close === "function" && imageViewer.open) {
+    imageViewer.close();
+  } else {
+    imageViewer.hidden = true;
+  }
 }
 
 function closeBuildLog() {
@@ -983,4 +1103,5 @@ renderBoard();
 renderRegionTabs();
 renderRegion(slugify(mapRegionOptions[0]));
 loadSubstackFeed();
+loadDonationProgress();
 loadBoardData();
