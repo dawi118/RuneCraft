@@ -5,6 +5,30 @@ const LIVE_BOARD_KEY = "runecraft-board-live";
 const IDEA_EMAIL = "dm370473@gmail.com";
 const CAROUSEL_INTERVAL_MS = 4200;
 const BUILD_IMAGE_CAROUSEL_INTERVAL_MS = 3600;
+const BOARD_SCHEMA_VERSION = 2;
+const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion"]);
+const TICKET_KNOWN_KEYS = new Set([
+  "id",
+  "name",
+  "title",
+  "subtitle",
+  "summary",
+  "location",
+  "region",
+  "category",
+  "progress",
+  "fanRequest",
+  "fan_request",
+  "fan request",
+  "estimatedTotalTime",
+  "duration",
+  "estimatedTimeLeft",
+  "what",
+  "did",
+  "image",
+  "images"
+]);
+const IMAGE_KNOWN_KEYS = new Set(["src", "caption"]);
 
 const regionOptions = [
   "General",
@@ -192,6 +216,7 @@ function normalizeBoard(source) {
     const estimatedTotalTime = normalizeBuildHours(item.estimatedTotalTime || item.duration);
     const images = Array.isArray(item.images) ? item.images : (item.image ? [{ src: item.image, caption: "" }] : []);
     return {
+      ...copyExtraFields(item, TICKET_KNOWN_KEYS),
       id: slugify(item.id || item.name || `build-${index + 1}`),
       name: item.name || item.title || "Untitled build",
       subtitle: item.subtitle || item.summary || "",
@@ -207,14 +232,31 @@ function normalizeBoard(source) {
     };
   });
 
-  return { items };
+  return {
+    ...copyExtraFields(source, BOARD_KNOWN_KEYS),
+    schemaVersion: BOARD_SCHEMA_VERSION,
+    items
+  };
 }
 
 function normalizeImage(image) {
   return {
+    ...copyExtraFields(image, IMAGE_KNOWN_KEYS),
     src: image?.src || "",
     caption: image?.caption || ""
   };
+}
+
+function copyExtraFields(source, knownKeys) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) return {};
+
+  return Object.fromEntries(Object.entries(source).filter(([key]) => {
+    return !knownKeys.has(key) && isSafeExtraKey(key);
+  }));
+}
+
+function isSafeExtraKey(key) {
+  return /^(?!__proto__$|constructor$|prototype$)[A-Za-z0-9_-]{1,64}$/.test(String(key || ""));
 }
 
 function normalizeFanRequest(value) {

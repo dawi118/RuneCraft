@@ -1,0 +1,10 @@
+{
+  "name": "project-runecraft",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static Project RuneCraft site with Netlify Functions for admin board data.",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@netlify/blobs": "^10.0.0"
+  }
+}
