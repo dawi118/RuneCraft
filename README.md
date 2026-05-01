@@ -90,6 +90,7 @@ For the low-stakes board workflow, this project now uses a smaller first-party e
 - Drafts are saved in the admin's browser while they work.
 - Production saves go through `netlify/functions/board.js`, which writes the live board JSON to Netlify Blobs by default.
 - New admin-uploaded images are stored in Netlify Blobs and served by the same function, so they are available immediately without needing a new static deploy.
+- Core site media such as the favicon, header logo, nav sprites, home hero map, world map art, Party Room art, ticket fallback images, and carousel fallback images can be replaced from the admin screen. These settings are saved in Netlify Blobs as `site-settings.json`.
 - GitHub backup commits are optional. Set `BOARD_GITHUB_BACKUP=true` only if you want each board save mirrored to `runecraft_site/data/board.json`; the included Netlify ignore script skips data-only backup commits.
 - The GitHub token never appears in browser JavaScript, and the admin token is not persisted in browser storage.
 
@@ -120,17 +121,19 @@ curl -X PATCH https://your-site-url/.netlify/functions/board \
 
 The normalizer preserves unknown board, ticket, and image metadata so future fields such as `completedAt`, `carouselGroup`, or image `focalPoint` survive admin saves.
 
+The admin "Site media" panel writes media overrides to the same Netlify Function using `?settings=1`. The public site fetches those settings at runtime and swaps any matching `data-media-key` images, so replacing sprites or page art does not require a redeploy after this feature is deployed.
+
 ## Grand Exchange Updates
 
 The Grand Exchange page shows the latest completed build tickets from the board data. It takes the most recent five items marked `Done`, using the current board order because tickets do not currently store completion dates.
 
-The Substack carousel calls `netlify/functions/social-feed.js` and falls back to bundled cards when a live feed is not available. By default the function reads:
+The Substack carousel calls `netlify/functions/social-feed.js` and falls back to bundled cards linking to:
 
 ```text
-https://dhmorgan.substack.com/feed
+https://substack.com/@projectrunecraft
 ```
 
-Override it with `SUBSTACK_FEED_URL` if the publication changes.
+Set `SUBSTACK_FEED_URL` if a project publication RSS feed becomes available.
 
 ## Editing Build Board Content
 
@@ -161,7 +164,7 @@ The admin image uploader accepts up to 10 images per ticket. JPEG, PNG, and WebP
 
 ## Community Idea Storage
 
-The public Party Room page currently avoids storing visitor submissions on the site. The form opens an email draft to `dm370473@gmail.com`, which keeps the static site from collecting personal data before there is a moderated, GDPR-aware submission workflow.
+The public Party Room page currently avoids storing visitor submissions on the site. The form opens an email draft to `projectrunecraft@gmail.com`, which keeps the static site from collecting personal data before there is a moderated, GDPR-aware submission workflow.
 
 Good future storage options:
 

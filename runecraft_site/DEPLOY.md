@@ -39,6 +39,8 @@ https://your-site-url/admin/
 
 The board editor can add, edit, delete, import, and export board items. It keeps a browser draft while admins work, then writes the live board JSON to Netlify Blobs through the Netlify Function when they save.
 
+The Site media panel can replace core visual assets, including the favicon, header logo, navigation sprites, home hero image, map art, Party Room image, and carousel fallback images. Those media URLs are stored in Netlify Blobs as `site-settings.json`, while the uploaded image files themselves are stored in the uploads Blob store.
+
 When a code change introduces new board metadata, migrate the live Blob board through the current normalizer:
 
 ```sh
@@ -75,13 +77,13 @@ The previous admin page used Decap CMS with the GitHub backend. That workflow de
 
 The completed-build carousel is populated from the board data and uses the most recent five tickets marked `Done`.
 
-The Substack carousel has local fallback cards. In production, Substack posts are read from:
+The Substack carousel has local fallback cards that link to:
 
 ```text
-https://dhmorgan.substack.com/feed
+https://substack.com/@projectrunecraft
 ```
 
-Set `SUBSTACK_FEED_URL` in Netlify only if that changes.
+Set `SUBSTACK_FEED_URL` in Netlify only if a project publication RSS feed becomes available.
 
 ## Donation Link
 

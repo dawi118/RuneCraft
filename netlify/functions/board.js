@@ -4,6 +4,7 @@ const DEFAULT_BOARD_PATH = "runecraft_site/data/board.json";
 const DEFAULT_UPLOADS_PATH = "runecraft_site/assets/uploads";
 const DEFAULT_BOARD_BLOB_STORE = "runecraft-board";
 const DEFAULT_BOARD_BLOB_KEY = "board.json";
+const DEFAULT_SETTINGS_BLOB_KEY = "site-settings.json";
 const DEFAULT_UPLOADS_BLOB_STORE = "runecraft-uploads";
 const REGION_OPTIONS = [
   "General",
@@ -21,6 +22,7 @@ const REGION_OPTIONS = [
 ];
 const CATEGORY_OPTIONS = ["landscape", "monument", "building", "infrastructure", "other"];
 const BOARD_SCHEMA_VERSION = 2;
+const SETTINGS_SCHEMA_VERSION = 1;
 const MAX_IMAGES = 10;
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const MAX_EXTRA_FIELD_BYTES = 64 * 1024;
@@ -48,6 +50,29 @@ const TICKET_KNOWN_KEYS = new Set([
   "images"
 ]);
 const IMAGE_KNOWN_KEYS = new Set(["src", "caption"]);
+const SITE_MEDIA_DEFAULTS = {
+  favicon: "assets/img/favicon.svg",
+  brandLogo: "assets/img/mc-old-school-logo.svg",
+  navTutorialIcon: "assets/img/icon-blue-star.svg",
+  navLumberIcon: "assets/img/icon-saw.svg",
+  navMapIcon: "assets/img/icon-world.svg",
+  navExchangeIcon: "assets/img/icon-coins.svg",
+  navPartyIcon: "assets/img/icon-balloon.svg",
+  homeHeroMap: "assets/img/runecraft-pixel-map.svg",
+  worldMapImage: "assets/img/runecraft-pixel-map.svg",
+  partyHeroArt: "assets/img/falador-party-room.svg",
+  openLogIcon: "assets/img/image.png",
+  draynorFallbackImage: "assets/img/falador-party-room.svg",
+  karamjaFallbackImage: "assets/img/runecraft-pixel-map.svg",
+  varrockFallbackImage: "assets/img/varrock-rooftops.svg",
+  grandExchangeFallbackImage: "assets/img/grand-exchange-stalls.svg",
+  lumbridgeFallbackImage: "assets/img/lumbridge-courtyard.svg",
+  completedBuildFallbackImage: "assets/img/grand-exchange-stalls.svg",
+  carouselFallbackImage: "assets/img/grand-exchange-stalls.svg",
+  substackBuildNotesImage: "assets/img/grand-exchange-stalls.svg",
+  substackProgressDiaryImage: "assets/img/varrock-rooftops.svg",
+  substackNextImage: "assets/img/runecraft-pixel-map.svg"
+};
 const IMAGE_TYPES = {
   "image/gif": "gif",
   "image/jpeg": "jpg",
@@ -71,6 +96,11 @@ exports.handler = async function handler(event) {
         return readUploadAsset(asset);
       }
 
+      if (url.searchParams.has("settings")) {
+        const { settings } = await readSettingsFile();
+        return respond(200, settings);
+      }
+
       const { board } = await readBoardFile();
       return respond(200, board);
     }
@@ -78,6 +108,16 @@ exports.handler = async function handler(event) {
     if (event.httpMethod === "PUT") {
       authorize(event);
       const payload = JSON.parse(event.body || "{}");
+      if (url.searchParams.has("settings")) {
+        const settings = normalizeSiteSettings(payload.settings || payload);
+        const result = await writeSettingsFile(settings);
+        return respond(200, {
+          settings,
+          storage: result.storage || "",
+          etag: result.etag || ""
+        });
+      }
+
       const board = normalizeBoard(payload.board);
       const result = await writeBoardFile(board);
       return respond(200, {
@@ -140,6 +180,15 @@ async function readBoardFile() {
   return readGitHubBoardFile();
 }
 
+async function readSettingsFile() {
+  if (useBlobStorage()) {
+    const blobSettings = await readBlobSettingsFile();
+    if (blobSettings) return blobSettings;
+  }
+
+  return { settings: normalizeSiteSettings({}), storage: "defaults" };
+}
+
 async function readGitHubBoardFile() {
   const token = githubToken();
   if (token) {
@@ -200,6 +249,14 @@ async function writeBoardFile(board) {
   return writeGitHubBoardFile(board);
 }
 
+async function writeSettingsFile(settings) {
+  if (!useBlobStorage()) {
+    throw httpError(400, "Site media settings require BOARD_STORAGE=blob or an unset BOARD_STORAGE value");
+  }
+
+  return writeBlobSettingsFile(settings);
+}
+
 async function writeGitHubBoardFile(board) {
   const token = githubToken();
   if (!token) {
@@ -258,6 +315,29 @@ async function writeBlobBoardFile(board) {
   }
 
   const result = await store.setJSON(boardBlobKey(), board, {
+    metadata: {
+      updatedAt: new Date().toISOString(),
+      source: "runecraft-admin"
+    }
+  });
+  return { storage: "blob", etag: result.etag || "" };
+}
+
+async function readBlobSettingsFile() {
+  const store = await blobStore(boardBlobStore());
+  if (!store) return null;
+
+  const settings = await store.get(settingsBlobKey(), { type: "json" });
+  return settings ? { settings: normalizeSiteSettings(settings), storage: "blob" } : null;
+}
+
+async function writeBlobSettingsFile(settings) {
+  const store = await blobStore(boardBlobStore());
+  if (!store) {
+    throw httpError(503, "Netlify Blobs are not available. Install @netlify/blobs or set BOARD_STORAGE=github to use GitHub commits");
+  }
+
+  const result = await store.setJSON(settingsBlobKey(), normalizeSiteSettings(settings), {
     metadata: {
       updatedAt: new Date().toISOString(),
       source: "runecraft-admin"
@@ -440,6 +520,29 @@ function normalizeImages(images) {
     .filter((image) => image.src);
 
   return normalized;
+}
+
+function normalizeSiteSettings(source) {
+  const sourceMedia = source?.media && typeof source.media === "object" ? source.media : {};
+  const media = {};
+  for (const [key, defaultSrc] of Object.entries(SITE_MEDIA_DEFAULTS)) {
+    media[key] = normalizeMediaSrc(sourceMedia[key], defaultSrc);
+  }
+
+  return {
+    schemaVersion: SETTINGS_SCHEMA_VERSION,
+    media
+  };
+}
+
+function normalizeMediaSrc(value, fallback) {
+  const src = limitText(value || fallback, 2048);
+  if (isAllowedMediaSrc(src)) return src;
+  return fallback;
+}
+
+function isAllowedMediaSrc(src) {
+  return /^(assets\/(?:img|uploads)\/|\/\.netlify\/functions\/board\?asset=|https:\/\/)/i.test(String(src || ""));
 }
 
 function normalizeExtraFields(source, knownKeys) {
@@ -627,6 +730,10 @@ function boardBlobStore() {
 
 function boardBlobKey() {
   return process.env.BOARD_BLOB_KEY || DEFAULT_BOARD_BLOB_KEY;
+}
+
+function settingsBlobKey() {
+  return process.env.SETTINGS_BLOB_KEY || DEFAULT_SETTINGS_BLOB_KEY;
 }
 
 function uploadsBlobStore() {

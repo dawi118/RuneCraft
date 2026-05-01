@@ -1,4 +1,5 @@
 const ADMIN_ENDPOINT = "/.netlify/functions/board";
+const SETTINGS_ENDPOINT = "/.netlify/functions/board?settings=1";
 const STATIC_BOARD_PATH = "../data/board.json";
 const DRAFT_KEY = "runecraft-board-admin-draft";
 const LIVE_BOARD_KEY = "runecraft-board-live";
@@ -33,6 +34,30 @@ const TICKET_KNOWN_KEYS = new Set([
   "images"
 ]);
 const IMAGE_KNOWN_KEYS = new Set(["src", "caption"]);
+const siteMediaFields = [
+  ["favicon", "Browser favicon", "assets/img/favicon.svg"],
+  ["brandLogo", "Header logo", "assets/img/mc-old-school-logo.svg"],
+  ["navTutorialIcon", "Tutorial Island nav icon", "assets/img/icon-blue-star.svg"],
+  ["navLumberIcon", "Lumber Yard nav icon", "assets/img/icon-saw.svg"],
+  ["navMapIcon", "World Map nav icon", "assets/img/icon-world.svg"],
+  ["navExchangeIcon", "Grand Exchange nav icon", "assets/img/icon-coins.svg"],
+  ["navPartyIcon", "Party Room nav icon", "assets/img/icon-balloon.svg"],
+  ["homeHeroMap", "Home hero art", "assets/img/runecraft-pixel-map.svg"],
+  ["worldMapImage", "World map image", "assets/img/runecraft-pixel-map.svg"],
+  ["partyHeroArt", "Falador Party Room art", "assets/img/falador-party-room.svg"],
+  ["openLogIcon", "Open build log icon", "assets/img/image.png"],
+  ["draynorFallbackImage", "Draynor fallback story image", "assets/img/falador-party-room.svg"],
+  ["karamjaFallbackImage", "Karamja fallback story image", "assets/img/runecraft-pixel-map.svg"],
+  ["varrockFallbackImage", "Varrock fallback story image", "assets/img/varrock-rooftops.svg"],
+  ["grandExchangeFallbackImage", "Grand Exchange fallback story image", "assets/img/grand-exchange-stalls.svg"],
+  ["lumbridgeFallbackImage", "Lumbridge fallback story image", "assets/img/lumbridge-courtyard.svg"],
+  ["completedBuildFallbackImage", "Completed-build carousel fallback", "assets/img/grand-exchange-stalls.svg"],
+  ["carouselFallbackImage", "Generic carousel fallback", "assets/img/grand-exchange-stalls.svg"],
+  ["substackBuildNotesImage", "Substack build-notes fallback", "assets/img/grand-exchange-stalls.svg"],
+  ["substackProgressDiaryImage", "Substack progress fallback", "assets/img/varrock-rooftops.svg"],
+  ["substackNextImage", "Substack next fallback", "assets/img/runecraft-pixel-map.svg"]
+];
+const defaultSiteMedia = Object.fromEntries(siteMediaFields.map(([key, , src]) => [key, src]));
 
 const regionOptions = [
   "General",
@@ -64,8 +89,10 @@ const columns = [
 ];
 
 let board = { items: [] };
+let siteSettings = normalizeSiteSettings({});
 let selectedId = "";
 let dirty = false;
+let mediaDirty = false;
 let isRenderingForm = false;
 
 const boardEl = document.querySelector("#admin-board");
@@ -82,6 +109,8 @@ const progressValue = document.querySelector("#progress-value");
 const adminRegionFilter = document.querySelector("#admin-region-filter");
 const adminCategoryFilter = document.querySelector("#admin-category-filter");
 const uploadErrorBanner = document.querySelector("#upload-error-banner");
+const siteMediaGrid = document.querySelector("#site-media-grid");
+const siteMediaStatus = document.querySelector("#site-media-status");
 let uploadErrorTimer = 0;
 
 function shouldLoadRemoteBoard() {
@@ -135,6 +164,23 @@ function normalizeImages(images) {
     src: text(image?.src || ""),
     caption: text(image?.caption || "")
   })).filter((image) => image.src);
+}
+
+function normalizeSiteSettings(source) {
+  const media = source?.media && typeof source.media === "object" ? source.media : {};
+  return {
+    schemaVersion: 1,
+    media: Object.fromEntries(siteMediaFields.map(([key, , fallback]) => [
+      key,
+      normalizeMediaSrc(media[key], fallback)
+    ]))
+  };
+}
+
+function normalizeMediaSrc(value, fallback) {
+  const src = text(value || fallback);
+  if (/^(assets\/(?:img|uploads)\/|\/\.netlify\/functions\/board\?asset=|https:\/\/)/i.test(src)) return src;
+  return fallback;
 }
 
 function copyExtraFields(source, knownKeys) {
@@ -713,7 +759,7 @@ function markDirty() {
 }
 
 function updateSaveLabel() {
-  saveButton.textContent = "Save";
+  saveButton.textContent = dirty || mediaDirty ? "Save changes" : "Save";
 }
 
 function findDuplicateId() {
@@ -734,6 +780,114 @@ function publishSavedBoard(savedBoard) {
   } catch {
     // The server-side board store is the source of truth; local preview sync is best-effort.
   }
+}
+
+function setMediaStatus(message, isError = false) {
+  if (!siteMediaStatus) return;
+  siteMediaStatus.textContent = message;
+  siteMediaStatus.style.color = isError ? "#ffb29b" : "#f0d99b";
+}
+
+function renderSiteMedia() {
+  if (!siteMediaGrid) return;
+  siteMediaGrid.innerHTML = siteMediaFields.map(([key, label, fallback]) => {
+    const src = siteSettings.media[key] || fallback;
+    const isDefault = src === fallback;
+    return `
+      <article class="site-media-card" data-media-key="${escapeHtml(key)}">
+        <h3>${escapeHtml(label)}</h3>
+        <div class="site-media-preview">
+          <img src="${escapeHtml(imagePreviewSrc(src))}" alt="">
+        </div>
+        <p class="site-media-path">${escapeHtml(isDefault ? `Default: ${fallback}` : src)}</p>
+        <div class="site-media-actions">
+          <label class="button secondary import-button">
+            Replace
+            <input data-site-media-upload="${escapeHtml(key)}" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml">
+          </label>
+          <button class="button secondary" data-site-media-reset="${escapeHtml(key)}" type="button">Use default</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  siteMediaGrid.querySelectorAll("[data-site-media-upload]").forEach((input) => {
+    input.addEventListener("change", uploadSiteMedia);
+  });
+  siteMediaGrid.querySelectorAll("[data-site-media-reset]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.siteMediaReset;
+      siteSettings.media[key] = defaultSiteMedia[key];
+      markMediaDirty();
+      renderSiteMedia();
+    });
+  });
+}
+
+function markMediaDirty() {
+  mediaDirty = true;
+  updateSaveLabel();
+  setMediaStatus("Site media draft ready to publish.");
+}
+
+async function uploadSiteMedia(event) {
+  const input = event.target;
+  const key = input.dataset.siteMediaUpload;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!key || !file) return;
+
+  try {
+    const result = await uploadImageToGitHub(file);
+    siteSettings.media[key] = result.path;
+    markMediaDirty();
+    renderSiteMedia();
+    setMediaStatus(`Replaced ${mediaLabel(key)}. Click Save to publish.`);
+  } catch (error) {
+    showImageUploadError(error.message);
+    setMediaStatus(`Could not replace ${mediaLabel(key)}.`, true);
+  }
+}
+
+function mediaLabel(key) {
+  return siteMediaFields.find(([fieldKey]) => fieldKey === key)?.[1] || "site media";
+}
+
+async function loadSiteSettings() {
+  try {
+    const response = await fetch(SETTINGS_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Settings endpoint returned ${response.status}`);
+    siteSettings = normalizeSiteSettings(await response.json());
+    mediaDirty = false;
+    setMediaStatus("Loaded live site media.");
+  } catch {
+    siteSettings = normalizeSiteSettings({});
+    mediaDirty = false;
+    setMediaStatus("Loaded default site media. Publishing needs the Netlify Function.", true);
+  }
+  renderSiteMedia();
+  updateSaveLabel();
+}
+
+async function saveSiteSettings(token) {
+  if (!mediaDirty) return null;
+  const response = await fetch(SETTINGS_ENDPOINT, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ settings: siteSettings })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result.error || `Site media save failed with ${response.status}`);
+  }
+  siteSettings = normalizeSiteSettings(result.settings || siteSettings);
+  mediaDirty = false;
+  renderSiteMedia();
+  setMediaStatus("Published site media.");
+  return result;
 }
 
 function createTicket() {
@@ -832,30 +986,40 @@ async function saveBoard() {
   }
 
   saveButton.disabled = true;
-  setStatus("Publishing board updates.");
+  setStatus(mediaDirty ? "Publishing board and site media updates." : "Publishing board updates.");
 
   try {
-    const response = await fetch(ADMIN_ENDPOINT, {
-      method: "PUT",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ board })
-    });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(result.error || `Save failed with ${response.status}`);
+    let result = {};
+    if (dirty) {
+      const response = await fetch(ADMIN_ENDPOINT, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ board })
+      });
+      result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.error || `Save failed with ${response.status}`);
+      }
+      board = normalizeBoard(result.board || board);
+      localStorage.removeItem(DRAFT_KEY);
+      publishSavedBoard(board);
+      dirty = false;
     }
-    board = normalizeBoard(result.board || board);
-    localStorage.removeItem(DRAFT_KEY);
-    publishSavedBoard(board);
-    dirty = false;
+    const settingsResult = await saveSiteSettings(token);
     renderBoard();
     renderForm();
     updateSaveLabel();
     const backupUrl = result.backupCommitUrl || result.commitUrl;
-    setStatus(backupUrl ? `Published live. GitHub backup: ${backupUrl}` : "Published live without a production redeploy.");
+    if (backupUrl) {
+      setStatus(`Published live. GitHub backup: ${backupUrl}`);
+    } else if (settingsResult && !dirty) {
+      setStatus("Published board/site media without a production redeploy.");
+    } else {
+      setStatus("Published live without a production redeploy.");
+    }
   } catch (error) {
     setStatus(`${error.message}. Draft is still saved in this browser.`, true);
   } finally {
@@ -950,4 +1114,5 @@ imageDrop?.addEventListener("drop", (event) => {
 saveButton.addEventListener("click", saveBoard);
 
 renderSelectOptions();
+loadSiteSettings();
 loadBoard();
