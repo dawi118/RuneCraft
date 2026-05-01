@@ -3,7 +3,7 @@ const SOCIAL_FEED_ENDPOINT = "/.netlify/functions/social-feed";
 const DONATION_ENDPOINT = "/.netlify/functions/donation";
 const STATIC_BOARD_PATH = "data/board.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
-const IDEA_EMAIL = "dm370473@gmail.com";
+const IDEA_EMAIL = "projectrunecraft@gmail.com";
 const CAROUSEL_INTERVAL_MS = 4200;
 const BUILD_IMAGE_CAROUSEL_INTERVAL_MS = 3600;
 const BOARD_SCHEMA_VERSION = 2;
@@ -160,21 +160,21 @@ const fallbackSubstackFeed = [
     title: "Build notes and world decisions",
     summary: "Longer posts can hold build mistakes, texture tests, votes, and region write-ups.",
     image: "assets/img/grand-exchange-stalls.svg",
-    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+    url: "https://substack.com/@projectrunecraft",
     date: "Substack"
   },
   {
     title: "Progress diary",
     summary: "A place for the story behind each board move and milestone.",
     image: "assets/img/varrock-rooftops.svg",
-    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+    url: "https://substack.com/@projectrunecraft",
     date: "Substack"
   },
   {
     title: "What comes next",
     summary: "Short notes on next regions, downloads, and community requests.",
     image: "assets/img/runecraft-pixel-map.svg",
-    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+    url: "https://substack.com/@projectrunecraft",
     date: "Substack"
   }
 ];

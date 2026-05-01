@@ -1,4 +1,4 @@
-const DEFAULT_SUBSTACK_FEED = "https://dhmorgan.substack.com/feed";
+const DEFAULT_SUBSTACK_FEED = "";
 
 exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
@@ -16,6 +16,7 @@ exports.handler = async function handler(event) {
 
 async function readSubstackFeed() {
   const feedUrl = process.env.SUBSTACK_FEED_URL || DEFAULT_SUBSTACK_FEED;
+  if (!feedUrl) return [];
   const response = await fetch(feedUrl, { headers: { "Accept": "application/rss+xml, application/xml, text/xml" } });
   if (!response.ok) throw new Error(`Substack feed returned ${response.status}`);
   return parseRssItems(await response.text()).slice(0, 3);
