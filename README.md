@@ -90,7 +90,7 @@ For the low-stakes board workflow, this project now uses a smaller first-party e
 - Drafts are saved in the admin's browser while they work.
 - Production saves go through `netlify/functions/board.js`, which writes the live board JSON to Netlify Blobs by default.
 - New admin-uploaded images are stored in Netlify Blobs and served by the same function, so they are available immediately without needing a new static deploy.
-- Core site media such as the favicon, header logo, nav sprites, home hero map, world map art, Party Room art, ticket fallback images, and carousel fallback images can be replaced from the admin screen. These settings are saved in Netlify Blobs as `site-settings.json`.
+- Core site media such as the favicon, header logo, nav sprites, home hero map, world map art, Party Room art, and ticket fallback images can be replaced from the admin screen. These settings are saved in Netlify Blobs as `site-settings.json`.
 - GitHub backup commits are optional. Set `BOARD_GITHUB_BACKUP=true` only if you want each board save mirrored to `runecraft_site/data/board.json`; the included Netlify ignore script skips data-only backup commits.
 - The GitHub token never appears in browser JavaScript, and the admin token is not persisted in browser storage.
 
@@ -127,13 +127,13 @@ The admin "Site media" panel writes media overrides to the same Netlify Function
 
 The Grand Exchange page shows the latest completed build tickets from the board data. It takes the most recent five items marked `Done`, using the current board order because tickets do not currently store completion dates.
 
-The Substack carousel calls `netlify/functions/social-feed.js` and falls back to bundled cards linking to:
+The Substack carousel calls `netlify/functions/social-feed.js` and renders only real feed items from the Project RuneCraft Substack:
 
 ```text
-https://substack.com/@projectrunecraft
+https://dhmorgan.substack.com
 ```
 
-Set `SUBSTACK_FEED_URL` if a project publication RSS feed becomes available.
+By default, the function checks `https://dhmorgan.substack.com/feed` for Project RuneCraft posts, including the live "Project Runecraft: Getting Started" article. Set `SUBSTACK_FEED_URL` in Netlify if the feed moves.
 
 ## Editing Build Board Content
 

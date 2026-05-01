@@ -39,7 +39,7 @@ https://your-site-url/admin/
 
 The board editor can add, edit, delete, import, and export board items. It keeps a browser draft while admins work, then writes the live board JSON to Netlify Blobs through the Netlify Function when they save.
 
-The Site media panel can replace core visual assets, including the favicon, header logo, navigation sprites, home hero image, map art, Party Room image, and carousel fallback images. Those media URLs are stored in Netlify Blobs as `site-settings.json`, while the uploaded image files themselves are stored in the uploads Blob store.
+The Site media panel can replace core visual assets, including the favicon, header logo, navigation sprites, home hero image, map art, and Party Room image. Those media URLs are stored in Netlify Blobs as `site-settings.json`, while the uploaded image files themselves are stored in the uploads Blob store.
 
 When a code change introduces new board metadata, migrate the live Blob board through the current normalizer:
 
@@ -77,13 +77,13 @@ The previous admin page used Decap CMS with the GitHub backend. That workflow de
 
 The completed-build carousel is populated from the board data and uses the most recent five tickets marked `Done`.
 
-The Substack carousel has local fallback cards that link to:
+The Substack carousel renders real feed items only from the Project RuneCraft Substack:
 
 ```text
-https://substack.com/@projectrunecraft
+https://dhmorgan.substack.com
 ```
 
-Set `SUBSTACK_FEED_URL` in Netlify only if a project publication RSS feed becomes available.
+By default, the function checks `https://dhmorgan.substack.com/feed` for Project RuneCraft posts, including the live "Project Runecraft: Getting Started" article. Set `SUBSTACK_FEED_URL` in Netlify only if the feed moves.
 
 ## Donation Link
 

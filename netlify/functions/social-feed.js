@@ -1,4 +1,5 @@
-const DEFAULT_SUBSTACK_FEED = "";
+const SUBSTACK_PROFILE_URL = "https://dhmorgan.substack.com";
+const DEFAULT_SUBSTACK_FEED = "https://dhmorgan.substack.com/feed";
 
 exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
@@ -11,15 +12,24 @@ exports.handler = async function handler(event) {
 
   const substack = await readSubstackFeed().catch(() => []);
 
-  return respond(200, { substack });
+  return respond(200, { substack, profileUrl: SUBSTACK_PROFILE_URL });
 };
 
 async function readSubstackFeed() {
-  const feedUrl = process.env.SUBSTACK_FEED_URL || DEFAULT_SUBSTACK_FEED;
-  if (!feedUrl) return [];
-  const response = await fetch(feedUrl, { headers: { "Accept": "application/rss+xml, application/xml, text/xml" } });
-  if (!response.ok) throw new Error(`Substack feed returned ${response.status}`);
-  return parseRssItems(await response.text()).slice(0, 3);
+  const feedUrls = [...new Set([process.env.SUBSTACK_FEED_URL, DEFAULT_SUBSTACK_FEED].filter(Boolean))];
+  for (const feedUrl of feedUrls) {
+    const response = await fetch(feedUrl, {
+      headers: {
+        "Accept": "application/rss+xml, application/xml, text/xml",
+        "User-Agent": "Project Runecraft social feed"
+      }
+    });
+    if (!response.ok) continue;
+
+    const items = parseRssItems(await response.text()).slice(0, 3);
+    if (items.length) return items;
+  }
+  return [];
 }
 
 function parseRssItems(xml) {

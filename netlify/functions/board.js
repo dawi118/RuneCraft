@@ -65,10 +65,7 @@ const SITE_MEDIA_DEFAULTS = {
   navPartyIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
   partyHeroArt: "assets/img/falador-party-room.svg",
-  openLogIcon: "assets/img/image.png",
-  substackBuildNotesImage: "assets/img/grand-exchange-stalls.svg",
-  substackProgressDiaryImage: "assets/img/varrock-rooftops.svg",
-  substackNextImage: "assets/img/runecraft-pixel-map.svg"
+  openLogIcon: "assets/img/image.png"
 };
 const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
 const WORLD_MAP_IMAGE_KNOWN_KEYS = new Set(["src", "alt"]);

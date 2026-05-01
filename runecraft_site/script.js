@@ -5,6 +5,7 @@ const DONATION_ENDPOINT = "/.netlify/functions/donation";
 const STATIC_BOARD_PATH = "data/board.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
 const IDEA_EMAIL = "projectrunecraft@gmail.com";
+const SUBSTACK_PROFILE_URL = "https://dhmorgan.substack.com";
 const CAROUSEL_INTERVAL_MS = 4200;
 const BUILD_IMAGE_CAROUSEL_INTERVAL_MS = 3600;
 const BOARD_SCHEMA_VERSION = 2;
@@ -40,10 +41,7 @@ const defaultSiteMedia = {
   navPartyIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
   partyHeroArt: "assets/img/falador-party-room.svg",
-  openLogIcon: "assets/img/image.png",
-  substackBuildNotesImage: "assets/img/grand-exchange-stalls.svg",
-  substackProgressDiaryImage: "assets/img/varrock-rooftops.svg",
-  substackNextImage: "assets/img/runecraft-pixel-map.svg"
+  openLogIcon: "assets/img/image.png"
 };
 let siteMedia = { ...defaultSiteMedia };
 const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
@@ -173,32 +171,6 @@ const boardDefaults = {
     }
   ]
 };
-
-function fallbackSubstackFeed() {
-  return [
-    {
-      title: "Build notes and world decisions",
-      summary: "Longer posts can hold build mistakes, texture tests, votes, and region write-ups.",
-      image: mediaSrc("substackBuildNotesImage"),
-      url: "https://substack.com/@projectrunecraft",
-      date: "Substack"
-    },
-    {
-      title: "Progress diary",
-      summary: "A place for the story behind each board move and milestone.",
-      image: mediaSrc("substackProgressDiaryImage"),
-      url: "https://substack.com/@projectrunecraft",
-      date: "Substack"
-    },
-    {
-      title: "What comes next",
-      summary: "Short notes on next regions, downloads, and community requests.",
-      image: mediaSrc("substackNextImage"),
-      url: "https://substack.com/@projectrunecraft",
-      date: "Substack"
-    }
-  ];
-}
 
 const mapRegionStatus = "Terrain is in place. We haven't started building on this yet.";
 const defaultWorldMap = {
@@ -430,16 +402,15 @@ function formatNumber(value) {
 }
 
 async function loadSubstackFeed() {
-  const fallback = fallbackSubstackFeed();
-  renderCarousel("substack", fallback);
+  renderCarousel("substack", []);
 
   try {
     const response = await fetch(SOCIAL_FEED_ENDPOINT, { cache: "no-store" });
     if (!response.ok) throw new Error(`Social feed endpoint returned ${response.status}`);
     const feeds = await response.json();
-    renderCarousel("substack", normalizeFeedItems(feeds.substack, fallback, 3));
+    renderCarousel("substack", normalizeFeedItems(feeds.substack, 3));
   } catch {
-    renderCarousel("substack", fallback);
+    renderCarousel("substack", []);
   }
 }
 
@@ -515,7 +486,7 @@ function completedBuildToCarouselItem(task) {
   };
 }
 
-function normalizeFeedItems(items, fallback, limit) {
+function normalizeFeedItems(items, limit) {
   const normalized = Array.isArray(items)
     ? items.map((item) => ({
       title: limitText(item?.title || item?.caption || "Untitled update", 90),
@@ -526,7 +497,7 @@ function normalizeFeedItems(items, fallback, limit) {
     })).filter((item) => item.title && item.url)
     : [];
 
-  return (normalized.length ? normalized : fallback).slice(0, limit);
+  return normalized.slice(0, limit);
 }
 
 function renderCarousel(feedName, items) {
@@ -536,7 +507,10 @@ function renderCarousel(feedName, items) {
 
   const feedItems = items.length ? items : [];
   if (!feedItems.length) {
-    track.innerHTML = `<p class="carousel-empty">Completed build tickets will appear here when they move to Done.</p>`;
+    const emptyMessage = feedName === "substack"
+      ? `New Substack posts from Project Runecraft will appear here when they are published. <a href="${SUBSTACK_PROFILE_URL}" target="_blank" rel="noreferrer">Open Project RuneCraft on Substack</a>.`
+      : "Completed build tickets will appear here when they move to Done.";
+    track.innerHTML = `<p class="carousel-empty">${emptyMessage}</p>`;
     dots.innerHTML = "";
     window.clearInterval(carouselTimers.get(feedName));
     return;

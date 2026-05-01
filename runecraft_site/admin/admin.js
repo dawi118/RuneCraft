@@ -48,10 +48,7 @@ const siteMediaFields = [
   ["navPartyIcon", "Party Room nav icon", "assets/img/icon-balloon.svg"],
   ["homeHeroMap", "Home hero art", "assets/img/runecraft-pixel-map.svg"],
   ["partyHeroArt", "Falador Party Room art", "assets/img/falador-party-room.svg"],
-  ["openLogIcon", "Build log button image", "assets/img/image.png"],
-  ["substackBuildNotesImage", "Substack build-notes image", "assets/img/grand-exchange-stalls.svg"],
-  ["substackProgressDiaryImage", "Substack progress image", "assets/img/varrock-rooftops.svg"],
-  ["substackNextImage", "Substack next image", "assets/img/runecraft-pixel-map.svg"]
+  ["openLogIcon", "Build log button image", "assets/img/image.png"]
 ];
 const defaultSiteMedia = Object.fromEntries(siteMediaFields.map(([key, , src]) => [key, src]));
 const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
