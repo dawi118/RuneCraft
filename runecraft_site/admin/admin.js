@@ -7,10 +7,15 @@ const MAX_IMAGES = 10;
 const MAX_SOURCE_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_UPLOAD_SIZE = 4 * 1024 * 1024;
 const COMPRESSED_IMAGE_MIME = "image/jpeg";
-const ACCEPTED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]);
-const COMPRESSIBLE_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+const ACCEPTED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "image/svg+xml"]);
+const COMPRESSIBLE_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp"]);
 const BOARD_SCHEMA_VERSION = 2;
-const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion"]);
+const DEFAULT_MAP_NOTE = "Terrain is in place. We haven't started building on this yet.";
+const DEFAULT_MAP_IMAGE = {
+  src: "assets/img/runecraft-pixel-map.svg",
+  alt: "Greyscale no-label Project RuneCraft map to colour as regions are completed."
+};
+const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion", "worldMap"]);
 const TICKET_KNOWN_KEYS = new Set([
   "id",
   "name",
@@ -38,26 +43,20 @@ const siteMediaFields = [
   ["favicon", "Browser favicon", "assets/img/favicon.svg"],
   ["brandLogo", "Header logo", "assets/img/mc-old-school-logo.svg"],
   ["navTutorialIcon", "Tutorial Island nav icon", "assets/img/icon-blue-star.svg"],
-  ["navLumberIcon", "Lumber Yard nav icon", "assets/img/icon-saw.svg"],
-  ["navMapIcon", "World Map nav icon", "assets/img/icon-world.svg"],
+  ["navLumberIcon", "Lumber Yard saw icon", "assets/img/icon-saw.svg"],
   ["navExchangeIcon", "Grand Exchange nav icon", "assets/img/icon-coins.svg"],
   ["navPartyIcon", "Party Room nav icon", "assets/img/icon-balloon.svg"],
   ["homeHeroMap", "Home hero art", "assets/img/runecraft-pixel-map.svg"],
-  ["worldMapImage", "World map image", "assets/img/runecraft-pixel-map.svg"],
   ["partyHeroArt", "Falador Party Room art", "assets/img/falador-party-room.svg"],
-  ["openLogIcon", "Open build log icon", "assets/img/image.png"],
-  ["draynorFallbackImage", "Draynor fallback story image", "assets/img/falador-party-room.svg"],
-  ["karamjaFallbackImage", "Karamja fallback story image", "assets/img/runecraft-pixel-map.svg"],
-  ["varrockFallbackImage", "Varrock fallback story image", "assets/img/varrock-rooftops.svg"],
-  ["grandExchangeFallbackImage", "Grand Exchange fallback story image", "assets/img/grand-exchange-stalls.svg"],
-  ["lumbridgeFallbackImage", "Lumbridge fallback story image", "assets/img/lumbridge-courtyard.svg"],
-  ["completedBuildFallbackImage", "Completed-build carousel fallback", "assets/img/grand-exchange-stalls.svg"],
-  ["carouselFallbackImage", "Generic carousel fallback", "assets/img/grand-exchange-stalls.svg"],
-  ["substackBuildNotesImage", "Substack build-notes fallback", "assets/img/grand-exchange-stalls.svg"],
-  ["substackProgressDiaryImage", "Substack progress fallback", "assets/img/varrock-rooftops.svg"],
-  ["substackNextImage", "Substack next fallback", "assets/img/runecraft-pixel-map.svg"]
+  ["openLogIcon", "Build log button image", "assets/img/image.png"],
+  ["substackBuildNotesImage", "Substack build-notes image", "assets/img/grand-exchange-stalls.svg"],
+  ["substackProgressDiaryImage", "Substack progress image", "assets/img/varrock-rooftops.svg"],
+  ["substackNextImage", "Substack next image", "assets/img/runecraft-pixel-map.svg"]
 ];
 const defaultSiteMedia = Object.fromEntries(siteMediaFields.map(([key, , src]) => [key, src]));
+const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
+const WORLD_MAP_IMAGE_KNOWN_KEYS = new Set(["src", "alt"]);
+const WORLD_MAP_REGION_KNOWN_KEYS = new Set(["id", "name", "note", "progress"]);
 
 const regionOptions = [
   "General",
@@ -87,25 +86,38 @@ const columns = [
   ["progress", "In Progress"],
   ["done", "Done"]
 ];
+const mapRegionOptions = regionOptions.filter((region) => region !== "General");
 
 let board = { items: [] };
 let siteSettings = normalizeSiteSettings({});
 let selectedId = "";
+let selectedMapRegion = slugify(mapRegionOptions[0]);
 let dirty = false;
 let mediaDirty = false;
 let isRenderingForm = false;
+let isRenderingMapForm = false;
 
+const adminTabButtons = document.querySelectorAll("[data-admin-tab]");
+const adminPanels = document.querySelectorAll("[data-admin-panel]");
 const boardEl = document.querySelector("#admin-board");
 const form = document.querySelector("#ticket-form");
+const mapRegionForm = document.querySelector("#map-region-form");
 const formTitle = document.querySelector("#form-title");
 const imageList = document.querySelector("#image-list");
 const imageDrop = document.querySelector("#image-drop");
 const imageUpload = document.querySelector("#image-upload");
-const statusEl = document.querySelector("#admin-status");
+const statusEls = document.querySelectorAll("[data-admin-status]");
 const tokenInput = document.querySelector("#admin-token");
 const saveButton = document.querySelector("#save-board");
 const progressRange = document.querySelector("#progress-range");
 const progressValue = document.querySelector("#progress-value");
+const mapImageUpload = document.querySelector("#map-image-upload");
+const mapImagePreview = document.querySelector("#map-image-preview");
+const mapImageAlt = document.querySelector("#map-image-alt");
+const mapRegionTabs = document.querySelector("#map-region-tabs");
+const mapRegionTitle = document.querySelector("#map-region-title");
+const mapProgressRange = document.querySelector("#map-progress-range");
+const mapProgressValue = document.querySelector("#map-progress-value");
 const adminRegionFilter = document.querySelector("#admin-region-filter");
 const adminCategoryFilter = document.querySelector("#admin-category-filter");
 const uploadErrorBanner = document.querySelector("#upload-error-banner");
@@ -121,8 +133,10 @@ function shouldLoadRemoteBoard() {
 }
 
 function setStatus(message, isError = false) {
-  statusEl.textContent = message;
-  statusEl.style.color = isError ? "#ffb29b" : "#f0d99b";
+  statusEls.forEach((element) => {
+    element.textContent = message;
+    element.style.color = isError ? "#ffb29b" : "#f0d99b";
+  });
 }
 
 function normalizeBoard(source) {
@@ -131,6 +145,7 @@ function normalizeBoard(source) {
   return {
     ...copyExtraFields(source, BOARD_KNOWN_KEYS),
     schemaVersion: BOARD_SCHEMA_VERSION,
+    worldMap: normalizeWorldMap(source?.worldMap),
     items: sourceItems.map((item, index) => {
       const fallbackId = slugify(item?.name || `ticket-${index + 1}`);
       const baseId = slugify(item?.id || fallbackId);
@@ -154,6 +169,48 @@ function normalizeBoard(source) {
         images: normalizeImages(item?.images)
       };
     })
+  };
+}
+
+function defaultWorldMap() {
+  return {
+    image: { ...DEFAULT_MAP_IMAGE },
+    regions: mapRegionOptions.map((name) => ({
+      id: slugify(name),
+      name,
+      note: DEFAULT_MAP_NOTE,
+      progress: 1
+    }))
+  };
+}
+
+function normalizeWorldMap(source) {
+  const fallback = defaultWorldMap();
+  const sourceRegions = Array.isArray(source?.regions) ? source.regions : [];
+  const regionById = new Map(sourceRegions.map((region) => [slugify(region?.id || region?.name), region]));
+
+  return {
+    ...copyExtraFields(source, WORLD_MAP_KNOWN_KEYS),
+    image: normalizeWorldMapImage(source?.image || fallback.image),
+    regions: mapRegionOptions.map((name) => {
+      const id = slugify(name);
+      const region = regionById.get(id) || {};
+      return {
+        ...copyExtraFields(region, WORLD_MAP_REGION_KNOWN_KEYS),
+        id,
+        name,
+        note: text(region?.note || fallback.regions.find((item) => item.id === id)?.note || DEFAULT_MAP_NOTE),
+        progress: clampPercent(region?.progress ?? fallback.regions.find((item) => item.id === id)?.progress)
+      };
+    })
+  };
+}
+
+function normalizeWorldMapImage(image) {
+  return {
+    ...copyExtraFields(image, WORLD_MAP_IMAGE_KNOWN_KEYS),
+    src: text(image?.src || DEFAULT_MAP_IMAGE.src),
+    alt: text(image?.alt || DEFAULT_MAP_IMAGE.alt)
   };
 }
 
@@ -233,6 +290,13 @@ function clampProgress(progress, location) {
     return Math.max(0, Math.min(100, Math.round(Number(progress))));
   }
   return normalizeLocation(location) === "done" ? 100 : 0;
+}
+
+function clampPercent(progress) {
+  if (Number.isFinite(Number(progress))) {
+    return Math.max(0, Math.min(100, Math.round(Number(progress))));
+  }
+  return 0;
 }
 
 function normalizeRegion(region) {
@@ -377,6 +441,52 @@ function renderForm() {
   isRenderingForm = false;
 }
 
+function currentMapRegion() {
+  return board.worldMap.regions.find((region) => region.id === selectedMapRegion) || board.worldMap.regions[0] || null;
+}
+
+function selectMapRegion(id) {
+  selectedMapRegion = id;
+  renderMapEditor();
+}
+
+function renderMapEditor() {
+  renderMapImageEditor();
+  renderMapRegionTabs();
+  renderMapRegionForm();
+}
+
+function renderMapImageEditor() {
+  if (!mapImagePreview || !mapImageAlt) return;
+  const image = board.worldMap.image;
+  mapImagePreview.innerHTML = image.src
+    ? `<img src="${escapeHtml(imagePreviewSrc(image.src))}" alt="${escapeHtml(image.alt)}">`
+    : `<span>No world map image uploaded.</span>`;
+  mapImageAlt.value = image.alt;
+}
+
+function renderMapRegionTabs() {
+  if (!mapRegionTabs) return;
+  mapRegionTabs.innerHTML = board.worldMap.regions.map((region) => `
+    <button class="region-chip${region.id === selectedMapRegion ? " is-active" : ""}" data-map-region="${escapeHtml(region.id)}" type="button">${escapeHtml(region.name)}</button>
+  `).join("");
+  mapRegionTabs.querySelectorAll("[data-map-region]").forEach((button) => {
+    button.addEventListener("click", () => selectMapRegion(button.dataset.mapRegion));
+  });
+}
+
+function renderMapRegionForm() {
+  const region = currentMapRegion();
+  if (!region || !mapRegionForm) return;
+  isRenderingMapForm = true;
+  mapRegionTitle.textContent = region.name;
+  mapRegionForm.elements.note.value = region.note;
+  mapRegionForm.elements.progress.value = region.progress;
+  mapProgressRange.value = region.progress;
+  mapProgressValue.textContent = `${region.progress}%`;
+  isRenderingMapForm = false;
+}
+
 function renderImageFields(images) {
   if (!images.length) {
     imageList.innerHTML = `<p class="empty-images">No images attached.</p>`;
@@ -511,6 +621,36 @@ function updateImagesFromForm() {
   markDirty();
 }
 
+function updateMapRegionFromForm() {
+  const region = currentMapRegion();
+  if (!region || isRenderingMapForm) return;
+  region.note = text(mapRegionForm.elements.note.value);
+  region.progress = clampPercent(mapRegionForm.elements.progress.value);
+  mapProgressRange.value = region.progress;
+  mapProgressValue.textContent = `${region.progress}%`;
+  markDirty();
+}
+
+function updateMapImageAlt() {
+  if (isRenderingMapForm) return;
+  board.worldMap.image.alt = text(mapImageAlt.value);
+  markDirty();
+}
+
+async function uploadMapImage(file) {
+  if (!file) return;
+  try {
+    const result = await uploadImageToGitHub(file, null, { maxDimension: 4200 });
+    board.worldMap.image.src = result.path;
+    board.worldMap.image.alt = board.worldMap.image.alt || "Project RuneCraft world map of Gielinor.";
+    markDirty();
+    renderMapImageEditor();
+    setStatus("Uploaded world map image as a local draft.");
+  } catch (error) {
+    showImageUploadError(error.message);
+  }
+}
+
 async function addImageFiles(files) {
   const ticket = currentTicket();
   if (!ticket) return;
@@ -553,7 +693,7 @@ async function addImageFiles(files) {
   }
 }
 
-async function uploadImageToGitHub(file, inlineStatus) {
+async function uploadImageToGitHub(file, inlineStatus, options = {}) {
   validateImageFile(file);
   const token = tokenInput.value.trim();
   if (!token) {
@@ -563,7 +703,7 @@ async function uploadImageToGitHub(file, inlineStatus) {
   if (inlineStatus) inlineStatus.textContent = `Uploading ${file.name}...`;
   setStatus(file.size > MAX_UPLOAD_SIZE ? `Preparing image ${file.name}.` : `Uploading image ${file.name}.`);
 
-  const prepared = await prepareImageForUpload(file);
+  const prepared = await prepareImageForUpload(file, options);
   setStatus(prepared.wasCompressed ? `Uploading compressed image ${file.name}.` : `Uploading image ${file.name}.`);
   const response = await fetch(ADMIN_ENDPOINT, {
     method: "POST",
@@ -599,7 +739,7 @@ function validateImageFile(file) {
   }
 }
 
-async function prepareImageForUpload(file) {
+async function prepareImageForUpload(file, options = {}) {
   if (file.size <= MAX_UPLOAD_SIZE) {
     return {
       fileName: file.name,
@@ -609,7 +749,7 @@ async function prepareImageForUpload(file) {
     };
   }
 
-  const compressed = await compressImageFile(file);
+  const compressed = await compressImageFile(file, options);
   if (compressed.blob.size > MAX_UPLOAD_SIZE) {
     throw new Error(`"${file.name}" could not be compressed enough for upload. Try exporting it closer to 4 MB.`);
   }
@@ -622,13 +762,13 @@ async function prepareImageForUpload(file) {
   };
 }
 
-async function compressImageFile(file) {
+async function compressImageFile(file, options = {}) {
   const image = await loadImageForCompression(file);
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) throw new Error(`"${file.name}" could not be prepared for upload.`);
 
-  const maxDimension = 2400;
+  const maxDimension = options.maxDimension || 2400;
   let scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
   let quality = 0.88;
   let blob = null;
@@ -786,26 +926,25 @@ function setMediaStatus(message, isError = false) {
   if (!siteMediaStatus) return;
   siteMediaStatus.textContent = message;
   siteMediaStatus.style.color = isError ? "#ffb29b" : "#f0d99b";
+  setStatus(message, isError);
 }
 
 function renderSiteMedia() {
   if (!siteMediaGrid) return;
   siteMediaGrid.innerHTML = siteMediaFields.map(([key, label, fallback]) => {
     const src = siteSettings.media[key] || fallback;
-    const isDefault = src === fallback;
     return `
       <article class="site-media-card" data-media-key="${escapeHtml(key)}">
         <h3>${escapeHtml(label)}</h3>
         <div class="site-media-preview">
           <img src="${escapeHtml(imagePreviewSrc(src))}" alt="">
         </div>
-        <p class="site-media-path">${escapeHtml(isDefault ? `Default: ${fallback}` : src)}</p>
+        <p class="site-media-path">${escapeHtml(src)}</p>
         <div class="site-media-actions">
           <label class="button secondary import-button">
             Replace
             <input data-site-media-upload="${escapeHtml(key)}" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml">
           </label>
-          <button class="button secondary" data-site-media-reset="${escapeHtml(key)}" type="button">Use default</button>
         </div>
       </article>
     `;
@@ -814,20 +953,12 @@ function renderSiteMedia() {
   siteMediaGrid.querySelectorAll("[data-site-media-upload]").forEach((input) => {
     input.addEventListener("change", uploadSiteMedia);
   });
-  siteMediaGrid.querySelectorAll("[data-site-media-reset]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const key = button.dataset.siteMediaReset;
-      siteSettings.media[key] = defaultSiteMedia[key];
-      markMediaDirty();
-      renderSiteMedia();
-    });
-  });
 }
 
 function markMediaDirty() {
   mediaDirty = true;
   updateSaveLabel();
-  setMediaStatus("Site media draft ready to publish.");
+  setMediaStatus("Site image draft ready to publish.");
 }
 
 async function uploadSiteMedia(event) {
@@ -863,7 +994,7 @@ async function loadSiteSettings() {
   } catch {
     siteSettings = normalizeSiteSettings({});
     mediaDirty = false;
-    setMediaStatus("Loaded default site media. Publishing needs the Netlify Function.", true);
+    setMediaStatus("Loaded default site images. Publishing needs the Netlify Function.", true);
   }
   renderSiteMedia();
   updateSaveLabel();
@@ -886,7 +1017,7 @@ async function saveSiteSettings(token) {
   siteSettings = normalizeSiteSettings(result.settings || siteSettings);
   mediaDirty = false;
   renderSiteMedia();
-  setMediaStatus("Published site media.");
+  setMediaStatus("Published site images.");
   return result;
 }
 
@@ -934,6 +1065,7 @@ async function loadBoard(forceRemote = false) {
         dirty = true;
         renderBoard();
         renderForm();
+        renderMapEditor();
         updateSaveLabel();
         setStatus("Loaded unsaved browser draft.");
         return;
@@ -963,6 +1095,7 @@ async function loadBoard(forceRemote = false) {
   dirty = false;
   renderBoard();
   renderForm();
+  renderMapEditor();
   updateSaveLabel();
 }
 
@@ -1011,6 +1144,7 @@ async function saveBoard() {
     const settingsResult = await saveSiteSettings(token);
     renderBoard();
     renderForm();
+    renderMapEditor();
     updateSaveLabel();
     const backupUrl = result.backupCommitUrl || result.commitUrl;
     if (backupUrl) {
@@ -1047,6 +1181,7 @@ async function importBoard(event) {
     markDirty();
     renderBoard();
     renderForm();
+    renderMapEditor();
     setStatus("Imported JSON as a local draft.");
   } catch {
     setStatus("That file was not valid board JSON.", true);
@@ -1069,6 +1204,19 @@ function imagePreviewSrc(src) {
   return `../${value.replace(/^\.?\//, "")}`;
 }
 
+function activateAdminTab(tabName) {
+  const availableTabs = new Set(["lumber-yard", "world-map", "site-media"]);
+  const selected = availableTabs.has(tabName) ? tabName : "lumber-yard";
+  adminTabButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.adminTab === selected);
+  });
+  adminPanels.forEach((panel) => {
+    const isActive = panel.dataset.adminPanel === selected;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
+}
+
 function slugify(value) {
   return String(value)
     .toLowerCase()
@@ -1089,9 +1237,20 @@ function escapeHtml(value) {
 form.addEventListener("submit", (event) => event.preventDefault());
 form.addEventListener("input", updateTicketFromForm);
 form.addEventListener("change", updateTicketFromForm);
+mapRegionForm?.addEventListener("submit", (event) => event.preventDefault());
+mapRegionForm?.addEventListener("input", updateMapRegionFromForm);
+mapRegionForm?.addEventListener("change", updateMapRegionFromForm);
+mapProgressRange?.addEventListener("input", () => {
+  mapRegionForm.elements.progress.value = mapProgressRange.value;
+  updateMapRegionFromForm();
+});
+mapImageAlt?.addEventListener("input", updateMapImageAlt);
 progressRange.addEventListener("input", () => {
   form.elements.progress.value = progressRange.value;
   updateTicketFromForm();
+});
+adminTabButtons.forEach((button) => {
+  button.addEventListener("click", () => activateAdminTab(button.dataset.adminTab));
 });
 document.querySelector("#new-ticket").addEventListener("click", createTicket);
 document.querySelector("#delete-ticket").addEventListener("click", deleteTicket);
@@ -1102,6 +1261,11 @@ adminCategoryFilter?.addEventListener("change", renderBoard);
 imageUpload?.addEventListener("change", async (event) => {
   event.stopPropagation();
   await addImageFiles(event.target.files || []);
+  event.target.value = "";
+});
+mapImageUpload?.addEventListener("change", async (event) => {
+  event.stopPropagation();
+  await uploadMapImage(event.target.files?.[0]);
   event.target.value = "";
 });
 ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {

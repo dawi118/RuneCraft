@@ -1055,8 +1055,59 @@ h3 {
   overflow: hidden;
 }
 
+.map-controls {
+  display: grid;
+  grid-template-columns: 44px minmax(140px, 1fr) 62px 44px;
+  gap: .55rem;
+  align-items: center;
+  padding: .65rem;
+  color: #ffe9a5;
+  background: #24160f;
+  border-bottom: 4px solid #0f0a06;
+}
+
+.map-controls button {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255, 226, 122, .34);
+  border-radius: var(--radius);
+  color: #ffe9a5;
+  background: #2f2118;
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.map-controls button:hover,
+.map-controls button:focus-visible {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+}
+
+.map-controls label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .6rem;
+  align-items: center;
+}
+
+.map-controls strong {
+  color: var(--gold-bright);
+  font-family: var(--display-font);
+  text-align: center;
+}
+
+.map-viewport {
+  height: clamp(360px, 58vw, 760px);
+  overflow: auto;
+  background: #0f0a06;
+}
+
 .map-greyscale {
-  filter: grayscale(1) saturate(.08) contrast(1.05) brightness(.86);
+  display: block;
+  max-width: none;
+  min-width: 100%;
+  height: auto;
+  transform-origin: top left;
 }
 
 .region-list {

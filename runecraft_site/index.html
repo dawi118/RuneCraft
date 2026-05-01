@@ -32,7 +32,7 @@
             <span><strong>Lumber Yard</strong><small>What we're building</small></span>
           </a>
           <a href="#map" data-tab="map">
-            <img src="assets/img/icon-world.svg" alt="" data-media-key="navMapIcon">
+            <img src="assets/img/icon-world.svg" alt="">
             <span><strong>World Map</strong><small>Progress to date</small></span>
           </a>
           <a href="#exchange" data-tab="exchange">
@@ -163,7 +163,18 @@
           <section class="section-band">
             <div class="section-inner map-layout">
               <figure class="map-frame reveal">
-                <img class="map-greyscale" src="assets/img/runecraft-pixel-map.svg" alt="Greyscale no-label Project RuneCraft map to colour as regions are completed." data-media-key="worldMapImage">
+                <div class="map-controls" aria-label="World map zoom controls">
+                  <button type="button" data-map-zoom="out" aria-label="Zoom out">−</button>
+                  <label>
+                    <span>Zoom</span>
+                    <input id="map-zoom-range" type="range" min="100" max="260" step="20" value="100">
+                  </label>
+                  <strong id="map-zoom-value">100%</strong>
+                  <button type="button" data-map-zoom="in" aria-label="Zoom in">+</button>
+                </div>
+                <div class="map-viewport" id="world-map-viewport">
+                  <img id="world-map-image" class="map-greyscale" src="assets/img/runecraft-pixel-map.svg" alt="Greyscale no-label Project RuneCraft map to colour as regions are completed.">
+                </div>
               </figure>
               <div class="region-list reveal">
                 <div class="region-tabs" id="region-tabs" aria-label="World map regions"></div>

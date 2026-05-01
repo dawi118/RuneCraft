@@ -8,7 +8,7 @@ const IDEA_EMAIL = "projectrunecraft@gmail.com";
 const CAROUSEL_INTERVAL_MS = 4200;
 const BUILD_IMAGE_CAROUSEL_INTERVAL_MS = 3600;
 const BOARD_SCHEMA_VERSION = 2;
-const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion"]);
+const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion", "worldMap"]);
 const TICKET_KNOWN_KEYS = new Set([
   "id",
   "name",
@@ -36,25 +36,19 @@ const defaultSiteMedia = {
   brandLogo: "assets/img/mc-old-school-logo.svg",
   navTutorialIcon: "assets/img/icon-blue-star.svg",
   navLumberIcon: "assets/img/icon-saw.svg",
-  navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
   navPartyIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
-  worldMapImage: "assets/img/runecraft-pixel-map.svg",
   partyHeroArt: "assets/img/falador-party-room.svg",
   openLogIcon: "assets/img/image.png",
-  draynorFallbackImage: "assets/img/falador-party-room.svg",
-  karamjaFallbackImage: "assets/img/runecraft-pixel-map.svg",
-  varrockFallbackImage: "assets/img/varrock-rooftops.svg",
-  grandExchangeFallbackImage: "assets/img/grand-exchange-stalls.svg",
-  lumbridgeFallbackImage: "assets/img/lumbridge-courtyard.svg",
-  completedBuildFallbackImage: "assets/img/grand-exchange-stalls.svg",
-  carouselFallbackImage: "assets/img/grand-exchange-stalls.svg",
   substackBuildNotesImage: "assets/img/grand-exchange-stalls.svg",
   substackProgressDiaryImage: "assets/img/varrock-rooftops.svg",
   substackNextImage: "assets/img/runecraft-pixel-map.svg"
 };
 let siteMedia = { ...defaultSiteMedia };
+const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
+const WORLD_MAP_IMAGE_KNOWN_KEYS = new Set(["src", "alt"]);
+const WORLD_MAP_REGION_KNOWN_KEYS = new Set(["id", "name", "note", "progress"]);
 
 const regionOptions = [
   "General",
@@ -96,7 +90,7 @@ const boardDefaults = {
       what: "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
       images: [
         {
-          src: mediaSrc("draynorFallbackImage"),
+          src: "assets/img/falador-party-room.svg",
           caption: "Mood placeholder for interior lighting, party-room colour and early-game eccentricity."
         }
       ]
@@ -115,7 +109,7 @@ const boardDefaults = {
       what: "We are testing water scale, shore transitions, and how much island compression still feels right.",
       images: [
         {
-          src: mediaSrc("karamjaFallbackImage"),
+          src: "assets/img/runecraft-pixel-map.svg",
           caption: "Route planning view for the Port Sarim to Karamja crossing."
         }
       ]
@@ -134,7 +128,7 @@ const boardDefaults = {
       what: "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
       images: [
         {
-          src: mediaSrc("varrockFallbackImage"),
+          src: "assets/img/varrock-rooftops.svg",
           caption: "Current roof palette and street density test."
         }
       ]
@@ -153,7 +147,7 @@ const boardDefaults = {
       what: "The stall rhythm, central floor shape, and first donor board location are roughed in.",
       images: [
         {
-          src: mediaSrc("grandExchangeFallbackImage"),
+          src: "assets/img/grand-exchange-stalls.svg",
           caption: "Market stall layout and donor-board sightline test."
         }
       ]
@@ -172,7 +166,7 @@ const boardDefaults = {
       what: "We settled the first scale rules, chose a castle palette, and created path widths that work in Minecraft first-person.",
       images: [
         {
-          src: mediaSrc("lumbridgeFallbackImage"),
+          src: "assets/img/lumbridge-courtyard.svg",
           caption: "Completed castle-courtyard scale and path-width proof."
         }
       ]
@@ -207,14 +201,18 @@ function fallbackSubstackFeed() {
 }
 
 const mapRegionStatus = "Terrain is in place. We haven't started building on this yet.";
-const regions = Object.fromEntries(mapRegionOptions.map((name) => [
-  slugify(name),
-  {
+const defaultWorldMap = {
+  image: {
+    src: "assets/img/runecraft-pixel-map.svg",
+    alt: "Greyscale no-label Project RuneCraft map to colour as regions are completed."
+  },
+  regions: mapRegionOptions.map((name) => ({
+    id: slugify(name),
     name,
     progress: 1,
     note: mapRegionStatus
-  }
-]));
+  }))
+};
 
 let board = normalizeBoard(boardDefaults);
 
@@ -239,7 +237,11 @@ const donationRaisedEl = document.querySelector("#donation-raised");
 const donationGoalEl = document.querySelector("#donation-goal");
 const donationProgressEl = document.querySelector("#donation-progress");
 const donationProgressBarEl = document.querySelector("#donation-progress-bar");
+const worldMapImage = document.querySelector("#world-map-image");
+const mapZoomRange = document.querySelector("#map-zoom-range");
+const mapZoomValue = document.querySelector("#map-zoom-value");
 let imageViewer = null;
+let mapZoom = 100;
 
 function normalizeBoard(source) {
   const sourceItems = Array.isArray(source?.items) ? source.items : [];
@@ -268,7 +270,38 @@ function normalizeBoard(source) {
   return {
     ...copyExtraFields(source, BOARD_KNOWN_KEYS),
     schemaVersion: BOARD_SCHEMA_VERSION,
+    worldMap: normalizeWorldMap(source?.worldMap),
     items
+  };
+}
+
+function normalizeWorldMap(source) {
+  const sourceRegions = Array.isArray(source?.regions) ? source.regions : [];
+  const regionById = new Map(sourceRegions.map((region) => [slugify(region?.id || region?.name), region]));
+
+  return {
+    ...copyExtraFields(source, WORLD_MAP_KNOWN_KEYS),
+    image: normalizeWorldMapImage(source?.image || defaultWorldMap.image),
+    regions: mapRegionOptions.map((name) => {
+      const id = slugify(name);
+      const region = regionById.get(id) || {};
+      const fallback = defaultWorldMap.regions.find((item) => item.id === id) || {};
+      return {
+        ...copyExtraFields(region, WORLD_MAP_REGION_KNOWN_KEYS),
+        id,
+        name,
+        note: region?.note || fallback.note || mapRegionStatus,
+        progress: getClampedProgress(region?.progress ?? fallback.progress)
+      };
+    })
+  };
+}
+
+function normalizeWorldMapImage(image) {
+  return {
+    ...copyExtraFields(image, WORLD_MAP_IMAGE_KNOWN_KEYS),
+    src: image?.src || defaultWorldMap.image.src,
+    alt: image?.alt || defaultWorldMap.image.alt
   };
 }
 
@@ -475,7 +508,7 @@ function completedBuildToCarouselItem(task) {
   return {
     title: task.name,
     summary: task.subtitle || task.what || "Completed build.",
-    image: primaryImage.src || mediaSrc("completedBuildFallbackImage"),
+    image: primaryImage.src || "assets/img/grand-exchange-stalls.svg",
     url: `#build-${task.id}`,
     date: `${task.region} - ${categoryLabel(task.category)}`,
     action: "Open build log"
@@ -528,7 +561,7 @@ function renderCarousel(feedName, items) {
 }
 
 function carouselCardTemplate(item, index) {
-  const image = item.image || mediaSrc("carouselFallbackImage");
+  const image = item.image || "assets/img/grand-exchange-stalls.svg";
   const summary = item.summary ? `<p>${escapeHtml(item.summary)}</p>` : "";
   const date = item.date ? `<time>${escapeHtml(item.date)}</time>` : "";
   const isExternal = /^https?:\/\//i.test(item.url);
@@ -612,6 +645,7 @@ async function loadBoardData() {
   }
 
   renderBoard();
+  renderWorldMap();
   handleHash();
 }
 
@@ -632,6 +666,7 @@ function applyLiveBoardUpdate(rawValue) {
   board = savedBoard;
   setBoardStatus("");
   renderBoard();
+  renderWorldMap();
 
   const hash = window.location.hash.replace("#", "");
   if (hash.startsWith("build-")) {
@@ -1065,12 +1100,26 @@ function handleHash() {
   activateTab(hash || "tutorial");
 }
 
+function renderWorldMap() {
+  renderWorldMapImage();
+  renderRegionTabs();
+  renderRegion(slugify(mapRegionOptions[0]));
+}
+
+function renderWorldMapImage() {
+  if (!worldMapImage) return;
+  const image = board.worldMap?.image || defaultWorldMap.image;
+  worldMapImage.src = image.src;
+  worldMapImage.alt = image.alt;
+  setMapZoom(mapZoom);
+}
+
 function renderRegion(name) {
-  const region = regions[name] || regions[slugify(mapRegionOptions[0])];
+  const region = board.worldMap?.regions.find((item) => item.id === name) || board.worldMap?.regions[0] || defaultWorldMap.regions[0];
   document.querySelector("#region-panel").innerHTML = `
-    <h3>${region.name}</h3>
-    <p>${region.note}</p>
-    <div class="region-progress" aria-label="${region.name} progress ${region.progress}%">
+    <h3>${escapeHtml(region.name)}</h3>
+    <p>${escapeHtml(region.note)}</p>
+    <div class="region-progress" aria-label="${escapeHtml(region.name)} progress ${region.progress}%">
       <span style="width: ${region.progress}%"></span>
     </div>
   `;
@@ -1080,9 +1129,10 @@ function renderRegionTabs() {
   const tabsEl = document.querySelector("#region-tabs");
   if (!tabsEl) return;
 
-  const firstRegion = slugify(mapRegionOptions[0]);
-  tabsEl.innerHTML = mapRegionOptions.map((region, index) => `
-    <button class="region-chip${index === 0 ? " is-active" : ""}" data-region="${escapeHtml(slugify(region))}" type="button">${escapeHtml(region)}</button>
+  const mapRegions = board.worldMap?.regions?.length ? board.worldMap.regions : defaultWorldMap.regions;
+  const firstRegion = mapRegions[0]?.id || slugify(mapRegionOptions[0]);
+  tabsEl.innerHTML = mapRegions.map((region, index) => `
+    <button class="region-chip${index === 0 ? " is-active" : ""}" data-region="${escapeHtml(region.id)}" type="button">${escapeHtml(region.name)}</button>
   `).join("");
 
   tabsEl.querySelectorAll(".region-chip").forEach((chip) => {
@@ -1092,6 +1142,19 @@ function renderRegionTabs() {
       renderRegion(chip.dataset.region || firstRegion);
     });
   });
+}
+
+function setMapZoom(value) {
+  mapZoom = Math.max(100, Math.min(260, Number(value) || 100));
+  if (worldMapImage) {
+    worldMapImage.style.width = `${mapZoom}%`;
+  }
+  if (mapZoomRange) {
+    mapZoomRange.value = String(mapZoom);
+  }
+  if (mapZoomValue) {
+    mapZoomValue.textContent = `${mapZoom}%`;
+  }
 }
 
 function getTaskProgress(task) {
@@ -1196,6 +1259,13 @@ window.addEventListener("resize", () => {
 });
 regionFilter?.addEventListener("change", renderBoard);
 categoryFilter?.addEventListener("change", renderBoard);
+mapZoomRange?.addEventListener("input", () => setMapZoom(mapZoomRange.value));
+document.querySelectorAll("[data-map-zoom]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const direction = button.dataset.mapZoom === "in" ? 20 : -20;
+    setMapZoom(mapZoom + direction);
+  });
+});
 ideaForm?.addEventListener("submit", handleIdeaFormSubmit);
 document.querySelectorAll("[data-idea-scroll]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -1215,8 +1285,7 @@ async function initializeSite() {
   await loadSiteSettings();
   renderBoardFilters();
   renderBoard();
-  renderRegionTabs();
-  renderRegion(slugify(mapRegionOptions[0]));
+  renderWorldMap();
   loadSubstackFeed();
   loadDonationProgress();
   loadBoardData();

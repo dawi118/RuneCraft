@@ -21,7 +21,6 @@
         </div>
         <div class="admin-header-actions">
           <a class="button secondary" href="../">Main website</a>
-          <button class="button primary" id="save-board" type="button">Save</button>
         </div>
       </header>
 
@@ -34,127 +33,185 @@
           Admin token
           <input id="admin-token" type="password" autocomplete="current-password" placeholder="Paste admin token">
         </label>
-      </section>
-
-      <section class="admin-panel site-media-panel" aria-labelledby="site-media-heading">
-        <div class="site-media-head">
-          <div>
-            <h2 id="site-media-heading">Site media</h2>
-            <p>Replace sprites, page art, fallback images, and icons without redeploying the website.</p>
-          </div>
-          <span id="site-media-status" role="status" aria-live="polite">Loading site media.</span>
+        <div class="admin-save-box">
+          <span id="admin-global-status" data-admin-status role="status" aria-live="polite">Loading board data.</span>
+          <button class="button primary" id="save-board" type="button">Save</button>
         </div>
-        <div class="site-media-grid" id="site-media-grid"></div>
       </section>
 
-      <section class="admin-toolbar" aria-label="Board controls">
-        <button class="button primary" id="new-ticket" type="button">New ticket</button>
-        <button class="button secondary" id="export-board" type="button">Export JSON</button>
-        <label class="button secondary import-button">
-          Import JSON
-          <input id="import-board" type="file" accept="application/json,.json">
-        </label>
-        <label class="filter-control">
-          Region
-          <select id="admin-region-filter"></select>
-        </label>
-        <label class="filter-control">
-          Type
-          <select id="admin-category-filter"></select>
-        </label>
-        <span id="admin-status" role="status" aria-live="polite">Loading board data.</span>
-      </section>
+      <nav class="admin-tabs" aria-label="Admin board sections">
+        <button class="admin-tab is-active" type="button" data-admin-tab="lumber-yard">Lumber Yard</button>
+        <button class="admin-tab" type="button" data-admin-tab="world-map">World Map</button>
+        <button class="admin-tab" type="button" data-admin-tab="site-media">Site Images</button>
+      </nav>
 
-      <section class="admin-layout" id="editor">
-        <div class="admin-board" id="admin-board" aria-label="Editable ticket list"></div>
+      <section class="admin-tab-panel is-active" id="admin-lumber-yard" data-admin-panel="lumber-yard">
+        <section class="admin-toolbar" aria-label="Board controls">
+          <button class="button primary" id="new-ticket" type="button">New ticket</button>
+          <button class="button secondary" id="export-board" type="button">Export JSON</button>
+          <label class="button secondary import-button">
+            Import JSON
+            <input id="import-board" type="file" accept="application/json,.json">
+          </label>
+          <label class="filter-control">
+            Region
+            <select id="admin-region-filter"></select>
+          </label>
+          <label class="filter-control">
+            Type
+            <select id="admin-category-filter"></select>
+          </label>
+          <span id="admin-status" data-admin-status role="status" aria-live="polite">Loading board data.</span>
+        </section>
 
-        <form class="admin-panel ticket-form" id="ticket-form">
-          <div class="form-head">
-            <div>
-              <p class="eyebrow">Ticket</p>
-              <h2 id="form-title">Select a ticket</h2>
+        <section class="admin-layout" id="editor">
+          <div class="admin-board" id="admin-board" aria-label="Editable ticket list"></div>
+
+          <form class="admin-panel ticket-form" id="ticket-form">
+            <div class="form-head">
+              <div>
+                <p class="eyebrow">Ticket</p>
+                <h2 id="form-title">Select a ticket</h2>
+              </div>
+              <button class="button secondary danger" id="delete-ticket" type="button">Delete</button>
             </div>
-            <button class="button secondary danger" id="delete-ticket" type="button">Delete</button>
-          </div>
 
-          <label>
-            Name
-            <input name="name" type="text" required>
+            <label>
+              Name
+              <input name="name" type="text" required>
+            </label>
+
+            <label>
+              ID
+              <input name="id" type="text" required pattern="[a-z0-9-]+" readonly>
+            </label>
+
+            <label>
+              Description
+              <textarea name="subtitle" rows="3"></textarea>
+            </label>
+
+            <div class="field-grid">
+              <label>
+                Status
+                <select name="location">
+                  <option value="backlog">Backlog</option>
+                  <option value="progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </label>
+              <label>
+                Fan request
+                <select name="fanRequest">
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="field-grid">
+              <label>
+                Region
+                <select name="region" id="ticket-region"></select>
+              </label>
+              <label>
+                Type
+                <select name="category" id="ticket-category"></select>
+              </label>
+            </div>
+
+            <div class="range-row">
+              <input id="progress-range" name="progress" type="range" min="0" max="100" step="1">
+              <span id="progress-value">0%</span>
+            </div>
+
+            <div class="field-grid">
+              <label>
+                Estimated build time (hours)
+                <input name="estimatedTotalTime" type="number" min="0" step="0.1">
+              </label>
+              <label>
+                Estimated time left
+                <input name="estimatedTimeLeft" type="text" readonly>
+              </label>
+            </div>
+
+            <label>
+              Progress update
+              <textarea name="what" rows="5"></textarea>
+            </label>
+
+            <div class="images-head">
+              <h3>Images</h3>
+            </div>
+            <div class="image-drop" id="image-drop" tabindex="0">
+              <strong>Drop images here</strong>
+              <span>PNG, JPEG, GIF, WebP, or SVG. Up to 10 images. Photos can be up to 10MB each.</span>
+              <label class="button secondary import-button">
+                Upload images
+                <input id="image-upload" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml" multiple>
+              </label>
+            </div>
+            <div class="image-list" id="image-list"></div>
+          </form>
+        </section>
+      </section>
+
+      <section class="admin-tab-panel" id="admin-world-map" data-admin-panel="world-map" hidden>
+        <section class="admin-toolbar" aria-label="World map controls">
+          <label class="button secondary import-button">
+            Upload map image
+            <input id="map-image-upload" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml">
           </label>
+          <span id="admin-map-status" data-admin-status role="status" aria-live="polite">Loading map data.</span>
+        </section>
 
-          <label>
-            ID
-            <input name="id" type="text" required pattern="[a-z0-9-]+" readonly>
-          </label>
-
-          <label>
-            Description
-            <textarea name="subtitle" rows="3"></textarea>
-          </label>
-
-          <div class="field-grid">
+        <section class="admin-layout map-admin-layout">
+          <div class="admin-panel map-admin-preview">
+            <div class="form-head">
+              <div>
+                <p class="eyebrow">World Map</p>
+                <h2>Gielinor image</h2>
+              </div>
+            </div>
+            <div class="map-image-preview" id="map-image-preview"></div>
             <label>
-              Status
-              <select name="location">
-                <option value="backlog">Backlog</option>
-                <option value="progress">In Progress</option>
-                <option value="done">Done</option>
-              </select>
-            </label>
-            <label>
-              Fan request
-              <select name="fanRequest">
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-              </select>
+              Image alt text
+              <input id="map-image-alt" type="text" placeholder="Describe the world map image">
             </label>
           </div>
 
-          <div class="field-grid">
+          <form class="admin-panel ticket-form" id="map-region-form">
+            <div class="form-head">
+              <div>
+                <p class="eyebrow">Region</p>
+                <h2 id="map-region-title">Misthalin</h2>
+              </div>
+            </div>
+            <div class="region-tabs map-region-tabs" id="map-region-tabs" aria-label="Editable world map regions"></div>
             <label>
-              Region
-              <select name="region" id="ticket-region"></select>
+              Box text
+              <textarea name="note" rows="5"></textarea>
             </label>
-            <label>
-              Type
-              <select name="category" id="ticket-category"></select>
-            </label>
-          </div>
+            <div class="range-row">
+              <input id="map-progress-range" name="progress" type="range" min="0" max="100" step="1">
+              <span id="map-progress-value">0%</span>
+            </div>
+          </form>
+        </section>
+      </section>
 
-          <div class="range-row">
-            <input id="progress-range" name="progress" type="range" min="0" max="100" step="1">
-            <span id="progress-value">0%</span>
+      <section class="admin-tab-panel" id="admin-site-media" data-admin-panel="site-media" hidden>
+        <section class="admin-panel site-media-panel" aria-labelledby="site-media-heading">
+          <div class="site-media-head">
+            <div>
+              <h2 id="site-media-heading">Site images</h2>
+              <p>Replace sprites, page art, fallback images, and icons without redeploying the website.</p>
+            </div>
+            <span id="site-media-status" role="status" aria-live="polite">Loading site media.</span>
           </div>
-
-          <div class="field-grid">
-            <label>
-              Estimated build time (hours)
-              <input name="estimatedTotalTime" type="number" min="0" step="0.1">
-            </label>
-            <label>
-              Estimated time left
-              <input name="estimatedTimeLeft" type="text" readonly>
-            </label>
-          </div>
-
-          <label>
-            Progress update
-            <textarea name="what" rows="5"></textarea>
-          </label>
-
-          <div class="images-head">
-            <h3>Images</h3>
-          </div>
-          <div class="image-drop" id="image-drop" tabindex="0">
-            <strong>Drop images here</strong>
-            <span>PNG, JPEG, GIF, WebP, or SVG. Up to 10 images. Photos can be up to 10MB each.</span>
-            <label class="button secondary import-button">
-              Upload images
-              <input id="image-upload" type="file" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml" multiple>
-            </label>
-          </div>
-          <div class="image-list" id="image-list"></div>
-        </form>
+          <div class="site-media-grid" id="site-media-grid"></div>
+        </section>
       </section>
     </main>
     <script src="admin.js"></script>

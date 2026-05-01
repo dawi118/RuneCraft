@@ -23,10 +23,16 @@ const REGION_OPTIONS = [
 const CATEGORY_OPTIONS = ["landscape", "monument", "building", "infrastructure", "other"];
 const BOARD_SCHEMA_VERSION = 2;
 const SETTINGS_SCHEMA_VERSION = 1;
+const MAP_REGION_OPTIONS = REGION_OPTIONS.filter((region) => region !== "General");
+const DEFAULT_MAP_NOTE = "Terrain is in place. We haven't started building on this yet.";
+const DEFAULT_MAP_IMAGE = {
+  src: "assets/img/runecraft-pixel-map.svg",
+  alt: "Greyscale no-label Project RuneCraft map to colour as regions are completed."
+};
 const MAX_IMAGES = 10;
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const MAX_EXTRA_FIELD_BYTES = 64 * 1024;
-const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion"]);
+const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion", "worldMap"]);
 const TICKET_KNOWN_KEYS = new Set([
   "id",
   "name",
@@ -55,26 +61,21 @@ const SITE_MEDIA_DEFAULTS = {
   brandLogo: "assets/img/mc-old-school-logo.svg",
   navTutorialIcon: "assets/img/icon-blue-star.svg",
   navLumberIcon: "assets/img/icon-saw.svg",
-  navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
   navPartyIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
-  worldMapImage: "assets/img/runecraft-pixel-map.svg",
   partyHeroArt: "assets/img/falador-party-room.svg",
   openLogIcon: "assets/img/image.png",
-  draynorFallbackImage: "assets/img/falador-party-room.svg",
-  karamjaFallbackImage: "assets/img/runecraft-pixel-map.svg",
-  varrockFallbackImage: "assets/img/varrock-rooftops.svg",
-  grandExchangeFallbackImage: "assets/img/grand-exchange-stalls.svg",
-  lumbridgeFallbackImage: "assets/img/lumbridge-courtyard.svg",
-  completedBuildFallbackImage: "assets/img/grand-exchange-stalls.svg",
-  carouselFallbackImage: "assets/img/grand-exchange-stalls.svg",
   substackBuildNotesImage: "assets/img/grand-exchange-stalls.svg",
   substackProgressDiaryImage: "assets/img/varrock-rooftops.svg",
   substackNextImage: "assets/img/runecraft-pixel-map.svg"
 };
+const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
+const WORLD_MAP_IMAGE_KNOWN_KEYS = new Set(["src", "alt"]);
+const WORLD_MAP_REGION_KNOWN_KEYS = new Set(["id", "name", "note", "progress"]);
 const IMAGE_TYPES = {
   "image/gif": "gif",
+  "image/jpg": "jpg",
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/svg+xml": "svg",
@@ -480,6 +481,7 @@ function normalizeBoard(source) {
   return {
     ...normalizeExtraFields(source, BOARD_KNOWN_KEYS),
     schemaVersion: BOARD_SCHEMA_VERSION,
+    worldMap: normalizeWorldMap(source?.worldMap),
     items: items.map((item, index) => {
       const id = slugify(item?.id || item?.name || `ticket-${index + 1}`);
       if (seen.has(id)) throw httpError(400, `Duplicate ticket ID: ${id}`);
@@ -505,6 +507,49 @@ function normalizeBoard(source) {
         images: normalizeImages(item?.images)
       };
     })
+  };
+}
+
+function defaultWorldMap() {
+  return {
+    image: { ...DEFAULT_MAP_IMAGE },
+    regions: MAP_REGION_OPTIONS.map((name) => ({
+      id: slugify(name),
+      name,
+      note: DEFAULT_MAP_NOTE,
+      progress: 1
+    }))
+  };
+}
+
+function normalizeWorldMap(source) {
+  const fallback = defaultWorldMap();
+  const sourceRegions = Array.isArray(source?.regions) ? source.regions : [];
+  const regionById = new Map(sourceRegions.map((region) => [slugify(region?.id || region?.name), region]));
+
+  return {
+    ...normalizeExtraFields(source, WORLD_MAP_KNOWN_KEYS),
+    image: normalizeWorldMapImage(source?.image || fallback.image),
+    regions: MAP_REGION_OPTIONS.map((name) => {
+      const id = slugify(name);
+      const region = regionById.get(id) || {};
+      const fallbackRegion = fallback.regions.find((item) => item.id === id) || {};
+      return {
+        ...normalizeExtraFields(region, WORLD_MAP_REGION_KNOWN_KEYS),
+        id,
+        name,
+        note: limitText(region?.note || fallbackRegion.note || DEFAULT_MAP_NOTE, 1200),
+        progress: clampPercent(region?.progress ?? fallbackRegion.progress)
+      };
+    })
+  };
+}
+
+function normalizeWorldMapImage(image) {
+  return {
+    ...normalizeExtraFields(image, WORLD_MAP_IMAGE_KNOWN_KEYS),
+    src: limitText(image?.src || DEFAULT_MAP_IMAGE.src, 2048),
+    alt: limitText(image?.alt || DEFAULT_MAP_IMAGE.alt, 240)
   };
 }
 
@@ -635,6 +680,13 @@ function clampProgress(progress, location) {
     return Math.max(0, Math.min(100, Math.round(Number(progress))));
   }
   return normalizeLocation(location) === "done" ? 100 : 0;
+}
+
+function clampPercent(progress) {
+  if (Number.isFinite(Number(progress))) {
+    return Math.max(0, Math.min(100, Math.round(Number(progress))));
+  }
+  return 0;
 }
 
 function normalizeRegion(region) {
