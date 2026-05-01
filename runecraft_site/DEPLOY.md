@@ -77,13 +77,13 @@ The previous admin page used Decap CMS with the GitHub backend. That workflow de
 
 The completed-build carousel is populated from the board data and uses the most recent five tickets marked `Done`.
 
-The Substack carousel has local fallback cards. In production, Substack posts are read from:
+The Substack carousel has local fallback cards that link to:
 
 ```text
-https://dhmorgan.substack.com/feed
+https://substack.com/@projectrunecraft
 ```
 
-Set `SUBSTACK_FEED_URL` in Netlify only if that changes.
+Set `SUBSTACK_FEED_URL` in Netlify only if a project publication RSS feed becomes available.
 
 ## Donation Link
 

@@ -127,13 +127,13 @@ The admin "Site media" panel writes media overrides to the same Netlify Function
 
 The Grand Exchange page shows the latest completed build tickets from the board data. It takes the most recent five items marked `Done`, using the current board order because tickets do not currently store completion dates.
 
-The Substack carousel calls `netlify/functions/social-feed.js` and falls back to bundled cards when a live feed is not available. By default the function reads:
+The Substack carousel calls `netlify/functions/social-feed.js` and falls back to bundled cards linking to:
 
 ```text
-https://dhmorgan.substack.com/feed
+https://substack.com/@projectrunecraft
 ```
 
-Override it with `SUBSTACK_FEED_URL` if the publication changes.
+Set `SUBSTACK_FEED_URL` if a project publication RSS feed becomes available.
 
 ## Editing Build Board Content
 
@@ -164,7 +164,7 @@ The admin image uploader accepts up to 10 images per ticket. JPEG, PNG, and WebP
 
 ## Community Idea Storage
 
-The public Party Room page currently avoids storing visitor submissions on the site. The form opens an email draft to `dm370473@gmail.com`, which keeps the static site from collecting personal data before there is a moderated, GDPR-aware submission workflow.
+The public Party Room page currently avoids storing visitor submissions on the site. The form opens an email draft to `projectrunecraft@gmail.com`, which keeps the static site from collecting personal data before there is a moderated, GDPR-aware submission workflow.
 
 Good future storage options:
 
