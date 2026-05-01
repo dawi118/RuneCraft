@@ -90,6 +90,7 @@ For the low-stakes board workflow, this project now uses a smaller first-party e
 - Drafts are saved in the admin's browser while they work.
 - Production saves go through `netlify/functions/board.js`, which writes the live board JSON to Netlify Blobs by default.
 - New admin-uploaded images are stored in Netlify Blobs and served by the same function, so they are available immediately without needing a new static deploy.
+- Core site media such as the favicon, header logo, nav sprites, home hero map, world map art, Party Room art, ticket fallback images, and carousel fallback images can be replaced from the admin screen. These settings are saved in Netlify Blobs as `site-settings.json`.
 - GitHub backup commits are optional. Set `BOARD_GITHUB_BACKUP=true` only if you want each board save mirrored to `runecraft_site/data/board.json`; the included Netlify ignore script skips data-only backup commits.
 - The GitHub token never appears in browser JavaScript, and the admin token is not persisted in browser storage.
 
@@ -119,6 +120,8 @@ curl -X PATCH https://your-site-url/.netlify/functions/board \
 ```
 
 The normalizer preserves unknown board, ticket, and image metadata so future fields such as `completedAt`, `carouselGroup`, or image `focalPoint` survive admin saves.
+
+The admin "Site media" panel writes media overrides to the same Netlify Function using `?settings=1`. The public site fetches those settings at runtime and swaps any matching `data-media-key` images, so replacing sprites or page art does not require a redeploy after this feature is deployed.
 
 ## Grand Exchange Updates
 

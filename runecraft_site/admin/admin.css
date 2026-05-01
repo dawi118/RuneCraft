@@ -59,6 +59,7 @@
 }
 
 .admin-auth h2,
+.site-media-panel h2,
 .ticket-form h2 {
   font-size: clamp(1.45rem, 3vw, 2.2rem);
 }
@@ -75,8 +76,77 @@
   margin: 1rem 0;
 }
 
-#admin-status {
+#admin-status,
+#site-media-status {
   color: #f0d99b;
+}
+
+.site-media-panel {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.site-media-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+}
+
+.site-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: .85rem;
+}
+
+.site-media-card {
+  display: grid;
+  gap: .65rem;
+  padding: .75rem;
+  border: 3px solid rgba(255, 226, 122, .22);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, .16);
+}
+
+.site-media-card h3 {
+  font-size: 1rem;
+  color: #ffe9a5;
+}
+
+.site-media-preview {
+  display: grid;
+  place-items: center;
+  min-height: 116px;
+  border: 3px solid rgba(255, 226, 122, .18);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(45deg, rgba(255,255,255,.05) 25%, transparent 25% 75%, rgba(255,255,255,.05) 75%),
+    linear-gradient(45deg, rgba(255,255,255,.05) 25%, transparent 25% 75%, rgba(255,255,255,.05) 75%) 12px 12px,
+    #17100c;
+  background-size: 24px 24px;
+  overflow: hidden;
+}
+
+.site-media-preview img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+}
+
+.site-media-path {
+  min-height: 2.4em;
+  color: #d7c18b;
+  font-size: .82rem;
+  overflow-wrap: anywhere;
+}
+
+.site-media-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
 }
 
 .upload-error-banner {

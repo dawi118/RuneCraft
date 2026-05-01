@@ -1,4 +1,5 @@
 const BOARD_ENDPOINT = "/.netlify/functions/board";
+const SETTINGS_ENDPOINT = "/.netlify/functions/board?settings=1";
 const SOCIAL_FEED_ENDPOINT = "/.netlify/functions/social-feed";
 const DONATION_ENDPOINT = "/.netlify/functions/donation";
 const STATIC_BOARD_PATH = "data/board.json";
@@ -30,6 +31,30 @@ const TICKET_KNOWN_KEYS = new Set([
   "images"
 ]);
 const IMAGE_KNOWN_KEYS = new Set(["src", "caption"]);
+const defaultSiteMedia = {
+  favicon: "assets/img/favicon.svg",
+  brandLogo: "assets/img/mc-old-school-logo.svg",
+  navTutorialIcon: "assets/img/icon-blue-star.svg",
+  navLumberIcon: "assets/img/icon-saw.svg",
+  navMapIcon: "assets/img/icon-world.svg",
+  navExchangeIcon: "assets/img/icon-coins.svg",
+  navPartyIcon: "assets/img/icon-balloon.svg",
+  homeHeroMap: "assets/img/runecraft-pixel-map.svg",
+  worldMapImage: "assets/img/runecraft-pixel-map.svg",
+  partyHeroArt: "assets/img/falador-party-room.svg",
+  openLogIcon: "assets/img/image.png",
+  draynorFallbackImage: "assets/img/falador-party-room.svg",
+  karamjaFallbackImage: "assets/img/runecraft-pixel-map.svg",
+  varrockFallbackImage: "assets/img/varrock-rooftops.svg",
+  grandExchangeFallbackImage: "assets/img/grand-exchange-stalls.svg",
+  lumbridgeFallbackImage: "assets/img/lumbridge-courtyard.svg",
+  completedBuildFallbackImage: "assets/img/grand-exchange-stalls.svg",
+  carouselFallbackImage: "assets/img/grand-exchange-stalls.svg",
+  substackBuildNotesImage: "assets/img/grand-exchange-stalls.svg",
+  substackProgressDiaryImage: "assets/img/varrock-rooftops.svg",
+  substackNextImage: "assets/img/runecraft-pixel-map.svg"
+};
+let siteMedia = { ...defaultSiteMedia };
 
 const regionOptions = [
   "General",
@@ -71,7 +96,7 @@ const boardDefaults = {
       what: "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
       images: [
         {
-          src: "assets/img/falador-party-room.svg",
+          src: mediaSrc("draynorFallbackImage"),
           caption: "Mood placeholder for interior lighting, party-room colour and early-game eccentricity."
         }
       ]
@@ -90,7 +115,7 @@ const boardDefaults = {
       what: "We are testing water scale, shore transitions, and how much island compression still feels right.",
       images: [
         {
-          src: "assets/img/runecraft-pixel-map.svg",
+          src: mediaSrc("karamjaFallbackImage"),
           caption: "Route planning view for the Port Sarim to Karamja crossing."
         }
       ]
@@ -109,7 +134,7 @@ const boardDefaults = {
       what: "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
       images: [
         {
-          src: "assets/img/varrock-rooftops.svg",
+          src: mediaSrc("varrockFallbackImage"),
           caption: "Current roof palette and street density test."
         }
       ]
@@ -128,7 +153,7 @@ const boardDefaults = {
       what: "The stall rhythm, central floor shape, and first donor board location are roughed in.",
       images: [
         {
-          src: "assets/img/grand-exchange-stalls.svg",
+          src: mediaSrc("grandExchangeFallbackImage"),
           caption: "Market stall layout and donor-board sightline test."
         }
       ]
@@ -147,7 +172,7 @@ const boardDefaults = {
       what: "We settled the first scale rules, chose a castle palette, and created path widths that work in Minecraft first-person.",
       images: [
         {
-          src: "assets/img/lumbridge-courtyard.svg",
+          src: mediaSrc("lumbridgeFallbackImage"),
           caption: "Completed castle-courtyard scale and path-width proof."
         }
       ]
@@ -155,29 +180,31 @@ const boardDefaults = {
   ]
 };
 
-const fallbackSubstackFeed = [
-  {
-    title: "Build notes and world decisions",
-    summary: "Longer posts can hold build mistakes, texture tests, votes, and region write-ups.",
-    image: "assets/img/grand-exchange-stalls.svg",
-    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
-    date: "Substack"
-  },
-  {
-    title: "Progress diary",
-    summary: "A place for the story behind each board move and milestone.",
-    image: "assets/img/varrock-rooftops.svg",
-    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
-    date: "Substack"
-  },
-  {
-    title: "What comes next",
-    summary: "Short notes on next regions, downloads, and community requests.",
-    image: "assets/img/runecraft-pixel-map.svg",
-    url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
-    date: "Substack"
-  }
-];
+function fallbackSubstackFeed() {
+  return [
+    {
+      title: "Build notes and world decisions",
+      summary: "Longer posts can hold build mistakes, texture tests, votes, and region write-ups.",
+      image: mediaSrc("substackBuildNotesImage"),
+      url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+      date: "Substack"
+    },
+    {
+      title: "Progress diary",
+      summary: "A place for the story behind each board move and milestone.",
+      image: mediaSrc("substackProgressDiaryImage"),
+      url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+      date: "Substack"
+    },
+    {
+      title: "What comes next",
+      summary: "Short notes on next regions, downloads, and community requests.",
+      image: mediaSrc("substackNextImage"),
+      url: "https://dhmorgan.substack.com/?utm_campaign=profile_chips",
+      date: "Substack"
+    }
+  ];
+}
 
 const mapRegionStatus = "Terrain is in place. We haven't started building on this yet.";
 const regions = Object.fromEntries(mapRegionOptions.map((name) => [
@@ -265,6 +292,49 @@ function isSafeExtraKey(key) {
   return /^(?!__proto__$|constructor$|prototype$)[A-Za-z0-9_-]{1,64}$/.test(String(key || ""));
 }
 
+function mediaSrc(key) {
+  return siteMedia[key] || defaultSiteMedia[key] || "";
+}
+
+function normalizeSiteSettings(source) {
+  const media = source?.media && typeof source.media === "object" ? source.media : {};
+  return {
+    media: Object.fromEntries(Object.entries(defaultSiteMedia).map(([key, fallback]) => [
+      key,
+      normalizeMediaSrc(media[key], fallback)
+    ]))
+  };
+}
+
+function normalizeMediaSrc(value, fallback) {
+  const src = String(value || fallback || "").trim();
+  if (/^(assets\/(?:img|uploads)\/|\/\.netlify\/functions\/board\?asset=|https:\/\/)/i.test(src)) return src;
+  return fallback;
+}
+
+async function loadSiteSettings() {
+  try {
+    const response = await fetch(SETTINGS_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Settings endpoint returned ${response.status}`);
+    siteMedia = normalizeSiteSettings(await response.json()).media;
+  } catch {
+    siteMedia = { ...defaultSiteMedia };
+  }
+  applySiteMedia();
+}
+
+function applySiteMedia() {
+  document.querySelectorAll("[data-media-key]").forEach((element) => {
+    const src = mediaSrc(element.dataset.mediaKey);
+    if (!src) return;
+    if (element.tagName === "LINK") {
+      element.setAttribute("href", src);
+    } else {
+      element.setAttribute("src", src);
+    }
+  });
+}
+
 function normalizeFanRequest(value) {
   if (typeof value === "boolean") return value;
   const normalized = String(value || "").trim().toLowerCase();
@@ -327,15 +397,16 @@ function formatNumber(value) {
 }
 
 async function loadSubstackFeed() {
-  renderCarousel("substack", fallbackSubstackFeed);
+  const fallback = fallbackSubstackFeed();
+  renderCarousel("substack", fallback);
 
   try {
     const response = await fetch(SOCIAL_FEED_ENDPOINT, { cache: "no-store" });
     if (!response.ok) throw new Error(`Social feed endpoint returned ${response.status}`);
     const feeds = await response.json();
-    renderCarousel("substack", normalizeFeedItems(feeds.substack, fallbackSubstackFeed, 3));
+    renderCarousel("substack", normalizeFeedItems(feeds.substack, fallback, 3));
   } catch {
-    renderCarousel("substack", fallbackSubstackFeed);
+    renderCarousel("substack", fallback);
   }
 }
 
@@ -404,7 +475,7 @@ function completedBuildToCarouselItem(task) {
   return {
     title: task.name,
     summary: task.subtitle || task.what || "Completed build.",
-    image: primaryImage.src || "assets/img/grand-exchange-stalls.svg",
+    image: primaryImage.src || mediaSrc("completedBuildFallbackImage"),
     url: `#build-${task.id}`,
     date: `${task.region} - ${categoryLabel(task.category)}`,
     action: "Open build log"
@@ -457,7 +528,7 @@ function renderCarousel(feedName, items) {
 }
 
 function carouselCardTemplate(item, index) {
-  const image = item.image || "assets/img/grand-exchange-stalls.svg";
+  const image = item.image || mediaSrc("carouselFallbackImage");
   const summary = item.summary ? `<p>${escapeHtml(item.summary)}</p>` : "";
   const date = item.date ? `<time>${escapeHtml(item.date)}</time>` : "";
   const isExternal = /^https?:\/\//i.test(item.url);
@@ -736,7 +807,7 @@ function taskTemplate(task, column, index) {
       </div>
       ${progressBarTemplate(progress, tone, `${task.name} progress ${progress}%`)}
       <button class="open-log" type="button" data-id="${escapeHtml(task.id)}">
-        <img src="assets/img/image.png" alt="" aria-hidden="true">
+        <img src="${escapeHtml(mediaSrc("openLogIcon"))}" alt="" aria-hidden="true">
         <span>Open build log</span>
       </button>
     </article>
@@ -1140,10 +1211,15 @@ window.addEventListener("scroll", () => {
   document.documentElement.style.setProperty("--scroll-shift", String(window.scrollY));
 }, { passive: true });
 
-renderBoardFilters();
-renderBoard();
-renderRegionTabs();
-renderRegion(slugify(mapRegionOptions[0]));
-loadSubstackFeed();
-loadDonationProgress();
-loadBoardData();
+async function initializeSite() {
+  await loadSiteSettings();
+  renderBoardFilters();
+  renderBoard();
+  renderRegionTabs();
+  renderRegion(slugify(mapRegionOptions[0]));
+  loadSubstackFeed();
+  loadDonationProgress();
+  loadBoardData();
+}
+
+initializeSite();
