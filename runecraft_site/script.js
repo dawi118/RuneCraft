@@ -37,6 +37,7 @@ const defaultSiteMedia = {
   brandLogo: "assets/img/mc-old-school-logo.svg",
   navTutorialIcon: "assets/img/icon-blue-star.svg",
   navLumberIcon: "assets/img/icon-saw.svg",
+  navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
   navPartyIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
@@ -199,6 +200,7 @@ const detailSection = document.querySelector("#build-detail");
 const detailArticle = document.querySelector("#build-article");
 const regionFilter = document.querySelector("#board-region-filter");
 const categoryFilter = document.querySelector("#board-category-filter");
+const searchFilter = document.querySelector("#board-search-filter");
 const ideaForm = document.querySelector("#idea-form");
 const ideaFormStatus = document.querySelector("#idea-form-status");
 const approvedIdeasCarousel = document.querySelector("#approved-ideas-carousel");
@@ -334,8 +336,10 @@ function applySiteMedia() {
     if (!src) return;
     if (element.tagName === "LINK") {
       element.setAttribute("href", src);
+      element.dataset.mediaLoaded = "true";
     } else {
       element.setAttribute("src", src);
+      element.dataset.mediaLoaded = "true";
     }
   });
 }
@@ -670,11 +674,25 @@ function allTasks() {
 function filteredTasks() {
   const selectedRegion = regionFilter?.value || "all";
   const selectedCategory = categoryFilter?.value || "all";
+  const searchTerm = normalizeSearchText(searchFilter?.value || "");
   return board.items.filter((task) => {
     const regionMatches = selectedRegion === "all" || task.region === selectedRegion;
     const categoryMatches = selectedCategory === "all" || task.category === selectedCategory;
-    return regionMatches && categoryMatches;
+    const searchMatches = !searchTerm || searchableTaskText(task).includes(searchTerm);
+    return regionMatches && categoryMatches && searchMatches;
   });
+}
+
+function searchableTaskText(task) {
+  return normalizeSearchText([
+    task.name,
+    task.subtitle,
+    task.what
+  ].join(" "));
+}
+
+function normalizeSearchText(value) {
+  return String(value || "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 function renderBoardFilters() {
@@ -1085,6 +1103,7 @@ function renderWorldMapImage() {
   const image = board.worldMap?.image || defaultWorldMap.image;
   worldMapImage.src = image.src;
   worldMapImage.alt = image.alt;
+  worldMapImage.dataset.mapLoaded = "true";
   setMapZoom(mapZoom);
 }
 
@@ -1233,6 +1252,7 @@ window.addEventListener("resize", () => {
 });
 regionFilter?.addEventListener("change", renderBoard);
 categoryFilter?.addEventListener("change", renderBoard);
+searchFilter?.addEventListener("input", renderBoard);
 mapZoomRange?.addEventListener("input", () => setMapZoom(mapZoomRange.value));
 document.querySelectorAll("[data-map-zoom]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -1258,11 +1278,9 @@ window.addEventListener("scroll", () => {
 async function initializeSite() {
   await loadSiteSettings();
   renderBoardFilters();
-  renderBoard();
-  renderWorldMap();
   loadSubstackFeed();
   loadDonationProgress();
-  loadBoardData();
+  await loadBoardData();
 }
 
 initializeSite();

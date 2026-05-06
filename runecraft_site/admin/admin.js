@@ -44,6 +44,7 @@ const siteMediaFields = [
   ["brandLogo", "Header logo", "assets/img/mc-old-school-logo.svg"],
   ["navTutorialIcon", "Tutorial Island nav icon", "assets/img/icon-blue-star.svg"],
   ["navLumberIcon", "Lumber Yard saw icon", "assets/img/icon-saw.svg"],
+  ["navMapIcon", "World Map nav icon", "assets/img/icon-world.svg"],
   ["navExchangeIcon", "Grand Exchange nav icon", "assets/img/icon-coins.svg"],
   ["navPartyIcon", "Party Room nav icon", "assets/img/icon-balloon.svg"],
   ["homeHeroMap", "Home hero art", "assets/img/runecraft-pixel-map.svg"],
