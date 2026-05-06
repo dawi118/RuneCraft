@@ -66,6 +66,11 @@ img {
   max-width: 100%;
 }
 
+[data-media-key]:not([data-media-loaded]),
+#world-map-image:not([data-map-loaded]) {
+  visibility: hidden;
+}
+
 a {
   color: inherit;
 }
@@ -273,7 +278,7 @@ select {
 .hero-map {
   position: absolute;
   inset: 7% -11% auto auto;
-  width: min(1040px, 72vw);
+  width: clamp(980px, 76vw, 1680px);
   opacity: .94;
   filter: saturate(.9) contrast(1.04);
   transform: translateY(calc(var(--scroll-shift, 0) * .06px));
@@ -576,9 +581,10 @@ h3 {
 
 .board-filters {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 230px));
+  grid-template-columns: repeat(2, minmax(0, 210px)) minmax(240px, 1fr);
   gap: .75rem;
   align-items: end;
+  flex: 1 1 620px;
 }
 
 .board-filters .filter-control {
@@ -592,13 +598,22 @@ h3 {
   color: #ffe7a2;
 }
 
-.filter-control select {
+.filter-control select,
+.filter-control input {
   min-height: 44px;
   padding: .55rem .7rem;
   border: 3px solid rgba(255, 226, 122, .28);
   border-radius: var(--radius);
   color: #ffe9a5;
   background: #17100c;
+}
+
+.filter-control input::placeholder {
+  color: rgba(255, 233, 165, .55);
+}
+
+.search-control {
+  min-width: min(280px, 100%);
 }
 
 #board-status {
@@ -663,12 +678,15 @@ h3 {
 
 .task-card {
   display: grid;
+  grid-template-rows: auto 4.7em minmax(0, 1fr) auto auto;
   gap: .65rem;
+  height: 352px;
   margin-bottom: .85rem;
   padding: .85rem;
   border: 3px solid rgba(255, 226, 122, .26);
   border-radius: var(--radius);
   background: #3b2a20;
+  overflow: hidden;
 }
 
 .task-card.is-current {
@@ -680,17 +698,27 @@ h3 {
 
 .task-card h4 {
   font-size: 1.06rem;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .task-card p {
   margin: 0;
   color: #e6d2a2;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .task-meta {
   display: flex;
   flex-wrap: wrap;
   gap: .45rem;
+  align-content: start;
+  overflow: hidden;
 }
 
 .task-meta span {
@@ -759,6 +787,7 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: .4rem;
+  align-self: end;
   justify-self: start;
   min-height: 32px;
   padding: .2rem .55rem .2rem .25rem;
@@ -1584,6 +1613,14 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .board-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .search-control {
+    grid-column: 1 / -1;
+  }
+
   .exchange-grid.section-inner {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -1620,8 +1657,13 @@ h3 {
   .carousel-card,
   .build-facts,
   .build-gallery,
+  .board-filters,
   .region-tabs {
     grid-template-columns: 1fr;
+  }
+
+  .search-control {
+    grid-column: auto;
   }
 
   .approved-ideas-header {

@@ -61,6 +61,7 @@ const SITE_MEDIA_DEFAULTS = {
   brandLogo: "assets/img/mc-old-school-logo.svg",
   navTutorialIcon: "assets/img/icon-blue-star.svg",
   navLumberIcon: "assets/img/icon-saw.svg",
+  navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
   navPartyIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
