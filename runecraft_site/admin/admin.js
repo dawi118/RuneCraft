@@ -932,7 +932,7 @@ function renderSiteMedia() {
   siteMediaGrid.innerHTML = siteMediaFields.map(([key, label, fallback]) => {
     const src = siteSettings.media[key] || fallback;
     return `
-      <article class="site-media-card" data-media-key="${escapeHtml(key)}">
+      <article class="site-media-card" data-site-media-key="${escapeHtml(key)}">
         <h3>${escapeHtml(label)}</h3>
         <div class="site-media-preview">
           <img src="${escapeHtml(imagePreviewSrc(src))}" alt="">
@@ -1248,7 +1248,11 @@ progressRange.addEventListener("input", () => {
   updateTicketFromForm();
 });
 adminTabButtons.forEach((button) => {
-  button.addEventListener("click", () => activateAdminTab(button.dataset.adminTab));
+  button.addEventListener("click", () => {
+    const tabName = button.dataset.adminTab;
+    activateAdminTab(tabName);
+    history.replaceState(null, "", `#${tabName}`);
+  });
 });
 document.querySelector("#new-ticket").addEventListener("click", createTicket);
 document.querySelector("#delete-ticket").addEventListener("click", deleteTicket);
@@ -1276,5 +1280,6 @@ imageDrop?.addEventListener("drop", (event) => {
 saveButton.addEventListener("click", saveBoard);
 
 renderSelectOptions();
+activateAdminTab(window.location.hash.replace("#", ""));
 loadSiteSettings();
 loadBoard();

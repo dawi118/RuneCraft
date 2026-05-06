@@ -66,7 +66,7 @@ img {
   max-width: 100%;
 }
 
-[data-media-key]:not([data-media-loaded]),
+img[data-media-key]:not([data-media-loaded]),
 #world-map-image:not([data-map-loaded]) {
   visibility: hidden;
 }
@@ -678,11 +678,11 @@ h3 {
 
 .task-card {
   display: grid;
-  grid-template-rows: auto 3.2em minmax(0, 1fr) auto auto;
-  gap: .65rem;
+  grid-template-rows: auto minmax(0, 3.2em) auto auto auto;
+  gap: .5rem;
   height: 246px;
   margin-bottom: .85rem;
-  padding: .85rem;
+  padding: .75rem;
   border: 3px solid rgba(255, 226, 122, .26);
   border-radius: var(--radius);
   background: #3b2a20;
@@ -716,18 +716,17 @@ h3 {
 .task-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: .45rem;
+  gap: .35rem;
   align-content: start;
-  overflow: hidden;
 }
 
 .task-meta span {
-  padding: .22rem .45rem;
+  padding: .14rem .34rem;
   border: 2px solid rgba(255, 226, 122, .23);
   border-radius: 6px;
   color: #ffe7a2;
   background: rgba(0,0,0,.18);
-  font-size: .82rem;
+  font-size: .78rem;
 }
 
 .task-progress {
