@@ -678,9 +678,9 @@ h3 {
 
 .task-card {
   display: grid;
-  grid-template-rows: auto 4.7em minmax(0, 1fr) auto auto;
+  grid-template-rows: auto 3.2em minmax(0, 1fr) auto auto;
   gap: .65rem;
-  height: 352px;
+  height: 246px;
   margin-bottom: .85rem;
   padding: .85rem;
   border: 3px solid rgba(255, 226, 122, .26);
@@ -710,7 +710,7 @@ h3 {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .task-meta {
