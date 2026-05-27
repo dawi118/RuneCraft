@@ -67,11 +67,8 @@ const SITE_MEDIA_DEFAULTS = {
   navLumberIcon: "assets/img/icon-saw.svg",
   navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
-  navPartyIcon: "assets/img/icon-balloon.svg",
   navTopBonanzaIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
-  partyHeroArt: "assets/img/falador-party-room.svg",
-  topBonanzaHeroArt: "assets/img/falador-party-room.svg",
   openLogIcon: "assets/img/image.png"
 };
 const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
@@ -587,7 +584,6 @@ function normalizeSiteSettings(source) {
 
 function legacyMediaValue(media, key) {
   if (key === "navTopBonanzaIcon") return media.navPartyIcon;
-  if (key === "topBonanzaHeroArt") return media.partyHeroArt;
   return undefined;
 }
 

@@ -50,11 +50,8 @@ const siteMediaFields = [
   ["navLumberIcon", "Lumber Yard saw icon", "assets/img/icon-saw.svg"],
   ["navMapIcon", "World Map nav icon", "assets/img/icon-world.svg"],
   ["navExchangeIcon", "Grand Exchange nav icon", "assets/img/icon-coins.svg"],
-  ["navPartyIcon", "Legacy Party Room nav icon", "assets/img/icon-balloon.svg"],
   ["navTopBonanzaIcon", "Top Bonanza nav icon", "assets/img/icon-balloon.svg"],
   ["homeHeroMap", "Home hero art", "assets/img/runecraft-pixel-map.svg"],
-  ["partyHeroArt", "Legacy Party Room art", "assets/img/falador-party-room.svg"],
-  ["topBonanzaHeroArt", "Top Bonanza hero art", "assets/img/falador-party-room.svg"],
   ["openLogIcon", "Build log button image", "assets/img/image.png"]
 ];
 const defaultSiteMedia = Object.fromEntries(siteMediaFields.map(([key, , src]) => [key, src]));
@@ -241,7 +238,6 @@ function normalizeSiteSettings(source) {
 
 function legacyMediaValue(media, key) {
   if (key === "navTopBonanzaIcon") return media.navPartyIcon;
-  if (key === "topBonanzaHeroArt") return media.partyHeroArt;
   return undefined;
 }
 

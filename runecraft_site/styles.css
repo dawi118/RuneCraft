@@ -1380,29 +1380,6 @@ h3 {
   background: linear-gradient(90deg, #d89d32, #ffe47b);
 }
 
-.bonanza-hero {
-  min-height: 560px;
-  display: grid;
-  align-items: end;
-  background:
-    linear-gradient(90deg, rgba(20,16,13,.88), rgba(20,16,13,.2)),
-    #25384a;
-  overflow: hidden;
-}
-
-.bonanza-art {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: min(900px, 74vw);
-  opacity: .86;
-}
-
-.bonanza-hero .section-inner {
-  position: relative;
-  z-index: 1;
-}
-
 .bonanza-band {
   background:
     linear-gradient(180deg, rgba(255, 226, 122, .08), rgba(0,0,0,.12)),
@@ -1696,9 +1673,4 @@ h3 {
     right: -22rem;
   }
 
-  .bonanza-art {
-    width: 900px;
-    max-width: none;
-    right: -260px;
-  }
 }

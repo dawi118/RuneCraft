@@ -42,11 +42,8 @@ const defaultSiteMedia = {
   navLumberIcon: "assets/img/icon-saw.svg",
   navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
-  navPartyIcon: "assets/img/icon-balloon.svg",
   navTopBonanzaIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
-  partyHeroArt: "assets/img/falador-party-room.svg",
-  topBonanzaHeroArt: "assets/img/falador-party-room.svg",
   openLogIcon: "assets/img/image.png"
 };
 let siteMedia = { ...defaultSiteMedia };
@@ -327,7 +324,6 @@ function normalizeSiteSettings(source) {
 
 function legacyMediaValue(media, key) {
   if (key === "navTopBonanzaIcon") return media.navPartyIcon;
-  if (key === "topBonanzaHeroArt") return media.partyHeroArt;
   return undefined;
 }
 
