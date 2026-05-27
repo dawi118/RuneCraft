@@ -9,7 +9,7 @@ const MAX_UPLOAD_SIZE = 4 * 1024 * 1024;
 const COMPRESSED_IMAGE_MIME = "image/jpeg";
 const ACCEPTED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "image/svg+xml"]);
 const COMPRESSIBLE_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp"]);
-const BOARD_SCHEMA_VERSION = 2;
+const BOARD_SCHEMA_VERSION = 3;
 const DEFAULT_MAP_NOTE = "Terrain is in place. We haven't started building on this yet.";
 const DEFAULT_MAP_IMAGE = {
   src: "assets/img/runecraft-pixel-map.svg",
@@ -26,9 +26,13 @@ const TICKET_KNOWN_KEYS = new Set([
   "region",
   "category",
   "progress",
+  "featured",
   "fanRequest",
   "fan_request",
   "fan request",
+  "completedAt",
+  "completed_at",
+  "completed at",
   "estimatedTotalTime",
   "duration",
   "estimatedTimeLeft",
@@ -46,9 +50,11 @@ const siteMediaFields = [
   ["navLumberIcon", "Lumber Yard saw icon", "assets/img/icon-saw.svg"],
   ["navMapIcon", "World Map nav icon", "assets/img/icon-world.svg"],
   ["navExchangeIcon", "Grand Exchange nav icon", "assets/img/icon-coins.svg"],
-  ["navPartyIcon", "Party Room nav icon", "assets/img/icon-balloon.svg"],
+  ["navPartyIcon", "Legacy Party Room nav icon", "assets/img/icon-balloon.svg"],
+  ["navTopBonanzaIcon", "Top Bonanza nav icon", "assets/img/icon-balloon.svg"],
   ["homeHeroMap", "Home hero art", "assets/img/runecraft-pixel-map.svg"],
-  ["partyHeroArt", "Falador Party Room art", "assets/img/falador-party-room.svg"],
+  ["partyHeroArt", "Legacy Party Room art", "assets/img/falador-party-room.svg"],
+  ["topBonanzaHeroArt", "Top Bonanza hero art", "assets/img/falador-party-room.svg"],
   ["openLogIcon", "Build log button image", "assets/img/image.png"]
 ];
 const defaultSiteMedia = Object.fromEntries(siteMediaFields.map(([key, , src]) => [key, src]));
@@ -160,7 +166,8 @@ function normalizeBoard(source) {
         region: normalizeRegion(item?.region),
         category: normalizeCategory(item?.category),
         progress,
-        fanRequest: normalizeFanRequest(item?.fanRequest ?? item?.fan_request ?? item?.["fan request"]),
+        featured: normalizeBoolean(item?.featured ?? item?.fanRequest ?? item?.fan_request ?? item?.["fan request"]),
+        completedAt: normalizeCompletedAt(item?.completedAt ?? item?.completed_at ?? item?.["completed at"]),
         estimatedTotalTime,
         estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
         what: text(item?.what || ""),
@@ -225,11 +232,17 @@ function normalizeSiteSettings(source) {
   const media = source?.media && typeof source.media === "object" ? source.media : {};
   return {
     schemaVersion: 1,
-    media: Object.fromEntries(siteMediaFields.map(([key, , fallback]) => [
-      key,
-      normalizeMediaSrc(media[key], fallback)
-    ]))
+    media: Object.fromEntries(siteMediaFields.map(([key, , fallback]) => {
+      const sourceValue = media[key] ?? legacyMediaValue(media, key);
+      return [key, normalizeMediaSrc(sourceValue, fallback)];
+    }))
   };
+}
+
+function legacyMediaValue(media, key) {
+  if (key === "navTopBonanzaIcon") return media.navPartyIcon;
+  if (key === "topBonanzaHeroArt") return media.partyHeroArt;
+  return undefined;
 }
 
 function normalizeMediaSrc(value, fallback) {
@@ -250,14 +263,29 @@ function isSafeExtraKey(key) {
   return /^(?!__proto__$|constructor$|prototype$)[A-Za-z0-9_-]{1,64}$/.test(String(key || ""));
 }
 
-function normalizeFanRequest(value) {
+function normalizeBoolean(value) {
   if (typeof value === "boolean") return value;
   const normalized = String(value || "").trim().toLowerCase();
   return ["yes", "y", "true", "1"].includes(normalized);
 }
 
-function fanRequestLabel(value) {
-  return normalizeFanRequest(value) ? "Yes" : "No";
+function booleanLabel(value) {
+  return normalizeBoolean(value) ? "Yes" : "No";
+}
+
+function normalizeCompletedAt(value) {
+  return String(value || "").replace(/\D/g, "").slice(0, 10);
+}
+
+function simpleTimestamp(date = new Date()) {
+  const parts = [
+    date.getFullYear() % 100,
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes()
+  ];
+  return parts.map((value) => String(value).padStart(2, "0")).join("");
 }
 
 function uniqueId(baseId, seen) {
@@ -393,8 +421,9 @@ function ticketRowTemplate(ticket) {
   return `
     <button class="ticket-row${selectedClass}" type="button" data-id="${escapeHtml(ticket.id)}">
       <strong>${escapeHtml(ticket.name)}</strong>
-      <span>Fan request: ${escapeHtml(fanRequestLabel(ticket.fanRequest))}</span>
+      <span>Featured: ${escapeHtml(booleanLabel(ticket.featured))}</span>
       <span>${escapeHtml(ticket.region)} / ${escapeHtml(categoryLabel(ticket.category))}</span>
+      <span>Completed: ${escapeHtml(ticket.completedAt || "TBC")}</span>
       <span>${escapeHtml(ticket.estimatedTimeLeft)} left</span>
     </button>
   `;
@@ -429,7 +458,8 @@ function renderForm() {
   form.elements.region.value = ticket.region;
   form.elements.category.value = ticket.category;
   form.elements.progress.value = ticket.progress;
-  form.elements.fanRequest.value = ticket.fanRequest ? "yes" : "no";
+  form.elements.featured.value = ticket.featured ? "yes" : "no";
+  form.elements.completedAt.value = ticket.completedAt;
   progressRange.value = ticket.progress;
   progressValue.textContent = `${ticket.progress}%`;
   form.elements.estimatedTotalTime.value = ticket.estimatedTotalTime;
@@ -550,15 +580,17 @@ function moveImage(index, direction) {
 function readTicketFromForm() {
   const progress = clampProgress(form.elements.progress.value, form.elements.location.value);
   const estimatedTotalTime = normalizeBuildHours(form.elements.estimatedTotalTime.value);
+  const location = normalizeLocation(form.elements.location.value);
   return {
     id: uniqueIdForCurrent(slugify(form.elements.name.value || "ticket")),
     name: text(form.elements.name.value || "Untitled ticket"),
     subtitle: text(form.elements.subtitle.value),
-    location: normalizeLocation(form.elements.location.value),
+    location,
     region: normalizeRegion(form.elements.region.value),
     category: normalizeCategory(form.elements.category.value),
     progress,
-    fanRequest: normalizeFanRequest(form.elements.fanRequest.value),
+    featured: normalizeBoolean(form.elements.featured.value),
+    completedAt: normalizeCompletedAt(form.elements.completedAt.value),
     estimatedTotalTime,
     estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
     what: text(form.elements.what.value),
@@ -596,18 +628,25 @@ function updateTicketFromForm(event) {
   const previousId = ticket.id;
   const previousLocation = ticket.location;
   const updated = readTicketFromForm();
+  if (previousLocation !== "done" && updated.location === "done" && !updated.completedAt) {
+    updated.completedAt = simpleTimestamp();
+  }
   Object.assign(ticket, updated);
   delete ticket.why;
+  delete ticket.fanRequest;
+  delete ticket.fan_request;
+  delete ticket["fan request"];
   selectedId = ticket.id;
   form.elements.id.value = ticket.id;
   form.elements.location.value = ticket.location;
+  form.elements.completedAt.value = ticket.completedAt;
   form.elements.estimatedTimeLeft.value = ticket.estimatedTimeLeft;
   progressRange.value = ticket.progress;
   progressValue.textContent = `${ticket.progress}%`;
   formTitle.textContent = ticket.name;
   markDirty();
 
-  if (previousId !== ticket.id || previousLocation !== ticket.location || event?.target?.name === "region" || event?.target?.name === "category" || event?.target?.name === "fanRequest") {
+  if (previousId !== ticket.id || previousLocation !== ticket.location || event?.target?.name === "region" || event?.target?.name === "category" || event?.target?.name === "featured" || event?.target?.name === "completedAt") {
     renderBoard();
   }
 }
@@ -1028,7 +1067,8 @@ function createTicket() {
     region: "General",
     category: "other",
     progress: 0,
-    fanRequest: false,
+    featured: false,
+    completedAt: "",
     estimatedTotalTime: "",
     estimatedTimeLeft: "TBC",
     what: "",

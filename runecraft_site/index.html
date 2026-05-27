@@ -39,9 +39,9 @@
             <img alt="" data-media-key="navExchangeIcon">
             <span><strong>Grand Exchange</strong><small>Support us!</small></span>
           </a>
-          <a href="#party" data-tab="party">
-            <img alt="" data-media-key="navPartyIcon">
-            <span><strong>Falador Party Room</strong><small>Share your ideas!</small></span>
+          <a href="#bonanza" data-tab="bonanza">
+            <img alt="" data-media-key="navTopBonanzaIcon">
+            <span><strong>Top Bonanza</strong><small>Best of the build</small></span>
           </a>
         </nav>
       </header>
@@ -101,10 +101,10 @@
                 <h3>Progress people can follow</h3>
                 <p>Every milestone gets logged with notes, screenshots, build time, and progress updates in real time.</p>
               </a>
-              <a class="feature-card reveal" href="#party">
+              <a class="feature-card reveal" href="#bonanza">
                 <span class="feature-icon scroll"></span>
-                <h3>Community suggestions</h3>
-                <p>You can send us ideas, corrections, references, and favourite places you want to see on the build list.</p>
+                <h3>Our best work</h3>
+                <p>The showcase keeps our featured stories together, with big screenshots and the supporting details underneath.</p>
               </a>
               <a class="feature-card reveal" href="#exchange">
                 <span class="feature-icon pickaxe"></span>
@@ -201,11 +201,11 @@
               <h3>Latest updates</h3>
               <div class="social-carousel" data-feed="completed-builds">
                 <div class="carousel-heading">
-                  <h4>Completed builds</h4>
+                  <h4>Featured stories</h4>
                   <a href="#lumber">Open board</a>
                 </div>
                 <div class="carousel-track" id="completed-builds-carousel" aria-live="polite"></div>
-                <div class="carousel-dots" id="completed-builds-dots" aria-label="Completed builds"></div>
+                <div class="carousel-dots" id="completed-builds-dots" aria-label="Featured stories"></div>
               </div>
               <div class="social-carousel" data-feed="substack">
                 <div class="carousel-heading">
@@ -233,45 +233,17 @@
           </section>
         </section>
 
-        <section id="party" class="tab-panel">
-          <section class="section-band party-hero">
-            <img alt="" class="party-art" data-media-key="partyHeroArt">
+        <section id="bonanza" class="tab-panel">
+          <section class="section-band bonanza-hero">
+            <img alt="" class="bonanza-art" data-media-key="topBonanzaHeroArt">
             <div class="section-inner reveal">
-              <p class="eyebrow">Falador Party Room</p>
-              <h2>Ideas, corrections, and fan requests.</h2>
-              <p class="lede compact">Tell us which quest spot, bank chest, alleyway or dungeon entrance needs to make the cut.</p>
+              <p class="eyebrow">Top Bonanza</p>
+              <h2>Our favourite finished moments, image first.</h2>
+              <p class="lede compact">Featured stories appear here in completion order, with spotlight images up front and supporting shots underneath.</p>
             </div>
           </section>
-          <section class="section-band parchment">
-            <div class="section-inner idea-layout">
-              <form class="idea-form reveal" id="idea-form">
-                <h3>Send an idea</h3>
-                <p class="form-intro">Send us a fan request for a build you would love to see in Project RuneCraft.</p>
-                <label>
-                  I want to see...
-                  <input name="idea" type="text" placeholder="e.g. Draynor Manor, Port Sarim docks">
-                </label>
-                <label>
-                  What it means to me
-                  <textarea name="reason" rows="5" placeholder="Tell us what makes it iconic, useful, or funny."></textarea>
-                </label>
-                <button class="button primary" type="submit">Email idea</button>
-                <p class="form-note" id="idea-form-status" aria-live="polite">Your email app will open before anything is sent.</p>
-              </form>
-            </div>
-            <section class="section-inner approved-ideas reveal" aria-labelledby="approved-ideas-title">
-              <div class="approved-ideas-header">
-                <div>
-                  <p class="eyebrow">Reviewed requests</p>
-                  <h3 id="approved-ideas-title">Your features we've taken on</h3>
-                </div>
-                <div class="carousel-controls" aria-label="Approved idea carousel controls">
-                  <button class="carousel-control" type="button" data-idea-scroll="previous" aria-label="Previous approved idea">Prev</button>
-                  <button class="carousel-control" type="button" data-idea-scroll="next" aria-label="Next approved idea">Next</button>
-                </div>
-              </div>
-              <div class="approved-carousel" id="approved-ideas-carousel" aria-live="polite"></div>
-            </section>
+          <section class="section-band bonanza-band">
+            <div class="section-inner bonanza-list" id="top-bonanza-list" aria-live="polite"></div>
           </section>
         </section>
       </main>

@@ -57,7 +57,8 @@ Each board item supports:
 - Location: backlog, in progress, done
 - Region
 - Type: landscape, monument, building, infrastructure, other
-- Fan request: yes/no
+- Featured: yes/no
+- Completed at: YYMMDDHHMM
 - Progress percentage
 - Estimated build time in hours
 - Estimated time left, calculated from build time and progress
@@ -65,7 +66,7 @@ Each board item supports:
 - Images
 - Image captions
 
-Use the `General` region for tickets that do not belong to one map region. Moving a ticket to Done automatically saves its progress as 100%.
+Use the `General` region for tickets that do not belong to one map region. Moving a ticket to Done automatically saves its progress as 100% and fills `completedAt` if it is blank.
 
 JPEG, PNG, and WebP photos up to 10 MB can be added in the admin editor; larger files are compressed in-browser before the Netlify Function receives them. GIF and SVG uploads must remain below the function-safe direct upload size.
 
@@ -75,7 +76,7 @@ The previous admin page used Decap CMS with the GitHub backend. That workflow de
 
 ## Grand Exchange Updates
 
-The completed-build carousel is populated from the board data and uses the most recent five tickets marked `Done`.
+The completed-build carousel is populated from the board data and uses the most recent five tickets marked `Featured`, ordered by `completedAt`.
 
 The Substack carousel renders real feed items only from the Project RuneCraft Substack:
 

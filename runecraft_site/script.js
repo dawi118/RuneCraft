@@ -4,11 +4,10 @@ const SOCIAL_FEED_ENDPOINT = "/.netlify/functions/social-feed";
 const DONATION_ENDPOINT = "/.netlify/functions/donation";
 const STATIC_BOARD_PATH = "data/board.json";
 const LIVE_BOARD_KEY = "runecraft-board-live";
-const IDEA_EMAIL = "projectrunecraft@gmail.com";
 const SUBSTACK_PROFILE_URL = "https://dhmorgan.substack.com";
 const CAROUSEL_INTERVAL_MS = 4200;
 const BUILD_IMAGE_CAROUSEL_INTERVAL_MS = 3600;
-const BOARD_SCHEMA_VERSION = 2;
+const BOARD_SCHEMA_VERSION = 3;
 const BOARD_KNOWN_KEYS = new Set(["items", "schemaVersion", "worldMap"]);
 const TICKET_KNOWN_KEYS = new Set([
   "id",
@@ -20,9 +19,13 @@ const TICKET_KNOWN_KEYS = new Set([
   "region",
   "category",
   "progress",
+  "featured",
   "fanRequest",
   "fan_request",
   "fan request",
+  "completedAt",
+  "completed_at",
+  "completed at",
   "estimatedTotalTime",
   "duration",
   "estimatedTimeLeft",
@@ -40,8 +43,10 @@ const defaultSiteMedia = {
   navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
   navPartyIcon: "assets/img/icon-balloon.svg",
+  navTopBonanzaIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
   partyHeroArt: "assets/img/falador-party-room.svg",
+  topBonanzaHeroArt: "assets/img/falador-party-room.svg",
   openLogIcon: "assets/img/image.png"
 };
 let siteMedia = { ...defaultSiteMedia };
@@ -83,7 +88,8 @@ const boardDefaults = {
       region: "Misthalin",
       category: "building",
       progress: 0,
-      fanRequest: false,
+      featured: false,
+      completedAt: "",
       estimatedTotalTime: 14,
       estimatedTimeLeft: "14 hours",
       what: "Reference pass, palette moodboard, and first massing notes are waiting on the Lumbridge to Draynor road.",
@@ -102,7 +108,8 @@ const boardDefaults = {
       region: "Karamja",
       category: "infrastructure",
       progress: 0,
-      fanRequest: false,
+      featured: false,
+      completedAt: "",
       estimatedTotalTime: 12,
       estimatedTimeLeft: "12 hours",
       what: "We are testing water scale, shore transitions, and how much island compression still feels right.",
@@ -121,7 +128,8 @@ const boardDefaults = {
       region: "Misthalin",
       category: "building",
       progress: 48,
-      fanRequest: false,
+      featured: false,
+      completedAt: "",
       estimatedTotalTime: 38,
       estimatedTimeLeft: "19 hours 50 minutes",
       what: "We blocked the central square, tested warm roof tones, and started a repeatable townhouse module.",
@@ -140,7 +148,8 @@ const boardDefaults = {
       region: "Misthalin",
       category: "infrastructure",
       progress: 32,
-      fanRequest: false,
+      featured: false,
+      completedAt: "",
       estimatedTotalTime: 28,
       estimatedTimeLeft: "19 hours",
       what: "The stall rhythm, central floor shape, and first donor board location are roughed in.",
@@ -159,7 +168,8 @@ const boardDefaults = {
       region: "Misthalin",
       category: "building",
       progress: 100,
-      fanRequest: false,
+      featured: false,
+      completedAt: "",
       estimatedTotalTime: 7,
       estimatedTimeLeft: "0 hours",
       what: "We settled the first scale rules, chose a castle palette, and created path widths that work in Minecraft first-person.",
@@ -201,9 +211,7 @@ const detailArticle = document.querySelector("#build-article");
 const regionFilter = document.querySelector("#board-region-filter");
 const categoryFilter = document.querySelector("#board-category-filter");
 const searchFilter = document.querySelector("#board-search-filter");
-const ideaForm = document.querySelector("#idea-form");
-const ideaFormStatus = document.querySelector("#idea-form-status");
-const approvedIdeasCarousel = document.querySelector("#approved-ideas-carousel");
+const topBonanzaList = document.querySelector("#top-bonanza-list");
 const carouselTimers = new Map();
 let buildImageCarouselTimer = null;
 const timeInvestedStat = document.querySelector("#time-invested-stat");
@@ -215,6 +223,9 @@ const worldMapImage = document.querySelector("#world-map-image");
 const mapZoomRange = document.querySelector("#map-zoom-range");
 const mapZoomValue = document.querySelector("#map-zoom-value");
 let imageViewer = null;
+let imageViewerGroup = [];
+let imageViewerIndex = 0;
+const fullscreenGroups = new Map();
 let mapZoom = 100;
 
 function normalizeBoard(source) {
@@ -233,7 +244,8 @@ function normalizeBoard(source) {
       region: normalizeRegion(item.region),
       category: normalizeCategory(item.category),
       progress,
-      fanRequest: normalizeFanRequest(item.fanRequest ?? item.fan_request ?? item["fan request"]),
+      featured: normalizeBoolean(item.featured ?? item.fanRequest ?? item.fan_request ?? item["fan request"]),
+      completedAt: normalizeCompletedAt(item.completedAt ?? item.completed_at ?? item["completed at"]),
       estimatedTotalTime,
       estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
       what: item.what || item.did || "",
@@ -306,11 +318,17 @@ function mediaSrc(key) {
 function normalizeSiteSettings(source) {
   const media = source?.media && typeof source.media === "object" ? source.media : {};
   return {
-    media: Object.fromEntries(Object.entries(defaultSiteMedia).map(([key, fallback]) => [
-      key,
-      normalizeMediaSrc(media[key], fallback)
-    ]))
+    media: Object.fromEntries(Object.entries(defaultSiteMedia).map(([key, fallback]) => {
+      const sourceValue = media[key] ?? legacyMediaValue(media, key);
+      return [key, normalizeMediaSrc(sourceValue, fallback)];
+    }))
   };
+}
+
+function legacyMediaValue(media, key) {
+  if (key === "navTopBonanzaIcon") return media.navPartyIcon;
+  if (key === "topBonanzaHeroArt") return media.partyHeroArt;
+  return undefined;
 }
 
 function normalizeMediaSrc(value, fallback) {
@@ -344,10 +362,15 @@ function applySiteMedia() {
   });
 }
 
-function normalizeFanRequest(value) {
+function normalizeBoolean(value) {
   if (typeof value === "boolean") return value;
   const normalized = String(value || "").trim().toLowerCase();
   return ["yes", "y", "true", "1"].includes(normalized);
+}
+
+function normalizeCompletedAt(value) {
+  const normalized = String(value || "").replace(/\D/g, "").slice(0, 10);
+  return normalized.length === 10 ? normalized : "";
 }
 
 function normalizeLocation(location) {
@@ -470,9 +493,9 @@ function numericText(value) {
 
 function renderCompletedBuildCarousel() {
   const completedBuilds = allTasks()
-    .filter((task) => task.location === "done")
-    .slice(-5)
-    .reverse()
+    .filter((task) => task.featured)
+    .sort(compareByCompletion)
+    .slice(0, 5)
     .map(completedBuildToCarouselItem);
 
   renderCarousel("completed-builds", completedBuilds);
@@ -485,9 +508,29 @@ function completedBuildToCarouselItem(task) {
     summary: task.subtitle || task.what || "Completed build.",
     image: primaryImage.src || "assets/img/grand-exchange-stalls.svg",
     url: `#build-${task.id}`,
-    date: `${task.region} - ${categoryLabel(task.category)}`,
+    date: completionLabel(task) || `${task.region} - ${categoryLabel(task.category)}`,
     action: "Open build log"
   };
+}
+
+function compareByCompletion(a, b) {
+  const aValue = a.completedAt || "";
+  const bValue = b.completedAt || "";
+  if (aValue && bValue && aValue !== bValue) return bValue.localeCompare(aValue);
+  if (aValue !== bValue) return aValue ? -1 : 1;
+  return allTasks().indexOf(b) - allTasks().indexOf(a);
+}
+
+function completionLabel(task) {
+  const value = normalizeCompletedAt(task.completedAt);
+  if (!value) return "";
+  return `Completed ${formatCompletedAt(value)}`;
+}
+
+function formatCompletedAt(value) {
+  const stamp = normalizeCompletedAt(value);
+  if (!stamp) return "";
+  return `${stamp.slice(4, 6)}/${stamp.slice(2, 4)}/${stamp.slice(0, 2)} ${stamp.slice(6, 8)}:${stamp.slice(8, 10)}`;
 }
 
 function normalizeFeedItems(items, limit) {
@@ -513,7 +556,7 @@ function renderCarousel(feedName, items) {
   if (!feedItems.length) {
     const emptyMessage = feedName === "substack"
       ? `New Substack posts from Project Runecraft will appear here when they are published. <a href="${SUBSTACK_PROFILE_URL}" target="_blank" rel="noreferrer">Open Project RuneCraft on Substack</a>.`
-      : "Completed build tickets will appear here when they move to Done.";
+      : "Featured stories will appear here when they are marked in admin.";
     track.innerHTML = `<p class="carousel-empty">${emptyMessage}</p>`;
     dots.innerHTML = "";
     window.clearInterval(carouselTimers.get(feedName));
@@ -733,73 +776,60 @@ function renderBoard() {
     button.addEventListener("click", () => openBuildLog(button.dataset.id));
   });
   renderCompletedBuildCarousel();
-  renderFanRequestedIdeas();
+  renderTopBonanza();
 }
 
-function renderFanRequestedIdeas() {
-  if (!approvedIdeasCarousel) return;
+function renderTopBonanza() {
+  if (!topBonanzaList) return;
   const items = allTasks()
-    .filter((task) => task.fanRequest)
-    .map((task) => ({
-      title: task.name,
-      summary: task.subtitle || task.what || "A fan-requested build added to the board.",
-      region: task.region
-    }));
+    .filter((task) => task.featured)
+    .sort(compareByCompletion);
 
   if (!items.length) {
-    approvedIdeasCarousel.innerHTML = `
-      <article class="approved-idea-card">
-        <span>No fan requests yet</span>
-        <h4>Feature list coming soon</h4>
-        <p>Once a board story is marked as a fan request, it will appear here.</p>
+    topBonanzaList.innerHTML = `
+      <article class="bonanza-empty">
+        <span>No featured stories yet</span>
+        <h3>The showcase is waiting for its first champion.</h3>
+        <p>Mark a story as Featured in admin to add it here and to the Grand Exchange updates carousel.</p>
       </article>
     `;
     return;
   }
 
-  approvedIdeasCarousel.innerHTML = items.map((item) => `
-    <article class="approved-idea-card">
-      <span>${escapeHtml(item.region)}</span>
-      <h4>${escapeHtml(item.title)}</h4>
-      <p>${escapeHtml(item.summary)}</p>
+  topBonanzaList.innerHTML = items.map(bonanzaStoryTemplate).join("");
+  initializeImageViewer(topBonanzaList);
+}
+
+function bonanzaStoryTemplate(task) {
+  fullscreenGroups.set(`bonanza-${task.id}`, task.images);
+  const primaryImage = task.images[0] || null;
+  const supportingImages = task.images.slice(1);
+  const meta = [statusForLocation(task.location), completionLabel(task), task.region].filter(Boolean).join(" - ");
+  return `
+    <article class="bonanza-story reveal">
+      <div class="bonanza-copy">
+        <p class="eyebrow">${escapeHtml(meta || "Featured story")}</p>
+        <h3>${escapeHtml(task.name)}</h3>
+        <p>${escapeHtml(task.subtitle || task.what || "A featured Project RuneCraft story.")}</p>
+      </div>
+      ${primaryImage ? `
+        <figure class="bonanza-spotlight">
+          ${buildImageButtonTemplate(primaryImage, `bonanza-${task.id}`, 0)}
+          ${primaryImage.caption ? `<figcaption>${escapeHtml(primaryImage.caption)}</figcaption>` : ""}
+        </figure>
+      ` : ""}
+      ${supportingImages.length ? `
+        <div class="bonanza-supporting">
+          ${supportingImages.map((image, index) => `
+            <figure>
+              ${buildImageButtonTemplate(image, `bonanza-${task.id}`, index + 1)}
+              ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
+            </figure>
+          `).join("")}
+        </div>
+      ` : ""}
     </article>
-  `).join("");
-}
-
-function scrollApprovedIdeas(direction) {
-  if (!approvedIdeasCarousel) return;
-  const firstCard = approvedIdeasCarousel.querySelector(".approved-idea-card");
-  const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 320;
-  approvedIdeasCarousel.scrollBy({
-    left: direction * (cardWidth + 16),
-    behavior: "smooth"
-  });
-}
-
-function handleIdeaFormSubmit(event) {
-  event.preventDefault();
-
-  const formData = new FormData(ideaForm);
-  const idea = String(formData.get("idea") || "").trim();
-  const reason = String(formData.get("reason") || "").trim();
-  const subject = idea ? `Project RuneCraft fan request: ${idea}` : "Project RuneCraft fan request";
-  const body = [
-    "PROJECT RUNECRAFT FAN REQUEST",
-    "==============================",
-    "",
-    "I want to see...",
-    idea || "",
-    "",
-    "What it means to me",
-    reason || "",
-    "",
-    "Submitted from the Falador Party Room idea form."
-  ].join("\n");
-
-  window.location.href = `mailto:${IDEA_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  if (ideaFormStatus) {
-    ideaFormStatus.textContent = `Opening an email to ${IDEA_EMAIL}.`;
-  }
+  `;
 }
 
 function renderTimeInvested() {
@@ -874,11 +904,13 @@ function openBuildLog(id) {
   if (!task) return;
 
   const primaryImage = task.images[0] || null;
+  const fullscreenGroup = `build-${task.id}`;
+  fullscreenGroups.set(fullscreenGroup, task.images);
   clearBuildImageCarousel();
 
   detailArticle.innerHTML = `
     <div class="build-hero${primaryImage ? "" : " no-image"}">
-      ${primaryImage ? buildImageCarouselTemplate(task.images) : ""}
+      ${primaryImage ? buildImageCarouselTemplate(task.images, fullscreenGroup) : ""}
       <div class="build-copy">
         <p class="eyebrow">${escapeHtml(statusForLocation(task.location))}</p>
         <h2>${escapeHtml(task.name)}</h2>
@@ -888,26 +920,27 @@ function openBuildLog(id) {
         <div class="build-facts">
           <span><b>Region</b>${escapeHtml(task.region)}</span>
           <span><b>Type</b>${escapeHtml(categoryLabel(task.category))}</span>
+          <span><b>Completed</b>${escapeHtml(formatCompletedAt(task.completedAt) || "TBC")}</span>
           <span><b>Build time</b>${escapeHtml(formatBuildHours(task.estimatedTotalTime))}</span>
           <span><b>Time left</b>${escapeHtml(task.estimatedTimeLeft)}</span>
         </div>
       </div>
     </div>
-    ${imageGalleryTemplate(task.images)}
+    ${imageGalleryTemplate(task.images, fullscreenGroup)}
   `;
   initializeBuildImageCarousel();
-  initializeImageViewer();
+  initializeImageViewer(detailArticle);
   detailSection.hidden = false;
   detailSection.scrollIntoView({ behavior: "smooth", block: "start" });
   history.replaceState(null, "", `#build-${task.id}`);
 }
 
-function buildImageCarouselTemplate(images) {
+function buildImageCarouselTemplate(images, group) {
   if (images.length < 2) {
     const image = images[0];
     return `
       <figure class="build-primary-image">
-        ${buildImageButtonTemplate(image)}
+        ${buildImageButtonTemplate(image, group, 0)}
         ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
       </figure>
     `;
@@ -918,7 +951,7 @@ function buildImageCarouselTemplate(images) {
       <div class="build-image-track">
         ${images.map((image, index) => `
           <figure class="build-primary-image build-image-slide${index === 0 ? " is-active" : ""}" data-build-image-slide="${index}">
-            ${buildImageButtonTemplate(image)}
+            ${buildImageButtonTemplate(image, group, index)}
             ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
           </figure>
         `).join("")}
@@ -936,9 +969,9 @@ function buildImageCarouselTemplate(images) {
   `;
 }
 
-function buildImageButtonTemplate(image) {
+function buildImageButtonTemplate(image, group = "", index = 0) {
   return `
-    <button class="image-zoom" type="button" data-fullscreen-image="${escapeHtml(image.src)}" data-fullscreen-caption="${escapeHtml(image.caption || "")}" aria-label="View image fullscreen">
+    <button class="image-zoom" type="button" data-fullscreen-image="${escapeHtml(image.src)}" data-fullscreen-caption="${escapeHtml(image.caption || "")}" data-fullscreen-group="${escapeHtml(group)}" data-fullscreen-index="${index}" aria-label="View image fullscreen">
       <img src="${escapeHtml(image.src)}" alt="">
       <span>View fullscreen</span>
     </button>
@@ -992,13 +1025,13 @@ function clearBuildImageCarousel() {
   buildImageCarouselTimer = null;
 }
 
-function imageGalleryTemplate(images) {
+function imageGalleryTemplate(images, group) {
   if (!images.length) return "";
   return `
     <div class="build-gallery">
-      ${images.map((image) => `
+      ${images.map((image, index) => `
         <figure>
-          ${buildImageButtonTemplate(image)}
+          ${buildImageButtonTemplate(image, group, index)}
           ${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}
         </figure>
       `).join("")}
@@ -1006,29 +1039,56 @@ function imageGalleryTemplate(images) {
   `;
 }
 
-function initializeImageViewer() {
-  detailArticle.querySelectorAll("[data-fullscreen-image]").forEach((button) => {
+function initializeImageViewer(root = document) {
+  root.querySelectorAll("[data-fullscreen-image]").forEach((button) => {
     button.addEventListener("click", () => {
-      openImageViewer(button.dataset.fullscreenImage, button.dataset.fullscreenCaption || "");
+      const group = fullscreenGroups.get(button.dataset.fullscreenGroup) || [{
+        src: button.dataset.fullscreenImage,
+        caption: button.dataset.fullscreenCaption || ""
+      }];
+      const index = Number(button.dataset.fullscreenIndex) || 0;
+      openImageViewer(group, index);
     });
   });
 }
 
-function openImageViewer(src, caption) {
-  if (!src) return;
+function openImageViewer(images, index = 0) {
+  const normalizedImages = Array.isArray(images) ? images.filter((image) => image?.src) : [];
+  if (!normalizedImages.length) return;
+  imageViewerGroup = normalizedImages;
+  imageViewerIndex = ((index % imageViewerGroup.length) + imageViewerGroup.length) % imageViewerGroup.length;
+  renderImageViewerImage();
   const viewer = ensureImageViewer();
-  const image = viewer.querySelector("img");
-  const captionEl = viewer.querySelector("figcaption");
-  image.src = src;
-  image.alt = caption || "Build image";
-  captionEl.textContent = caption;
-  captionEl.hidden = !caption;
 
   if (typeof viewer.showModal === "function" && !viewer.open) {
     viewer.showModal();
   } else {
     viewer.hidden = false;
   }
+}
+
+function renderImageViewerImage() {
+  const src = imageViewerGroup[imageViewerIndex]?.src || "";
+  const caption = imageViewerGroup[imageViewerIndex]?.caption || "";
+  if (!src) return;
+  const viewer = ensureImageViewer();
+  const image = viewer.querySelector("img");
+  const captionEl = viewer.querySelector("figcaption");
+  const previousButton = viewer.querySelector("[data-lightbox-prev]");
+  const nextButton = viewer.querySelector("[data-lightbox-next]");
+  image.src = src;
+  image.alt = caption || "Build image";
+  captionEl.textContent = caption;
+  captionEl.hidden = !caption;
+  const canNavigate = imageViewerGroup.length > 1;
+  previousButton.hidden = !canNavigate;
+  nextButton.hidden = !canNavigate;
+}
+
+function moveImageViewer(direction) {
+  if (imageViewerGroup.length < 2) return;
+  imageViewerIndex = ((imageViewerIndex + direction) % imageViewerGroup.length + imageViewerGroup.length) % imageViewerGroup.length;
+  renderImageViewerImage();
 }
 
 function ensureImageViewer() {
@@ -1038,14 +1098,22 @@ function ensureImageViewer() {
   imageViewer.className = "image-lightbox";
   imageViewer.innerHTML = `
     <button class="image-lightbox-close" type="button" aria-label="Close fullscreen image">×</button>
+    <button class="image-lightbox-nav previous" type="button" data-lightbox-prev aria-label="Previous image">‹</button>
     <figure>
       <img src="" alt="">
       <figcaption hidden></figcaption>
     </figure>
+    <button class="image-lightbox-nav next" type="button" data-lightbox-next aria-label="Next image">›</button>
   `;
   imageViewer.querySelector(".image-lightbox-close")?.addEventListener("click", closeImageViewer);
+  imageViewer.querySelector("[data-lightbox-prev]")?.addEventListener("click", () => moveImageViewer(-1));
+  imageViewer.querySelector("[data-lightbox-next]")?.addEventListener("click", () => moveImageViewer(1));
   imageViewer.addEventListener("click", (event) => {
     if (event.target === imageViewer) closeImageViewer();
+  });
+  imageViewer.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") moveImageViewer(-1);
+    if (event.key === "ArrowRight") moveImageViewer(1);
   });
   document.body.append(imageViewer);
   return imageViewer;
@@ -1258,12 +1326,6 @@ document.querySelectorAll("[data-map-zoom]").forEach((button) => {
   button.addEventListener("click", () => {
     const direction = button.dataset.mapZoom === "in" ? 20 : -20;
     setMapZoom(mapZoom + direction);
-  });
-});
-ideaForm?.addEventListener("submit", handleIdeaFormSubmit);
-document.querySelectorAll("[data-idea-scroll]").forEach((button) => {
-  button.addEventListener("click", () => {
-    scrollApprovedIdeas(button.dataset.ideaScroll === "next" ? 1 : -1);
   });
 });
 window.addEventListener("storage", (event) => {

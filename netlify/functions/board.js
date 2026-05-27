@@ -21,7 +21,7 @@ const REGION_OPTIONS = [
   "Varlamore"
 ];
 const CATEGORY_OPTIONS = ["landscape", "monument", "building", "infrastructure", "other"];
-const BOARD_SCHEMA_VERSION = 2;
+const BOARD_SCHEMA_VERSION = 3;
 const SETTINGS_SCHEMA_VERSION = 1;
 const MAP_REGION_OPTIONS = REGION_OPTIONS.filter((region) => region !== "General");
 const DEFAULT_MAP_NOTE = "Terrain is in place. We haven't started building on this yet.";
@@ -43,9 +43,13 @@ const TICKET_KNOWN_KEYS = new Set([
   "region",
   "category",
   "progress",
+  "featured",
   "fanRequest",
   "fan_request",
   "fan request",
+  "completedAt",
+  "completed_at",
+  "completed at",
   "estimatedTotalTime",
   "duration",
   "estimatedTimeLeft",
@@ -64,8 +68,10 @@ const SITE_MEDIA_DEFAULTS = {
   navMapIcon: "assets/img/icon-world.svg",
   navExchangeIcon: "assets/img/icon-coins.svg",
   navPartyIcon: "assets/img/icon-balloon.svg",
+  navTopBonanzaIcon: "assets/img/icon-balloon.svg",
   homeHeroMap: "assets/img/runecraft-pixel-map.svg",
   partyHeroArt: "assets/img/falador-party-room.svg",
+  topBonanzaHeroArt: "assets/img/falador-party-room.svg",
   openLogIcon: "assets/img/image.png"
 };
 const WORLD_MAP_KNOWN_KEYS = new Set(["image", "regions"]);
@@ -498,7 +504,8 @@ function normalizeBoard(source) {
         region: normalizeRegion(item?.region),
         category: normalizeCategory(item?.category),
         progress,
-        fanRequest: normalizeFanRequest(item?.fanRequest ?? item?.fan_request ?? item?.["fan request"]),
+        featured: normalizeBoolean(item?.featured ?? item?.fanRequest ?? item?.fan_request ?? item?.["fan request"]),
+        completedAt: normalizeCompletedAt(item?.completedAt ?? item?.completed_at ?? item?.["completed at"]),
         estimatedTotalTime,
         estimatedTimeLeft: estimatedTimeLeft(estimatedTotalTime, progress),
         what: limitText(item?.what || "", 4000),
@@ -569,13 +576,19 @@ function normalizeSiteSettings(source) {
   const sourceMedia = source?.media && typeof source.media === "object" ? source.media : {};
   const media = {};
   for (const [key, defaultSrc] of Object.entries(SITE_MEDIA_DEFAULTS)) {
-    media[key] = normalizeMediaSrc(sourceMedia[key], defaultSrc);
+    media[key] = normalizeMediaSrc(sourceMedia[key] ?? legacyMediaValue(sourceMedia, key), defaultSrc);
   }
 
   return {
     schemaVersion: SETTINGS_SCHEMA_VERSION,
     media
   };
+}
+
+function legacyMediaValue(media, key) {
+  if (key === "navTopBonanzaIcon") return media.navPartyIcon;
+  if (key === "topBonanzaHeroArt") return media.partyHeroArt;
+  return undefined;
 }
 
 function normalizeMediaSrc(value, fallback) {
@@ -659,10 +672,15 @@ function normalizeUpload(payload) {
   };
 }
 
-function normalizeFanRequest(value) {
+function normalizeBoolean(value) {
   if (typeof value === "boolean") return value;
   const normalized = String(value || "").trim().toLowerCase();
   return ["yes", "y", "true", "1"].includes(normalized);
+}
+
+function normalizeCompletedAt(value) {
+  const normalized = String(value || "").replace(/\D/g, "").slice(0, 10);
+  return normalized.length === 10 ? normalized : "";
 }
 
 function normalizeLocation(location) {
