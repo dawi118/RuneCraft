@@ -4,6 +4,9 @@
   "private": true,
   "description": "Static Project RuneCraft site with Netlify Functions for admin board data.",
   "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test"
+  },
   "dependencies": {
     "@netlify/blobs": "^10.0.0"
   }
