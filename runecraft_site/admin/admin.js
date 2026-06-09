@@ -90,6 +90,7 @@ const columns = [
 const mapRegionOptions = regionOptions.filter((region) => region !== "General");
 
 let board = { items: [] };
+let baseBoard = null;
 let siteSettings = normalizeSiteSettings({});
 let selectedId = "";
 let selectedMapRegion = slugify(mapRegionOptions[0]);
@@ -921,7 +922,7 @@ function handleDrag(event) {
 
 function markDirty() {
   dirty = true;
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(board));
+  saveDraft();
   updateSaveLabel();
   const duplicate = findDuplicateId();
   if (duplicate) {
@@ -929,6 +930,42 @@ function markDirty() {
     return;
   }
   setStatus("Draft saved locally.");
+}
+
+function saveDraft() {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      schemaVersion: 2,
+      savedAt: Date.now(),
+      board,
+      baseBoard
+    }));
+  } catch {
+    setStatus("Draft changed, but this browser could not save it locally.", true);
+  }
+}
+
+function readDraft(rawDraft) {
+  const draft = JSON.parse(rawDraft);
+  if (draft?.board) {
+    return {
+      board: normalizeBoard(draft.board),
+      baseBoard: draft.baseBoard ? normalizeBoard(draft.baseBoard) : null
+    };
+  }
+
+  return {
+    board: normalizeBoard(draft),
+    baseBoard: null
+  };
+}
+
+function rememberBaseBoard() {
+  baseBoard = cloneBoard(board);
+}
+
+function cloneBoard(source) {
+  return normalizeBoard(JSON.parse(JSON.stringify(source)));
 }
 
 function updateSaveLabel() {
@@ -1094,7 +1131,9 @@ async function loadBoard(forceRemote = false) {
     const draft = localStorage.getItem(DRAFT_KEY);
     if (draft) {
       try {
-        board = normalizeBoard(JSON.parse(draft));
+        const savedDraft = readDraft(draft);
+        board = savedDraft.board;
+        baseBoard = savedDraft.baseBoard;
         selectedId = board.items[0]?.id || "";
         dirty = true;
         renderBoard();
@@ -1114,6 +1153,7 @@ async function loadBoard(forceRemote = false) {
       const remote = await fetch(ADMIN_ENDPOINT, { cache: "no-store" });
       if (remote.ok) {
         board = normalizeBoard(await remote.json());
+        rememberBaseBoard();
         setStatus("Loaded live board.");
       } else {
         throw new Error(`Admin endpoint returned ${remote.status}`);
@@ -1136,6 +1176,7 @@ async function loadBoard(forceRemote = false) {
 async function loadStaticBoard() {
   const fallback = await fetch(STATIC_BOARD_PATH, { cache: "no-store" });
   board = normalizeBoard(await fallback.json());
+  rememberBaseBoard();
   setStatus("Loaded static board JSON. Publishing needs the Netlify Function.");
 }
 
@@ -1158,19 +1199,22 @@ async function saveBoard() {
   try {
     let result = {};
     if (dirty) {
+      const payload = { board };
+      if (baseBoard) payload.baseBoard = baseBoard;
       const response = await fetch(ADMIN_ENDPOINT, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ board })
+        body: JSON.stringify(payload)
       });
       result = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(result.error || `Save failed with ${response.status}`);
       }
       board = normalizeBoard(result.board || board);
+      rememberBaseBoard();
       localStorage.removeItem(DRAFT_KEY);
       publishSavedBoard(board);
       dirty = false;
@@ -1210,8 +1254,10 @@ async function importBoard(event) {
   const file = event.target.files?.[0];
   if (!file) return;
   try {
+    const importBaseBoard = baseBoard || cloneBoard(board);
     board = normalizeBoard(JSON.parse(await file.text()));
     selectedId = board.items[0]?.id || "";
+    baseBoard = importBaseBoard;
     markDirty();
     renderBoard();
     renderForm();
@@ -1226,6 +1272,7 @@ async function importBoard(event) {
 
 function discardDraft() {
   localStorage.removeItem(DRAFT_KEY);
+  baseBoard = null;
   dirty = false;
   updateSaveLabel();
   loadBoard(true);

@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
-const { handler } = require("../netlify/functions/board");
+const { handler, _private } = require("../netlify/functions/board");
 
 const originalEnv = {
   ADMIN_TOKEN: process.env.ADMIN_TOKEN,
@@ -75,6 +75,49 @@ test("admin mutations reject requests with the wrong admin token", async (t) => 
   }
 });
 
+test("board saves merge stale browser drafts without removing live tickets", () => {
+  const baseBoard = boardFixture(["lumbridge", "varrock"]);
+  const localBoard = boardFixture(["lumbridge", "varrock", "falador"]);
+  const liveBoard = boardFixture(["lumbridge", "varrock", "draynor"]);
+
+  const { board } = _private.mergeBoardChanges(localBoard, baseBoard, liveBoard);
+
+  assert.deepEqual(ticketIds(board), ["falador", "lumbridge", "varrock", "draynor"]);
+});
+
+test("board saves keep explicit local edits and deletes", () => {
+  const baseBoard = boardFixture(["lumbridge", "varrock"]);
+  const localBoard = boardFixture(["lumbridge"], {
+    lumbridge: { progress: 55, what: "Locally edited." }
+  });
+  const liveBoard = boardFixture(["lumbridge", "varrock", "draynor"], {
+    lumbridge: { progress: 15, what: "Live edit." }
+  });
+
+  const { board } = _private.mergeBoardChanges(localBoard, baseBoard, liveBoard);
+  const lumbridge = board.items.find((item) => item.id === "lumbridge");
+
+  assert.deepEqual(ticketIds(board), ["lumbridge", "draynor"]);
+  assert.equal(lumbridge.progress, 55);
+  assert.equal(lumbridge.what, "Locally edited.");
+});
+
+test("board saves without a base snapshot are add-only", () => {
+  const localBoard = boardFixture(["lumbridge", "falador"], {
+    lumbridge: { progress: 95, what: "Old local draft." }
+  });
+  const liveBoard = boardFixture(["lumbridge", "draynor"], {
+    lumbridge: { progress: 20, what: "Current live version." }
+  });
+
+  const { board } = _private.mergeBoardChanges(localBoard, null, liveBoard);
+  const lumbridge = board.items.find((item) => item.id === "lumbridge");
+
+  assert.deepEqual(ticketIds(board), ["falador", "lumbridge", "draynor"]);
+  assert.equal(lumbridge.progress, 20);
+  assert.equal(lumbridge.what, "Current live version.");
+});
+
 function adminEvent(event, headers = {}) {
   return {
     headers,
@@ -82,6 +125,36 @@ function adminEvent(event, headers = {}) {
     path: "/.netlify/functions/board",
     ...event
   };
+}
+
+function boardFixture(ids, overrides = {}) {
+  return {
+    items: ids.map((id) => ({
+      id,
+      name: titleFromId(id),
+      location: "backlog",
+      region: "General",
+      category: "other",
+      progress: 0,
+      featured: false,
+      completedAt: "",
+      estimatedTotalTime: "",
+      what: `${titleFromId(id)} build.`,
+      images: [],
+      ...overrides[id]
+    }))
+  };
+}
+
+function ticketIds(board) {
+  return board.items.map((item) => item.id);
+}
+
+function titleFromId(id) {
+  return id
+    .split("-")
+    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
 }
 
 function restoreEnv(name, value) {

@@ -120,7 +120,8 @@ exports.handler = async function handler(event) {
         });
       }
 
-      const board = normalizeBoard(payload.board);
+      const incomingBoard = normalizeBoard(payload.board);
+      const board = await resolveBoardSave(incomingBoard, payload);
       const result = await writeBoardFile(board);
       return respond(200, {
         board,
@@ -158,6 +159,11 @@ exports.handler = async function handler(event) {
     const statusCode = Number(error.statusCode || 500);
     return respond(statusCode, { error: error.message || "Board admin request failed" });
   }
+};
+
+exports._private = {
+  mergeBoardChanges,
+  normalizeBoard
 };
 
 function authorize(event) {
@@ -249,6 +255,83 @@ async function writeBoardFile(board) {
   }
 
   return writeGitHubBoardFile(board);
+}
+
+async function resolveBoardSave(incomingBoard, payload) {
+  if (payload.replace === true) return incomingBoard;
+
+  const current = await readBoardFile();
+  const baseBoard = payload.baseBoard && typeof payload.baseBoard === "object"
+    ? normalizeBoard(payload.baseBoard)
+    : null;
+
+  return mergeBoardChanges(incomingBoard, baseBoard, current.board).board;
+}
+
+function mergeBoardChanges(localBoardSource, baseBoardSource, liveBoardSource) {
+  const localBoard = normalizeBoard(localBoardSource);
+  const liveBoard = normalizeBoard(liveBoardSource);
+  const baseBoard = baseBoardSource ? normalizeBoard(baseBoardSource) : null;
+  const baseItems = new Map((baseBoard?.items || []).map((item) => [item.id, item]));
+  const localItems = new Map(localBoard.items.map((item) => [item.id, item]));
+  const resultItems = new Map(liveBoard.items.map((item) => [item.id, cloneJson(item)]));
+
+  if (baseBoard) {
+    for (const baseItem of baseBoard.items) {
+      if (!localItems.has(baseItem.id)) {
+        resultItems.delete(baseItem.id);
+      }
+    }
+  }
+
+  for (const localItem of localBoard.items) {
+    const baseItem = baseItems.get(localItem.id);
+    if (!baseBoard) {
+      if (!resultItems.has(localItem.id)) {
+        resultItems.set(localItem.id, cloneJson(localItem));
+      }
+      continue;
+    }
+
+    if (!baseItem || !isSameJson(localItem, baseItem)) {
+      resultItems.set(localItem.id, cloneJson(localItem));
+    }
+  }
+
+  const liveOrder = liveBoard.items
+    .map((item) => item.id)
+    .filter((id, index, ids) => resultItems.has(id) && ids.indexOf(id) === index);
+  const liveIds = new Set(liveOrder);
+  const localOnlyOrder = localBoard.items
+    .map((item) => item.id)
+    .filter((id, index, ids) => resultItems.has(id) && !liveIds.has(id) && ids.indexOf(id) === index);
+  const rootFields = baseBoard && !isSameJson(boardRootFields(localBoard), boardRootFields(baseBoard))
+    ? boardRootFields(localBoard)
+    : boardRootFields(liveBoard);
+  const worldMap = baseBoard && !isSameJson(localBoard.worldMap, baseBoard.worldMap)
+    ? localBoard.worldMap
+    : liveBoard.worldMap;
+  const board = normalizeBoard({
+    ...rootFields,
+    schemaVersion: BOARD_SCHEMA_VERSION,
+    worldMap,
+    items: [...localOnlyOrder, ...liveOrder].map((id) => resultItems.get(id))
+  });
+
+  return { board };
+}
+
+function boardRootFields(board) {
+  const { items, schemaVersion, worldMap, ...fields } = board || {};
+  return cloneJson(fields);
+}
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function isSameJson(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 async function writeSettingsFile(settings) {
