@@ -264,19 +264,32 @@ async function resolveBoardSave(incomingBoard, payload) {
   const baseBoard = payload.baseBoard && typeof payload.baseBoard === "object"
     ? normalizeBoard(payload.baseBoard)
     : null;
+  const mergeOptions = {
+    modifiedTicketIds: normalizeIdList(payload.modifiedTicketIds || payload.changedTicketIds),
+    deletedTicketIds: normalizeIdList(payload.deletedTicketIds),
+    worldMapChanged: payload.worldMapChanged === true,
+    boardFieldsChanged: payload.boardFieldsChanged === true
+  };
 
-  return mergeBoardChanges(incomingBoard, baseBoard, current.board).board;
+  return mergeBoardChanges(incomingBoard, baseBoard, current.board, mergeOptions).board;
 }
 
-function mergeBoardChanges(localBoardSource, baseBoardSource, liveBoardSource) {
+function mergeBoardChanges(localBoardSource, baseBoardSource, liveBoardSource, options = {}) {
   const localBoard = normalizeBoard(localBoardSource);
   const liveBoard = normalizeBoard(liveBoardSource);
   const baseBoard = baseBoardSource ? normalizeBoard(baseBoardSource) : null;
   const baseItems = new Map((baseBoard?.items || []).map((item) => [item.id, item]));
   const localItems = new Map(localBoard.items.map((item) => [item.id, item]));
   const resultItems = new Map(liveBoard.items.map((item) => [item.id, cloneJson(item)]));
+  const modifiedTicketIds = new Set(normalizeIdList(options.modifiedTicketIds));
+  const deletedTicketIds = new Set(normalizeIdList(options.deletedTicketIds));
+  const hasExplicitTicketChanges = modifiedTicketIds.size > 0 || deletedTicketIds.size > 0;
 
-  if (baseBoard) {
+  if (hasExplicitTicketChanges) {
+    for (const id of deletedTicketIds) {
+      resultItems.delete(id);
+    }
+  } else if (baseBoard) {
     for (const baseItem of baseBoard.items) {
       if (!localItems.has(baseItem.id)) {
         resultItems.delete(baseItem.id);
@@ -286,10 +299,15 @@ function mergeBoardChanges(localBoardSource, baseBoardSource, liveBoardSource) {
 
   for (const localItem of localBoard.items) {
     const baseItem = baseItems.get(localItem.id);
-    if (!baseBoard) {
-      if (!resultItems.has(localItem.id)) {
+    if (hasExplicitTicketChanges) {
+      if (modifiedTicketIds.has(localItem.id)) {
         resultItems.set(localItem.id, cloneJson(localItem));
       }
+      continue;
+    }
+
+    if (!baseBoard) {
+      resultItems.set(localItem.id, cloneJson(localItem));
       continue;
     }
 
@@ -305,10 +323,10 @@ function mergeBoardChanges(localBoardSource, baseBoardSource, liveBoardSource) {
   const localOnlyOrder = localBoard.items
     .map((item) => item.id)
     .filter((id, index, ids) => resultItems.has(id) && !liveIds.has(id) && ids.indexOf(id) === index);
-  const rootFields = baseBoard && !isSameJson(boardRootFields(localBoard), boardRootFields(baseBoard))
+  const rootFields = options.boardFieldsChanged || (baseBoard && !isSameJson(boardRootFields(localBoard), boardRootFields(baseBoard)))
     ? boardRootFields(localBoard)
     : boardRootFields(liveBoard);
-  const worldMap = baseBoard && !isSameJson(localBoard.worldMap, baseBoard.worldMap)
+  const worldMap = options.worldMapChanged || (baseBoard && !isSameJson(localBoard.worldMap, baseBoard.worldMap))
     ? localBoard.worldMap
     : liveBoard.worldMap;
   const board = normalizeBoard({
@@ -332,6 +350,11 @@ function cloneJson(value) {
 
 function isSameJson(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function normalizeIdList(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.map((id) => slugify(id)).filter(Boolean))];
 }
 
 async function writeSettingsFile(settings) {

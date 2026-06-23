@@ -91,6 +91,10 @@ const mapRegionOptions = regionOptions.filter((region) => region !== "General");
 
 let board = { items: [] };
 let baseBoard = null;
+let modifiedTicketIds = new Set();
+let deletedTicketIds = new Set();
+let worldMapChanged = false;
+let boardFieldsChanged = false;
 let siteSettings = normalizeSiteSettings({});
 let selectedId = "";
 let selectedMapRegion = slugify(mapRegionOptions[0]);
@@ -554,6 +558,7 @@ function renderImageFields(images) {
       const card = button.closest(".image-card");
       if (!ticket || !card) return;
       ticket.images.splice(Number(card.dataset.index), 1);
+      recordTicketChanged(ticket.id);
       markDirty();
       renderForm();
     });
@@ -570,6 +575,7 @@ function moveImage(index, direction) {
 
   const [image] = ticket.images.splice(index, 1);
   ticket.images.splice(nextIndex, 0, image);
+  recordTicketChanged(ticket.id);
   markDirty();
   renderForm();
 }
@@ -634,6 +640,7 @@ function updateTicketFromForm(event) {
   delete ticket.fan_request;
   delete ticket["fan request"];
   selectedId = ticket.id;
+  recordTicketIdChanged(previousId, ticket.id);
   form.elements.id.value = ticket.id;
   form.elements.location.value = ticket.location;
   form.elements.completedAt.value = ticket.completedAt;
@@ -652,6 +659,7 @@ function updateImagesFromForm() {
   const ticket = currentTicket();
   if (!ticket || isRenderingForm) return;
   ticket.images = readImagesFromForm();
+  recordTicketChanged(ticket.id);
   markDirty();
 }
 
@@ -662,12 +670,14 @@ function updateMapRegionFromForm() {
   region.progress = clampPercent(mapRegionForm.elements.progress.value);
   mapProgressRange.value = region.progress;
   mapProgressValue.textContent = `${region.progress}%`;
+  worldMapChanged = true;
   markDirty();
 }
 
 function updateMapImageAlt() {
   if (isRenderingMapForm) return;
   board.worldMap.image.alt = text(mapImageAlt.value);
+  worldMapChanged = true;
   markDirty();
 }
 
@@ -677,6 +687,7 @@ async function uploadMapImage(file) {
     const result = await uploadImageToGitHub(file, null, { maxDimension: 4200 });
     board.worldMap.image.src = result.path;
     board.worldMap.image.alt = board.worldMap.image.alt || "Project RuneCraft world map of Gielinor.";
+    worldMapChanged = true;
     markDirty();
     renderMapImageEditor();
     setStatus("Uploaded world map image as a local draft.");
@@ -717,6 +728,7 @@ async function addImageFiles(files) {
 
   if (!imageEntries.length) return;
   ticket.images = normalizeImages([...ticket.images, ...imageEntries]);
+  recordTicketChanged(ticket.id);
   markDirty();
   renderForm();
 
@@ -938,7 +950,11 @@ function saveDraft() {
       schemaVersion: 2,
       savedAt: Date.now(),
       board,
-      baseBoard
+      baseBoard,
+      modifiedTicketIds: [...modifiedTicketIds],
+      deletedTicketIds: [...deletedTicketIds],
+      worldMapChanged,
+      boardFieldsChanged
     }));
   } catch {
     setStatus("Draft changed, but this browser could not save it locally.", true);
@@ -950,18 +966,56 @@ function readDraft(rawDraft) {
   if (draft?.board) {
     return {
       board: normalizeBoard(draft.board),
-      baseBoard: draft.baseBoard ? normalizeBoard(draft.baseBoard) : null
+      baseBoard: draft.baseBoard ? normalizeBoard(draft.baseBoard) : null,
+      modifiedTicketIds: normalizeSavedIdList(draft.modifiedTicketIds || draft.changedTicketIds),
+      deletedTicketIds: normalizeSavedIdList(draft.deletedTicketIds),
+      worldMapChanged: draft.worldMapChanged === true,
+      boardFieldsChanged: draft.boardFieldsChanged === true
     };
   }
 
   return {
     board: normalizeBoard(draft),
-    baseBoard: null
+    baseBoard: null,
+    modifiedTicketIds: [],
+    deletedTicketIds: [],
+    worldMapChanged: false,
+    boardFieldsChanged: false
   };
 }
 
 function rememberBaseBoard() {
   baseBoard = cloneBoard(board);
+}
+
+function clearSaveTracking() {
+  modifiedTicketIds = new Set();
+  deletedTicketIds = new Set();
+  worldMapChanged = false;
+  boardFieldsChanged = false;
+}
+
+function recordTicketChanged(id) {
+  const ticketId = slugify(id);
+  if (!ticketId) return;
+  deletedTicketIds.delete(ticketId);
+  modifiedTicketIds.add(ticketId);
+}
+
+function recordTicketDeleted(id) {
+  const ticketId = slugify(id);
+  if (!ticketId) return;
+  modifiedTicketIds.delete(ticketId);
+  deletedTicketIds.add(ticketId);
+}
+
+function recordTicketIdChanged(previousId, nextId) {
+  if (previousId && previousId !== nextId) recordTicketDeleted(previousId);
+  recordTicketChanged(nextId);
+}
+
+function normalizeSavedIdList(ids) {
+  return Array.isArray(ids) ? [...new Set(ids.map((id) => slugify(id)).filter(Boolean))] : [];
 }
 
 function cloneBoard(source) {
@@ -1108,6 +1162,7 @@ function createTicket() {
     images: []
   };
   board.items.unshift(base);
+  recordTicketChanged(base.id);
   markDirty();
   selectTicket(base.id);
 }
@@ -1119,6 +1174,7 @@ function deleteTicket() {
   if (!confirmed) return;
   board.items = board.items.filter((item) => item.id !== ticket.id);
   selectedId = board.items[0]?.id || "";
+  recordTicketDeleted(ticket.id);
   markDirty();
   renderBoard();
   renderForm();
@@ -1134,6 +1190,10 @@ async function loadBoard(forceRemote = false) {
         const savedDraft = readDraft(draft);
         board = savedDraft.board;
         baseBoard = savedDraft.baseBoard;
+        modifiedTicketIds = new Set(savedDraft.modifiedTicketIds);
+        deletedTicketIds = new Set(savedDraft.deletedTicketIds);
+        worldMapChanged = savedDraft.worldMapChanged;
+        boardFieldsChanged = savedDraft.boardFieldsChanged;
         selectedId = board.items[0]?.id || "";
         dirty = true;
         renderBoard();
@@ -1154,6 +1214,7 @@ async function loadBoard(forceRemote = false) {
       if (remote.ok) {
         board = normalizeBoard(await remote.json());
         rememberBaseBoard();
+        clearSaveTracking();
         setStatus("Loaded live board.");
       } else {
         throw new Error(`Admin endpoint returned ${remote.status}`);
@@ -1177,6 +1238,7 @@ async function loadStaticBoard() {
   const fallback = await fetch(STATIC_BOARD_PATH, { cache: "no-store" });
   board = normalizeBoard(await fallback.json());
   rememberBaseBoard();
+  clearSaveTracking();
   setStatus("Loaded static board JSON. Publishing needs the Netlify Function.");
 }
 
@@ -1199,7 +1261,13 @@ async function saveBoard() {
   try {
     let result = {};
     if (dirty) {
-      const payload = { board };
+      const payload = {
+        board,
+        modifiedTicketIds: [...modifiedTicketIds],
+        deletedTicketIds: [...deletedTicketIds],
+        worldMapChanged,
+        boardFieldsChanged
+      };
       if (baseBoard) payload.baseBoard = baseBoard;
       const response = await fetch(ADMIN_ENDPOINT, {
         method: "PUT",
@@ -1215,6 +1283,7 @@ async function saveBoard() {
       }
       board = normalizeBoard(result.board || board);
       rememberBaseBoard();
+      clearSaveTracking();
       localStorage.removeItem(DRAFT_KEY);
       publishSavedBoard(board);
       dirty = false;
@@ -1258,6 +1327,12 @@ async function importBoard(event) {
     board = normalizeBoard(JSON.parse(await file.text()));
     selectedId = board.items[0]?.id || "";
     baseBoard = importBaseBoard;
+    modifiedTicketIds = new Set(board.items.map((item) => item.id));
+    deletedTicketIds = new Set((baseBoard?.items || [])
+      .map((item) => item.id)
+      .filter((id) => !board.items.some((item) => item.id === id)));
+    worldMapChanged = true;
+    boardFieldsChanged = true;
     markDirty();
     renderBoard();
     renderForm();
@@ -1273,6 +1348,7 @@ async function importBoard(event) {
 function discardDraft() {
   localStorage.removeItem(DRAFT_KEY);
   baseBoard = null;
+  clearSaveTracking();
   dirty = false;
   updateSaveLabel();
   loadBoard(true);

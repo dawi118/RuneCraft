@@ -102,7 +102,7 @@ test("board saves keep explicit local edits and deletes", () => {
   assert.equal(lumbridge.what, "Locally edited.");
 });
 
-test("board saves without a base snapshot are add-only", () => {
+test("board saves without a base snapshot upsert local tickets without deleting live tickets", () => {
   const localBoard = boardFixture(["lumbridge", "falador"], {
     lumbridge: { progress: 95, what: "Old local draft." }
   });
@@ -114,8 +114,51 @@ test("board saves without a base snapshot are add-only", () => {
   const lumbridge = board.items.find((item) => item.id === "lumbridge");
 
   assert.deepEqual(ticketIds(board), ["falador", "lumbridge", "draynor"]);
-  assert.equal(lumbridge.progress, 20);
-  assert.equal(lumbridge.what, "Current live version.");
+  assert.equal(lumbridge.progress, 95);
+  assert.equal(lumbridge.what, "Old local draft.");
+});
+
+test("board saves with explicit ticket changes keep unrelated live tickets", () => {
+  const baseBoard = boardFixture(["lumbridge", "varrock"]);
+  const localBoard = boardFixture(["lumbridge", "varrock"], {
+    lumbridge: { progress: 5, what: "Stale local copy." },
+    varrock: { progress: 70, what: "Explicitly edited locally." }
+  });
+  const liveBoard = boardFixture(["lumbridge", "varrock", "draynor"], {
+    lumbridge: { progress: 40, what: "Current live copy." },
+    varrock: { progress: 10, what: "Old live copy." }
+  });
+
+  const { board } = _private.mergeBoardChanges(localBoard, baseBoard, liveBoard, {
+    modifiedTicketIds: ["varrock"]
+  });
+  const lumbridge = board.items.find((item) => item.id === "lumbridge");
+  const varrock = board.items.find((item) => item.id === "varrock");
+
+  assert.deepEqual(ticketIds(board), ["lumbridge", "varrock", "draynor"]);
+  assert.equal(lumbridge.progress, 40);
+  assert.equal(lumbridge.what, "Current live copy.");
+  assert.equal(varrock.progress, 70);
+  assert.equal(varrock.what, "Explicitly edited locally.");
+});
+
+test("board saves with explicit ticket deletes remove only deleted tickets", () => {
+  const baseBoard = boardFixture(["lumbridge", "varrock"]);
+  const localBoard = boardFixture(["lumbridge"], {
+    lumbridge: { progress: 5, what: "Stale local copy." }
+  });
+  const liveBoard = boardFixture(["lumbridge", "varrock", "draynor"], {
+    lumbridge: { progress: 40, what: "Current live copy." }
+  });
+
+  const { board } = _private.mergeBoardChanges(localBoard, baseBoard, liveBoard, {
+    deletedTicketIds: ["varrock"]
+  });
+  const lumbridge = board.items.find((item) => item.id === "lumbridge");
+
+  assert.deepEqual(ticketIds(board), ["lumbridge", "draynor"]);
+  assert.equal(lumbridge.progress, 40);
+  assert.equal(lumbridge.what, "Current live copy.");
 });
 
 function adminEvent(event, headers = {}) {
