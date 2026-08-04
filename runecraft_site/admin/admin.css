@@ -103,6 +103,10 @@
   text-align: right;
 }
 
+.draft-action {
+  max-width: 190px;
+}
+
 .admin-auth h2,
 .site-media-panel h2,
 .ticket-form h2 {

@@ -115,6 +115,7 @@ const imageUpload = document.querySelector("#image-upload");
 const statusEls = document.querySelectorAll("[data-admin-status]");
 const tokenInput = document.querySelector("#admin-token");
 const saveButton = document.querySelector("#save-board");
+const discardDraftButton = document.querySelector("#discard-draft");
 const progressRange = document.querySelector("#progress-range");
 const progressValue = document.querySelector("#progress-value");
 const mapImageUpload = document.querySelector("#map-image-upload");
@@ -143,6 +144,10 @@ function setStatus(message, isError = false) {
     element.textContent = message;
     element.style.color = isError ? "#ffb29b" : "#f0d99b";
   });
+}
+
+function setDraftActionVisible(isVisible) {
+  if (discardDraftButton) discardDraftButton.hidden = !isVisible;
 }
 
 function normalizeBoard(source) {
@@ -936,6 +941,7 @@ function markDirty() {
   dirty = true;
   saveDraft();
   updateSaveLabel();
+  setDraftActionVisible(true);
   const duplicate = findDuplicateId();
   if (duplicate) {
     setStatus(`Draft saved locally. Duplicate ID: ${duplicate}`, true);
@@ -1200,7 +1206,8 @@ async function loadBoard(forceRemote = false) {
         renderForm();
         renderMapEditor();
         updateSaveLabel();
-        setStatus("Loaded unsaved browser draft.");
+        setDraftActionVisible(true);
+        setStatus("Loaded unsaved browser draft. Save it or load the live board.");
         return;
       } catch {
         localStorage.removeItem(DRAFT_KEY);
@@ -1215,6 +1222,8 @@ async function loadBoard(forceRemote = false) {
         board = normalizeBoard(await remote.json());
         rememberBaseBoard();
         clearSaveTracking();
+        publishSavedBoard(board);
+        setDraftActionVisible(false);
         setStatus("Loaded live board.");
       } else {
         throw new Error(`Admin endpoint returned ${remote.status}`);
@@ -1286,6 +1295,7 @@ async function saveBoard() {
       clearSaveTracking();
       localStorage.removeItem(DRAFT_KEY);
       publishSavedBoard(board);
+      setDraftActionVisible(false);
       dirty = false;
     }
     const settingsResult = await saveSiteSettings(token);
@@ -1346,10 +1356,14 @@ async function importBoard(event) {
 }
 
 function discardDraft() {
+  const confirmed = window.confirm("Discard this browser draft and load the live board?");
+  if (!confirmed) return;
   localStorage.removeItem(DRAFT_KEY);
+  localStorage.removeItem(LIVE_BOARD_KEY);
   baseBoard = null;
   clearSaveTracking();
   dirty = false;
+  setDraftActionVisible(false);
   updateSaveLabel();
   loadBoard(true);
 }
@@ -1417,6 +1431,7 @@ document.querySelector("#new-ticket").addEventListener("click", createTicket);
 document.querySelector("#delete-ticket").addEventListener("click", deleteTicket);
 document.querySelector("#export-board").addEventListener("click", exportBoard);
 document.querySelector("#import-board").addEventListener("change", importBoard);
+discardDraftButton?.addEventListener("click", discardDraft);
 adminRegionFilter?.addEventListener("change", renderBoard);
 adminCategoryFilter?.addEventListener("change", renderBoard);
 imageUpload?.addEventListener("change", async (event) => {
