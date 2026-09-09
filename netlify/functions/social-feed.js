@@ -10,23 +10,38 @@ exports.handler = async function handler(event) {
     return respond(405, { error: "Method not allowed" }, { Allow: "GET, OPTIONS" });
   }
 
-  const substack = await readSubstackFeed().catch(() => []);
-
-  return respond(200, { substack, profileUrl: SUBSTACK_PROFILE_URL });
+  let store, cached;
+  try {
+    const { storage, readJSON } = await import('../../src/lib/storage.mjs');
+    store = storage();
+    cached = await readJSON(store, 'external-feed');
+  } catch {}
+  if (cached && Date.now() - Date.parse(cached.checkedAt) < 300000) return respond(200, { ...cached, stale: false, profileUrl: SUBSTACK_PROFILE_URL });
+  try {
+    const substack = await readSubstackFeed();
+    if (!substack.length) throw new Error('No matching project articles were returned');
+    const current = { substack, checkedAt: new Date().toISOString(), source: 'Substack' };
+    try { await store?.setJSON('external-feed', current); } catch {}
+    return respond(200, { ...current, stale: false, profileUrl: SUBSTACK_PROFILE_URL });
+  } catch {
+    const snapshot = require('../../migration/snapshots/feed-2026-09-09.json');
+    return respond(200, { ...(cached || { substack: snapshot.substack, checkedAt: '2026-09-09', source: 'Preserved article selection' }), stale: true, error: 'The external feed is unavailable; showing the last saved article selection.', profileUrl: SUBSTACK_PROFILE_URL });
+  }
 };
 
 async function readSubstackFeed() {
   const feedUrls = [...new Set([process.env.SUBSTACK_FEED_URL, DEFAULT_SUBSTACK_FEED].filter(Boolean))];
   for (const feedUrl of feedUrls) {
     const response = await fetch(feedUrl, {
+      signal: AbortSignal.timeout(6000),
       headers: {
         "Accept": "application/rss+xml, application/xml, text/xml",
-        "User-Agent": "Project Runecraft social feed"
+        "User-Agent": "Gielinor: Reforged social feed"
       }
     });
     if (!response.ok) continue;
 
-    const items = parseRssItems(await response.text()).slice(0, 3);
+    const items = parseRssItems(await response.text()).filter(item => /runecraft|gielinor/i.test(`${item.title} ${item.summary}`)).slice(0, 6);
     if (items.length) return items;
   }
   return [];
@@ -45,7 +60,7 @@ function parseRssItems(xml) {
         date: plainText(getTag(item, "pubDate"))
       };
     })
-    .filter((item) => item.title && item.url);
+    .filter((item) => item.title && /^https:\/\/dhmorgan\.substack\.com\//.test(item.url));
 }
 
 function getTag(xml, tagName) {

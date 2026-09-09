@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Lumbridge courtyard block build</title>
+  <desc id="desc">Original block-style concept art of a medieval courtyard build.</desc>
+  <rect width="900" height="620" fill="#719fc0"/>
+  <rect y="375" width="900" height="245" fill="#587d3a"/>
+  <g shape-rendering="crispEdges">
+    <rect x="105" y="265" width="690" height="105" fill="#a58855"/>
+    <rect x="145" y="195" width="170" height="170" fill="#d4c394"/>
+    <rect x="585" y="195" width="170" height="170" fill="#d4c394"/>
+    <rect x="335" y="135" width="230" height="230" fill="#c7b37c"/>
+    <rect x="365" y="85" width="170" height="70" fill="#75533b"/>
+    <rect x="385" y="235" width="55" height="130" fill="#3d2b21"/>
+    <rect x="460" y="235" width="55" height="130" fill="#3d2b21"/>
+    <rect x="150" y="165" width="160" height="40" fill="#6b4b37"/>
+    <rect x="590" y="165" width="160" height="40" fill="#6b4b37"/>
+    <rect x="220" y="420" width="460" height="65" fill="#8c7f69"/>
+    <rect x="330" y="500" width="240" height="50" fill="#6c5f50"/>
+    <rect x="60" y="520" width="95" height="45" fill="#436a31"/>
+    <rect x="735" y="515" width="105" height="50" fill="#436a31"/>
+  </g>
+</svg>

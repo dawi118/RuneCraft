@@ -1,0 +1,47 @@
+---
+import { readPublication } from '../lib/storage.mjs';
+import { renderPage, shell } from '../lib/render.mjs';
+import { BRAND, escape as e, safeURL } from '../lib/content.mjs';
+import { publicOutcomes } from '../lib/ideas.mjs';
+const publication = await readPublication();
+const page = renderPage(Astro.url.pathname, publication.content, Astro.url.searchParams);
+if (page.path === '/community/' && publication.content.settings[0].ideasEnabled) {
+  try {
+    const outcomes = await publicOutcomes();
+    if (outcomes.length) page.body += `<section class="container reading section"><p class="eyebrow">Ideas we used</p><h2>Details shared, details built.</h2>${outcomes.map(o => `<article class="history-entry"><p>${e(o.summary)}</p>${o.credit ? `<p>With thanks to ${e(o.credit)}.</p>` : ''}<a href="${e(safeURL(o.outcomeUrl))}">See what happened →</a></article>`).join('')}</section>`;
+  } catch { /* Follow/read features remain available during a queue outage. */ }
+}
+Astro.response.status = page.status;
+Astro.response.headers.set('Cache-Control', publication.stale ? 'public, max-age=0, s-maxage=10' : 'public, max-age=0, s-maxage=30, stale-while-revalidate=30');
+const canonical = new URL(page.path, Astro.site).href;
+const image = page.image ? new URL(page.image.src, Astro.site).href : undefined;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{page.title} | {BRAND}</title>
+    <meta name="description" content={page.description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={`${page.title} | ${BRAND}`} />
+    <meta property="og:description" content={page.description} />
+    <meta property="og:type" content={page.path.startsWith('/journal/') && page.path !== '/journal/' ? 'article' : 'website'} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={BRAND} />
+    {image && <meta property="og:image" content={image} />}
+    {page.image && <meta property="og:image:alt" content={page.image.alt} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#141B19" />
+    {page.status === 404 && <meta name="robots" content="noindex" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Gielinor: Reforged journal" href="/rss.xml" />
+    <script is:inline>document.documentElement.classList.add('enhanced');</script>
+    <link rel="stylesheet" href="/theme.css" />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/literata-latin-400-normal.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/source-sans-3-latin-400-normal.woff2" crossorigin />
+    <script is:inline src="/site.js" defer></script>
+    {page.path === '/explore/' && <script is:inline src="/atlas.js" defer></script>}
+  </head>
+  <body set:html={shell(page, publication.content, publication)} />
+</html>

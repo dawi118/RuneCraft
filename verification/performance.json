@@ -1,0 +1,60 @@
+{
+  "measuredAt": "2026-09-09T19:47:14.511Z",
+  "environment": "Built Netlify SSR handler served locally with gzip; synthetic measurements, not field Core Web Vitals",
+  "assets": {
+    "site.js": {
+      "bytes": 9606,
+      "gzipBytes": 3017
+    },
+    "atlas.js": {
+      "bytes": 1467,
+      "gzipBytes": 625
+    },
+    "theme.css": {
+      "bytes": 28750,
+      "gzipBytes": 7250
+    },
+    "admin/editor.js": {
+      "bytes": 49636,
+      "gzipBytes": 14085
+    }
+  },
+  "viewports": [
+    {
+      "width": 390,
+      "profile": "Local unthrottled",
+      "lcpMs": 476,
+      "cls": 0,
+      "longestTaskMs": 0,
+      "assetTransferBytes": 169069,
+      "galleryInteractionToNextPaintMs": 18
+    },
+    {
+      "width": 768,
+      "profile": "Local unthrottled",
+      "lcpMs": 316,
+      "cls": 0,
+      "longestTaskMs": 0,
+      "assetTransferBytes": 296815,
+      "galleryInteractionToNextPaintMs": 62
+    },
+    {
+      "width": 1440,
+      "profile": "Local unthrottled",
+      "lcpMs": 136,
+      "cls": 0,
+      "longestTaskMs": 0,
+      "assetTransferBytes": 713099,
+      "galleryInteractionToNextPaintMs": 14
+    },
+    {
+      "width": 390,
+      "profile": "4× CPU slowdown, 1.6 Mbps down, 150 ms latency",
+      "lcpMs": 876,
+      "cls": 0,
+      "longestTaskMs": 0,
+      "assetTransferBytes": 123047,
+      "galleryInteractionToNextPaintMs": 21
+    }
+  ]
+}

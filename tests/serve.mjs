@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';
+process.env.LOCAL_CONTENT_DIR = '.local-content/e2e';
+process.env.ADMIN_MARC_TOKEN = 'local-e2e-marc-key';
+process.env.ADMIN_DAVID_TOKEN = 'local-e2e-david-key';
+process.env.SESSION_SECRET = 'local-browser-test-session-secret-not-for-deployment';
+process.env.REFORGED_LOCAL_STORE = '1';
+await fs.rm(process.env.LOCAL_CONTENT_DIR, { recursive: true, force: true });
+await import('../scripts/prepare.mjs');
+process.env.PORT = '4378';
+await import('../scripts/preview.mjs');
