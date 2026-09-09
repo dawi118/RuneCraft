@@ -1,0 +1,154 @@
+[
+  {
+    "legacyId": "lumbridge-swamp-caves",
+    "route": "/builds/lumbridge-swamp-caves/",
+    "placeId": "lumbridge-swamp",
+    "originalRegion": "General",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "lumbridge-castle-cook-s-pantry",
+    "route": "/builds/lumbridge-castle-cook-s-pantry/",
+    "placeId": "lumbridge-castle",
+    "originalRegion": "General",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "lumbridge-north-to-draynor-manor-al-kharid-border",
+    "route": "/builds/lumbridge-north-to-draynor-manor-al-kharid-border/",
+    "placeId": "around-lumbridge",
+    "originalRegion": "Misthalin",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "lumbridge-exc-castle-interiors-and-decoration",
+    "route": "/builds/lumbridge-exc-castle-interiors-and-decoration/",
+    "placeId": "lumbridge",
+    "originalRegion": "General",
+    "date": "2026-08-20",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "lumbridge-castle-interior-build-and-decoration",
+    "route": "/builds/lumbridge-castle-interior-build-and-decoration/",
+    "placeId": "lumbridge-castle",
+    "originalRegion": "Misthalin",
+    "date": "2026-08-20",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "lumbridge-exc-castle-foundation-exteriors",
+    "route": "/builds/lumbridge-exc-castle-foundation-exteriors/",
+    "placeId": "lumbridge",
+    "originalRegion": "Misthalin",
+    "date": "2026-08-20",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "lumbridge-castle-foundations-and-exterior-build",
+    "route": "/builds/lumbridge-castle-foundations-and-exterior-build/",
+    "placeId": "lumbridge-castle",
+    "originalRegion": "Misthalin",
+    "date": "2026-06-23",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "draynor-sewers",
+    "route": "/builds/draynor-sewers/",
+    "placeId": "draynor-sewers",
+    "originalRegion": "Misthalin",
+    "date": "2026-06-09",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "ham-hideout",
+    "route": "/builds/ham-hideout/",
+    "placeId": "ham-hideout",
+    "originalRegion": "Misthalin",
+    "date": "2026-06-09",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "lumbridge-swamp",
+    "route": "/builds/lumbridge-swamp/",
+    "placeId": "lumbridge-swamp",
+    "originalRegion": "Misthalin",
+    "date": "2026-08-10",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "draynor-village-interior-build",
+    "route": "/builds/draynor-village-interior-build/",
+    "placeId": "draynor-village",
+    "originalRegion": "Misthalin",
+    "date": "2026-06-09",
+    "datePrecision": "day; original timezone unknown"
+  },
+  {
+    "legacyId": "draynor-village-exterior-build",
+    "route": "/builds/draynor-village-exterior-build/",
+    "placeId": "draynor-village",
+    "originalRegion": "Misthalin",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "draynor-village-landscaping-foundations",
+    "route": "/builds/draynor-village-landscaping-foundations/",
+    "placeId": "draynor-village",
+    "originalRegion": "Misthalin",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "update-icons-and-web-ui",
+    "route": "/builds/update-icons-and-web-ui/",
+    "placeId": null,
+    "originalRegion": "General",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "share-our-first-post-on-substack",
+    "route": "/builds/share-our-first-post-on-substack/",
+    "placeId": null,
+    "originalRegion": "General",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "wizard-s-tower",
+    "route": "/builds/wizard-s-tower/",
+    "placeId": "wizards-tower",
+    "originalRegion": "Misthalin",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "agree-block-palette",
+    "route": "/builds/agree-block-palette/",
+    "placeId": null,
+    "originalRegion": "General",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "download-supporting-mods",
+    "route": "/builds/download-supporting-mods/",
+    "placeId": null,
+    "originalRegion": "General",
+    "date": null,
+    "datePrecision": "unknown"
+  },
+  {
+    "legacyId": "identify-foundation-map",
+    "route": "/builds/identify-foundation-map/",
+    "placeId": null,
+    "originalRegion": "General",
+    "date": null,
+    "datePrecision": "unknown"
+  }
+]

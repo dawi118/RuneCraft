@@ -1,1 +1,9 @@
 node_modules/
+dist/
+.astro/
+.netlify/
+.local-content/
+playwright-report/
+test-results/
+migration/media/
+.env

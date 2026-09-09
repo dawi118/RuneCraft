@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Falador party room block build</title>
+  <desc id="desc">Original block-style concept art of a bright party room interior.</desc>
+  <rect width="900" height="620" fill="#5d6f84"/>
+  <rect y="385" width="900" height="235" fill="#b7a98b"/>
+  <g shape-rendering="crispEdges">
+    <rect x="165" y="120" width="570" height="270" fill="#d8d6c9"/>
+    <rect x="205" y="170" width="490" height="175" fill="#f0ead8"/>
+    <rect x="385" y="245" width="130" height="145" fill="#392c28"/>
+    <rect x="120" y="410" width="660" height="55" fill="#8e7e62"/>
+    <rect x="245" y="470" width="410" height="55" fill="#6f614d"/>
+    <rect x="235" y="195" width="70" height="60" fill="#d44845"/>
+    <rect x="595" y="195" width="70" height="60" fill="#d44845"/>
+    <rect x="320" y="105" width="260" height="45" fill="#eef1ef"/>
+    <rect x="205" y="90" width="60" height="45" fill="#f5ce58"/>
+    <rect x="635" y="90" width="60" height="45" fill="#f5ce58"/>
+  </g>
+</svg>

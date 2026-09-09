@@ -1,0 +1,2873 @@
+{
+  "schemaVersion": 1,
+  "revision": "migration-2026-09-09",
+  "publishedAt": null,
+  "snapshotAt": "2026-09-09",
+  "places": [
+    {
+      "id": "lumbridge-castle",
+      "slug": "lumbridge-castle",
+      "name": "Lumbridge Castle",
+      "regionId": "misthalin",
+      "category": "building",
+      "status": "Built",
+      "summary": "",
+      "stageIds": [
+        "lumbridge-castle-foundations-and-exterior-build",
+        "lumbridge-castle-interior-build-and-decoration",
+        "lumbridge-castle-cook-s-pantry"
+      ],
+      "mediaIds": [
+        "e47a429a572e60f8",
+        "10043ca90c4234e4",
+        "7a9cf5906811b00c",
+        "71464523cce94746",
+        "26b4e50b87b34b3e"
+      ],
+      "coverId": "e47a429a572e60f8",
+      "pin": {
+        "x": 0.737,
+        "y": 0.46
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-village"
+      ]
+    },
+    {
+      "id": "draynor-village",
+      "slug": "draynor-village",
+      "name": "Draynor Village",
+      "regionId": "misthalin",
+      "category": "town",
+      "status": "Built",
+      "summary": "",
+      "stageIds": [
+        "draynor-village-exterior-build",
+        "draynor-village-interior-build",
+        "draynor-village-landscaping-foundations"
+      ],
+      "mediaIds": [
+        "bcc654a8b6548493",
+        "0141a1ad087b37db",
+        "04e9beb20d2f4201",
+        "c8c7edd6c46ff875",
+        "e957779e46002981",
+        "cbf9e60d5a8e206c",
+        "9dcb78b782c2d85e",
+        "21c7f056f823faa0",
+        "e536380e6ba1dfab",
+        "7b519c2ef47aad26",
+        "6c7c78355d34a148",
+        "4d00bf1bcf1c16e2",
+        "b3de46005287e614",
+        "c987353c013a4e3e",
+        "4696522c6aecfd19",
+        "700be0242d4b4452",
+        "712b261015b99c44",
+        "63ef8e4cc42a846d",
+        "2e6ad177bb59a70b",
+        "b72ff96661f31b5c",
+        "68c112fe3423e90e"
+      ],
+      "coverId": "bcc654a8b6548493",
+      "pin": {
+        "x": 0.71,
+        "y": 0.437
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-sewers",
+        "wizards-tower",
+        "ham-hideout"
+      ]
+    },
+    {
+      "id": "wizards-tower",
+      "slug": "wizards-tower",
+      "name": "Wizard’s Tower",
+      "regionId": "misthalin",
+      "category": "landmark",
+      "status": "Built",
+      "summary": "",
+      "stageIds": [
+        "wizard-s-tower"
+      ],
+      "mediaIds": [
+        "c385cfc8145ec871",
+        "016576db92ed5d2e",
+        "61376db5f90fffb1",
+        "618b45367b3c6ac0",
+        "8c89eae862ed1968",
+        "a48deb354f4d8245",
+        "97511be382144230",
+        "130fbda121e185ee",
+        "bdec7c76d55cd9b8"
+      ],
+      "coverId": "c385cfc8145ec871",
+      "pin": {
+        "x": 0.708,
+        "y": 0.49
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-village",
+        "lumbridge-castle"
+      ]
+    },
+    {
+      "id": "lumbridge",
+      "slug": "lumbridge",
+      "name": "Lumbridge",
+      "regionId": "misthalin",
+      "category": "town",
+      "status": "Built",
+      "summary": "",
+      "stageIds": [
+        "lumbridge-exc-castle-foundation-exteriors",
+        "lumbridge-exc-castle-interiors-and-decoration"
+      ],
+      "mediaIds": [],
+      "coverId": null,
+      "pin": {
+        "x": 0.746,
+        "y": 0.447
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-village",
+        "lumbridge-castle"
+      ]
+    },
+    {
+      "id": "around-lumbridge",
+      "slug": "around-lumbridge",
+      "name": "Around Lumbridge",
+      "regionId": "misthalin",
+      "category": "landscape",
+      "status": "In progress",
+      "summary": "",
+      "stageIds": [
+        "lumbridge-north-to-draynor-manor-al-kharid-border"
+      ],
+      "mediaIds": [],
+      "coverId": null,
+      "pin": {
+        "x": 0.734,
+        "y": 0.423
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-village",
+        "lumbridge-castle"
+      ]
+    },
+    {
+      "id": "lumbridge-swamp",
+      "slug": "lumbridge-swamp",
+      "name": "Lumbridge Swamp",
+      "regionId": "misthalin",
+      "category": "landscape",
+      "status": "Built",
+      "summary": "",
+      "stageIds": [
+        "lumbridge-swamp",
+        "lumbridge-swamp-caves"
+      ],
+      "mediaIds": [
+        "54dc2366fc678cb6",
+        "b0f069969b5a9e5e",
+        "ba53a7f177bd27b6",
+        "eb583ac924af1b32",
+        "cbecb67eb6e5a714",
+        "8551208c874b9022",
+        "681b1099a8cf8406",
+        "b2ca2a17fc572436",
+        "0c1086094a53c59e",
+        "8670d76ab4a1f0b0"
+      ],
+      "coverId": "54dc2366fc678cb6",
+      "pin": {
+        "x": 0.727,
+        "y": 0.485
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-village",
+        "lumbridge-castle"
+      ]
+    },
+    {
+      "id": "draynor-sewers",
+      "slug": "draynor-sewers",
+      "name": "Draynor Sewers",
+      "regionId": "misthalin",
+      "category": "underground",
+      "status": "Built",
+      "summary": "",
+      "stageIds": [
+        "draynor-sewers"
+      ],
+      "mediaIds": [
+        "49b1f8e3144c6021",
+        "8afc14fe6c1cc68d"
+      ],
+      "coverId": "49b1f8e3144c6021",
+      "pin": {
+        "x": 0.702,
+        "y": 0.442
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-village",
+        "lumbridge-castle"
+      ]
+    },
+    {
+      "id": "ham-hideout",
+      "slug": "ham-hideout",
+      "name": "HAM Hideout",
+      "regionId": "misthalin",
+      "category": "underground",
+      "status": "Built",
+      "summary": "",
+      "stageIds": [
+        "ham-hideout"
+      ],
+      "mediaIds": [
+        "2f371483e7eb6171",
+        "7ee46f95471ef8e0",
+        "9b8b29451f40813d",
+        "06a4243e5b047a56",
+        "23c20aceb5f24e7f",
+        "cdc4f275241aaf3b",
+        "0393be398b280e0d",
+        "1de5fec131c5d583",
+        "04089b28eba8bab0",
+        "836e5cd33a323eaf"
+      ],
+      "coverId": "2f371483e7eb6171",
+      "pin": {
+        "x": 0.722,
+        "y": 0.45
+      },
+      "accessStatus": "No public access details have been announced here.",
+      "relatedIds": [
+        "draynor-village",
+        "lumbridge-castle"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "id": "lumbridge-swamp-caves",
+      "placeId": "lumbridge-swamp",
+      "publicTitle": "Lumbridge swamp caves",
+      "status": "Planned",
+      "scope": "Swamp caves linking to Lumbridge cellar and tears of Guthix",
+      "estimatedHours": 10,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "landscape",
+      "regionId": "general",
+      "mediaIds": [],
+      "notes": "",
+      "legacy": {
+        "id": "lumbridge-swamp-caves",
+        "name": "Lumbridge swamp caves",
+        "subtitle": "Swamp caves linking to Lumbridge cellar and tears of Guthix",
+        "location": "backlog",
+        "region": "General",
+        "category": "landscape",
+        "progress": 0,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 10,
+        "estimatedTimeLeft": "10 hours",
+        "what": "",
+        "images": []
+      }
+    },
+    {
+      "id": "lumbridge-castle-cook-s-pantry",
+      "placeId": "lumbridge-castle",
+      "publicTitle": "Lumbridge castle - cook’s pantry",
+      "status": "Planned",
+      "scope": "Mini story to build the cook’s pantry and goblins behind.",
+      "estimatedHours": 3,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "other",
+      "regionId": "general",
+      "mediaIds": [],
+      "notes": "",
+      "legacy": {
+        "id": "lumbridge-castle-cook-s-pantry",
+        "name": "Lumbridge castle - cook’s pantry",
+        "subtitle": "Mini story to build the cook’s pantry and goblins behind.",
+        "location": "backlog",
+        "region": "General",
+        "category": "other",
+        "progress": 0,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 3,
+        "estimatedTimeLeft": "3 hours",
+        "what": "",
+        "images": []
+      }
+    },
+    {
+      "id": "lumbridge-north-to-draynor-manor-al-kharid-border",
+      "placeId": "around-lumbridge",
+      "publicTitle": "Lumbridge North to Draynor Manor & Al-Kharid border",
+      "status": "In progress",
+      "scope": "Sweep-all ticket to capture the space between settlements. This includes the Sheep Shearer farm, Lumbridge windmill and the watermill over the river.",
+      "estimatedHours": 20,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "other",
+      "regionId": "misthalin",
+      "mediaIds": [],
+      "notes": "14/08 - Ticket started - the Sheep Shearer farm complete.\n\n18/08 - Landscaping west of the river complete,   Windmill built, neighbouring farmland and adjacent barn.",
+      "legacy": {
+        "id": "lumbridge-north-to-draynor-manor-al-kharid-border",
+        "name": "Lumbridge North to Draynor Manor & Al-Kharid border",
+        "subtitle": "Sweep-all ticket to capture the space between settlements. This includes the Sheep Shearer farm, Lumbridge windmill and the watermill over the river.",
+        "location": "progress",
+        "region": "Misthalin",
+        "category": "other",
+        "progress": 25,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 20,
+        "estimatedTimeLeft": "15 hours",
+        "what": "14/08 - Ticket started - the Sheep Shearer farm complete.\n\n18/08 - Landscaping west of the river complete,   Windmill built, neighbouring farmland and adjacent barn.",
+        "images": []
+      }
+    },
+    {
+      "id": "lumbridge-exc-castle-interiors-and-decoration",
+      "placeId": "lumbridge",
+      "publicTitle": "Lumbridge exc castle - interiors and decoration",
+      "status": "Built",
+      "scope": "Catch all ticket for bob's axes, the church, graveyard, general store, smithy and the bridge over the Lum itself.",
+      "estimatedHours": 10,
+      "completedAt": "2026-08-20",
+      "legacyCompletedAt": "2608201144",
+      "category": "other",
+      "regionId": "general",
+      "mediaIds": [],
+      "notes": "27/06 - Started, graveyard built and death's lair.\n\n10/08 - Church interior built, bob's axes and misc houses.\n\n11/08 - Interior builds for all houses inc. smithy complete!",
+      "legacy": {
+        "id": "lumbridge-exc-castle-interiors-and-decoration",
+        "name": "Lumbridge exc castle - interiors and decoration",
+        "subtitle": "Catch all ticket for bob's axes, the church, graveyard, general store, smithy and the bridge over the Lum itself.",
+        "location": "done",
+        "region": "General",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "2608201144",
+        "estimatedTotalTime": 10,
+        "estimatedTimeLeft": "0 hours",
+        "what": "27/06 - Started, graveyard built and death's lair.\n\n10/08 - Church interior built, bob's axes and misc houses.\n\n11/08 - Interior builds for all houses inc. smithy complete!",
+        "images": []
+      }
+    },
+    {
+      "id": "lumbridge-castle-interior-build-and-decoration",
+      "placeId": "lumbridge-castle",
+      "publicTitle": "Lumbridge Castle - Interior build and decoration",
+      "status": "Built",
+      "scope": "Lumbridge castle interiors",
+      "estimatedHours": 10,
+      "completedAt": "2026-08-20",
+      "legacyCompletedAt": "2608201056",
+      "category": "building",
+      "regionId": "misthalin",
+      "mediaIds": [],
+      "notes": "22/06 - started!\n01/08 - after some annual leave, we’ve finished this feature! Complete with the roof babk, the duke’s chambers, the cook’s kitchen and dining room.",
+      "legacy": {
+        "id": "lumbridge-castle-interior-build-and-decoration",
+        "name": "Lumbridge Castle - Interior build and decoration",
+        "subtitle": "Lumbridge castle interiors",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "building",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "2608201056",
+        "estimatedTotalTime": 10,
+        "estimatedTimeLeft": "0 hours",
+        "what": "22/06 - started!\n01/08 - after some annual leave, we’ve finished this feature! Complete with the roof babk, the duke’s chambers, the cook’s kitchen and dining room.",
+        "images": []
+      }
+    },
+    {
+      "id": "lumbridge-exc-castle-foundation-exteriors",
+      "placeId": "lumbridge",
+      "publicTitle": "Lumbridge exc. castle - Foundation & exteriors",
+      "status": "Built",
+      "scope": "Catch all ticket for bob's axes, the church, graveyard, general store, smithy and the bridge over the Lum itself!",
+      "estimatedHours": 20,
+      "completedAt": "2026-08-20",
+      "legacyCompletedAt": "2608201053",
+      "category": "other",
+      "regionId": "misthalin",
+      "mediaIds": [],
+      "notes": "20/06 - Started, graveyard built and death's lair.\n\n04/08 - Church foundations and exterior built, bob's axes and misc houses.\n\n11/08 - Exterior builds for all houses complete!",
+      "legacy": {
+        "id": "lumbridge-exc-castle-foundation-exteriors",
+        "name": "Lumbridge exc. castle - Foundation & exteriors",
+        "subtitle": "Catch all ticket for bob's axes, the church, graveyard, general store, smithy and the bridge over the Lum itself!",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "2608201053",
+        "estimatedTotalTime": 20,
+        "estimatedTimeLeft": "0 hours",
+        "what": "20/06 - Started, graveyard built and death's lair.\n\n04/08 - Church foundations and exterior built, bob's axes and misc houses.\n\n11/08 - Exterior builds for all houses complete!",
+        "images": []
+      }
+    },
+    {
+      "id": "lumbridge-castle-foundations-and-exterior-build",
+      "placeId": "lumbridge-castle",
+      "publicTitle": "Lumbridge Castle - Foundations and exterior build",
+      "status": "Built",
+      "scope": "",
+      "estimatedHours": 6,
+      "completedAt": "2026-06-23",
+      "legacyCompletedAt": "2606232321",
+      "category": "building",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "e47a429a572e60f8",
+        "10043ca90c4234e4",
+        "7a9cf5906811b00c",
+        "71464523cce94746",
+        "26b4e50b87b34b3e"
+      ],
+      "notes": "21/06 - Build complete!",
+      "legacy": {
+        "id": "lumbridge-castle-foundations-and-exterior-build",
+        "name": "Lumbridge Castle - Foundations and exterior build",
+        "subtitle": "",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "building",
+        "progress": 100,
+        "featured": true,
+        "completedAt": "2606232321",
+        "estimatedTotalTime": 6,
+        "estimatedTimeLeft": "0 hours",
+        "what": "21/06 - Build complete!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1786401397432-2026-08-10-23-12-56.jpg",
+            "caption": "North-eastern view"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401399231-2026-08-10-23-16-43.jpg",
+            "caption": "Lumbridge Castle main gate"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401398093-2026-08-10-23-15-23.jpg",
+            "caption": "Lumbridge Castle courtyard 1"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401399971-2026-08-10-23-17-22.jpg",
+            "caption": "Lumbridge Castle courtyard 2"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401398702-2026-08-10-23-16-06.jpg",
+            "caption": "Lumbridge Castle rear"
+          }
+        ]
+      }
+    },
+    {
+      "id": "draynor-sewers",
+      "placeId": "draynor-sewers",
+      "publicTitle": "Draynor Sewers",
+      "status": "Built",
+      "scope": "The underground section connecting West Draynor with Draynor Jail. Complete with pipework and Ruantun's secret camp.",
+      "estimatedHours": 6,
+      "completedAt": "2026-06-09",
+      "legacyCompletedAt": "2606092346",
+      "category": "other",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "49b1f8e3144c6021",
+        "8afc14fe6c1cc68d"
+      ],
+      "notes": "09/06 - Completed the build, including Ruantun's camp within the ruined room.\n\nQuest Complete!",
+      "legacy": {
+        "id": "draynor-sewers",
+        "name": "Draynor Sewers",
+        "subtitle": "The underground section connecting West Draynor with Draynor Jail. Complete with pipework and Ruantun's secret camp.",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "2606092346",
+        "estimatedTotalTime": 6,
+        "estimatedTimeLeft": "0 hours",
+        "what": "09/06 - Completed the build, including Ruantun's camp within the ruined room.\n\nQuest Complete!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1781117648289-2026-06-10-19-50-30.jpg",
+            "caption": "Draynor sewer"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781117652311-2026-06-10-19-51-00.jpg",
+            "caption": "Ruantun's room"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ham-hideout",
+      "placeId": "ham-hideout",
+      "publicTitle": "HAM Hideout",
+      "status": "Built",
+      "scope": "Everything HAM, our first dungeon - Landscape, Foundations, Exterior, Interior and Decorations.\n\nMaking space for finding those Easy clues...",
+      "estimatedHours": 20,
+      "completedAt": "2026-06-09",
+      "legacyCompletedAt": "2606092340",
+      "category": "other",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "2f371483e7eb6171",
+        "7ee46f95471ef8e0",
+        "9b8b29451f40813d",
+        "06a4243e5b047a56",
+        "23c20aceb5f24e7f",
+        "cdc4f275241aaf3b",
+        "0393be398b280e0d",
+        "1de5fec131c5d583",
+        "04089b28eba8bab0",
+        "836e5cd33a323eaf"
+      ],
+      "notes": "09/06 - Quest complete!",
+      "legacy": {
+        "id": "ham-hideout",
+        "name": "HAM Hideout",
+        "subtitle": "Everything HAM, our first dungeon - Landscape, Foundations, Exterior, Interior and Decorations.\n\nMaking space for finding those Easy clues...",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "2606092340",
+        "estimatedTotalTime": 20,
+        "estimatedTimeLeft": "0 hours",
+        "what": "09/06 - Quest complete!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1781044949998-2026-06-09-23-35-48.jpg",
+            "caption": "Hideout main room 1"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781044948165-2026-06-09-23-34-16.jpg",
+            "caption": "Hideout main room 2"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781044950710-2026-06-09-23-35-56.jpg",
+            "caption": "Hideout main room 3"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781044953407-2026-06-09-23-37-11.jpg",
+            "caption": "Hideout main room 4"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781044952073-2026-06-09-23-36-16.jpg",
+            "caption": "Hideout jail cell"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781044952719-2026-06-09-23-36-34.jpg",
+            "caption": "Hideout chambers"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781044949287-2026-06-09-23-35-22.jpg",
+            "caption": "Hideout extra room 1"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781044951412-2026-06-09-23-36-02.jpg",
+            "caption": "Hideout extra room 2"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115444826-2026-06-02-23-41-06.jpg",
+            "caption": "Hideout ruin 1"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115482687-2026-06-02-23-41-17.jpg",
+            "caption": "Hideout ruin 2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "lumbridge-swamp",
+      "placeId": "lumbridge-swamp",
+      "publicTitle": "Lumbridge Swamp",
+      "status": "Built",
+      "scope": "Lumbridge Swamp - in one big ticket. Much of this comprises the foundations of the swamp, making sure the pools and terrain are correct before populating with reeds and trees. Then, moving on to the houses, the Lumbridge caves, and decorations.",
+      "estimatedHours": 15,
+      "completedAt": "2026-08-10",
+      "legacyCompletedAt": "2608102341",
+      "category": "landscape",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "54dc2366fc678cb6",
+        "b0f069969b5a9e5e",
+        "ba53a7f177bd27b6",
+        "eb583ac924af1b32",
+        "cbecb67eb6e5a714",
+        "8551208c874b9022",
+        "681b1099a8cf8406",
+        "b2ca2a17fc572436",
+        "0c1086094a53c59e",
+        "8670d76ab4a1f0b0"
+      ],
+      "notes": "04/05 - Finished Father Uhrney's house in the West swamp, and the mining area in the South-West corner.\n23/06 - Finished landscaping the swamp, the house to Zanaris, and populating with foliage. We will pause on the slayer cave and move to Lumbridge before coming back to do this!",
+      "legacy": {
+        "id": "lumbridge-swamp",
+        "name": "Lumbridge Swamp",
+        "subtitle": "Lumbridge Swamp - in one big ticket. Much of this comprises the foundations of the swamp, making sure the pools and terrain are correct before populating with reeds and trees. Then, moving on to the houses, the Lumbridge caves, and decorations.",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "landscape",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "2608102341",
+        "estimatedTotalTime": 15,
+        "estimatedTimeLeft": "0 hours",
+        "what": "04/05 - Finished Father Uhrney's house in the West swamp, and the mining area in the South-West corner.\n23/06 - Finished landscaping the swamp, the house to Zanaris, and populating with foliage. We will pause on the slayer cave and move to Lumbridge before coming back to do this!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1786401466560-2026-08-10-23-28-26.jpg",
+            "caption": "Western Lumbridge swamp"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401463939-2026-08-10-23-26-18.jpg",
+            "caption": "The water altar"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401466095-2026-08-10-23-28-04.jpg",
+            "caption": "Lumbridge south-eastern mine and fishing"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401465560-2026-08-10-23-26-59.jpg",
+            "caption": "No entry! (slayer cave entrance)"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401464532-2026-08-10-23-26-29.jpg",
+            "caption": "Father Uhrney's shack exterior 1"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401465036-2026-08-10-23-26-43.jpg",
+            "caption": "Father Uhrney's shack exterior 2"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401463347-2026-06-10-20-02-56.jpg",
+            "caption": "Father Uhrney's shack interior"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401467178-2026-08-10-23-29-58.jpg",
+            "caption": "The Adventurers' Camp 1"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401467739-2026-08-10-23-30-19.jpg",
+            "caption": "The Adventurers' Camp 2"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1786401468210-2026-08-10-23-30-32.jpg",
+            "caption": "The Adventurers' Camp 3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "draynor-village-interior-build",
+      "placeId": "draynor-village",
+      "publicTitle": "Draynor Village - Interior Build",
+      "status": "Built",
+      "scope": "Interior decoration, QoL and final touches to all buildings and locations in and around Draynor Village",
+      "estimatedHours": 20,
+      "completedAt": "2026-06-09",
+      "legacyCompletedAt": "2606092345",
+      "category": "building",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "21c7f056f823faa0",
+        "e536380e6ba1dfab",
+        "7b519c2ef47aad26",
+        "6c7c78355d34a148",
+        "4d00bf1bcf1c16e2",
+        "b3de46005287e614",
+        "c987353c013a4e3e",
+        "4696522c6aecfd19",
+        "700be0242d4b4452",
+        "712b261015b99c44"
+      ],
+      "notes": "14/05 - Bank and the Wise Old Man's house are now complete!\n26/05 - Ned and Aggie's house also complete!\n09/06 - Remaining houses and underground sewers complete!\n\nQuest complete!",
+      "legacy": {
+        "id": "draynor-village-interior-build",
+        "name": "Draynor Village - Interior Build",
+        "subtitle": "Interior decoration, QoL and final touches to all buildings and locations in and around Draynor Village",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "building",
+        "progress": 100,
+        "featured": true,
+        "completedAt": "2606092345",
+        "estimatedTotalTime": 20,
+        "estimatedTimeLeft": "0 hours",
+        "what": "14/05 - Bank and the Wise Old Man's house are now complete!\n26/05 - Ned and Aggie's house also complete!\n09/06 - Remaining houses and underground sewers complete!\n\nQuest complete!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1781116028095-2026-06-02-23-29-03.jpg",
+            "caption": "Draynor bank"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116029082-2026-06-02-23-29-25.jpg",
+            "caption": "Wise Old Man's house downstairs"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116030337-2026-06-02-23-30-17.jpg",
+            "caption": "Wise Old Man's house upstairs"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116030986-2026-06-02-23-30-53.jpg",
+            "caption": "Ned's house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116032626-2026-06-02-23-31-15.jpg",
+            "caption": "Aggie the Witch's house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116034201-2026-06-02-23-31-37.jpg",
+            "caption": "Morgan's house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116034902-2026-06-02-23-32-04.jpg",
+            "caption": "Agility course start house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116036355-2026-06-02-23-32-25.jpg",
+            "caption": "Additional small house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116038003-2026-06-02-23-32-46.jpg",
+            "caption": "Diango's Workshop house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781116039296-2026-06-02-23-33-06.jpg",
+            "caption": "Draynor jail"
+          }
+        ]
+      }
+    },
+    {
+      "id": "draynor-village-exterior-build",
+      "placeId": "draynor-village",
+      "publicTitle": "Draynor Village - Exterior Build",
+      "status": "Built",
+      "scope": "Completing the exterior builds for all buildings in Draynor Village and surrounding areas",
+      "estimatedHours": 16,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "building",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "bcc654a8b6548493",
+        "0141a1ad087b37db",
+        "04e9beb20d2f4201",
+        "c8c7edd6c46ff875",
+        "e957779e46002981",
+        "cbf9e60d5a8e206c",
+        "9dcb78b782c2d85e"
+      ],
+      "notes": "06/05 -  Exteriors complete for all houses! Featuring the Bank, Ned's house and Aggie the Witch, as well as the market and the nearby farms. You can even try your luck at the agility course...\n\nQuest complete!",
+      "legacy": {
+        "id": "draynor-village-exterior-build",
+        "name": "Draynor Village - Exterior Build",
+        "subtitle": "Completing the exterior builds for all buildings in Draynor Village and surrounding areas",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "building",
+        "progress": 100,
+        "featured": true,
+        "completedAt": "",
+        "estimatedTotalTime": 16,
+        "estimatedTimeLeft": "0 hours",
+        "what": "06/05 -  Exteriors complete for all houses! Featuring the Bank, Ned's house and Aggie the Witch, as well as the market and the nearby farms. You can even try your luck at the agility course...\n\nQuest complete!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1781115289431-2026-05-07-01-28-08.jpg",
+            "caption": "Draynor market square"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115290050-2026-06-02-23-22-11.jpg",
+            "caption": "Draynor bank"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115290709-2026-06-02-23-22-23.jpg",
+            "caption": "Draynor market and the Wise Old Man's house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115291300-2026-06-02-23-22-35.jpg",
+            "caption": "The courtyard outside Aggie the Witch's house"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115291922-2026-06-02-23-23-04.jpg",
+            "caption": "Draynor jail"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115292545-2026-06-02-23-23-39.jpg",
+            "caption": "The street outside Morgan's house feat. rat"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781115293159-2026-06-02-23-23-52.jpg",
+            "caption": "Draynor agility course"
+          }
+        ]
+      }
+    },
+    {
+      "id": "draynor-village-landscaping-foundations",
+      "placeId": "draynor-village",
+      "publicTitle": "Draynor Village - Landscaping & Foundations",
+      "status": "Built",
+      "scope": "Landscaping, main paths and foundations of buildings for Draynor Village.",
+      "estimatedHours": 15,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "other",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "63ef8e4cc42a846d",
+        "2e6ad177bb59a70b",
+        "b72ff96661f31b5c",
+        "68c112fe3423e90e"
+      ],
+      "notes": "05/05 - Village skeleton largely complete - terrain, paths and building foundations. Just need to plant the (many) trees and finish the remaining village paths before we can mark this as done!\n\n12/05 - farm and wall exteriors built. Just some tree planting to go.\n\n26/05 - trees, shrubs and remaining pathways complete.\n\nQuest complete!",
+      "legacy": {
+        "id": "draynor-village-landscaping-foundations",
+        "name": "Draynor Village - Landscaping & Foundations",
+        "subtitle": "Landscaping, main paths and foundations of buildings for Draynor Village.",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 15,
+        "estimatedTimeLeft": "0 hours",
+        "what": "05/05 - Village skeleton largely complete - terrain, paths and building foundations. Just need to plant the (many) trees and finish the remaining village paths before we can mark this as done!\n\n12/05 - farm and wall exteriors built. Just some tree planting to go.\n\n26/05 - trees, shrubs and remaining pathways complete.\n\nQuest complete!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1781114777507-2026-06-02-23-19-06.jpg",
+            "caption": "Draynor landscape from the south-east"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781114778109-2026-06-02-23-19-30.jpg",
+            "caption": "Draynor landscape from the south-west"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781114778790-2026-06-02-23-19-39.jpg",
+            "caption": "Draynor landscape from the north-west"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1781114779516-2026-06-02-23-19-57.jpg",
+            "caption": "Draynor landscape from the north-east"
+          }
+        ]
+      }
+    },
+    {
+      "id": "update-icons-and-web-ui",
+      "placeId": null,
+      "publicTitle": "Update icons and web UI",
+      "status": "Built",
+      "scope": "Update website: icons, added functionality for build ticket, changing the world view and image upload!",
+      "estimatedHours": 3,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "other",
+      "regionId": "general",
+      "mediaIds": [],
+      "notes": "Quest complete!",
+      "legacy": {
+        "id": "update-icons-and-web-ui",
+        "name": "Update icons and web UI",
+        "subtitle": "Update website: icons, added functionality for build ticket, changing the world view and image upload!",
+        "location": "done",
+        "region": "General",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 3,
+        "estimatedTimeLeft": "0 hours",
+        "what": "Quest complete!",
+        "images": []
+      }
+    },
+    {
+      "id": "share-our-first-post-on-substack",
+      "placeId": null,
+      "publicTitle": "Share our first post on Substack!",
+      "status": "Built",
+      "scope": "Write our first post on Substack - introduce ourselves and a bit about Project Runecraft",
+      "estimatedHours": 1,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "other",
+      "regionId": "general",
+      "mediaIds": [
+        "8c40d0898c2f67ce"
+      ],
+      "notes": "Our first article is now live! Check it out!\n\nQuest complete!",
+      "legacy": {
+        "id": "share-our-first-post-on-substack",
+        "name": "Share our first post on Substack!",
+        "subtitle": "Write our first post on Substack - introduce ourselves and a bit about Project Runecraft",
+        "location": "done",
+        "region": "General",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 1,
+        "estimatedTimeLeft": "0 hours",
+        "what": "Our first article is now live! Check it out!\n\nQuest complete!",
+        "images": [
+          {
+            "src": "assets/uploads/1777458004489-composed.jpg",
+            "caption": "Our article"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wizard-s-tower",
+      "placeId": "wizards-tower",
+      "publicTitle": "Wizard's Tower",
+      "status": "Built",
+      "scope": "Our first building! Testing out WorldEdit on the Wizard's Tower near Draynor. Trialling a landscaping - foundation planning - walls and exterior - roof exterior - decorating exterior - designing interior - designing underground - placing lighting - finishing homely touches. Includes the connecting bridge with the STASH",
+      "estimatedHours": 12,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "building",
+      "regionId": "misthalin",
+      "mediaIds": [
+        "c385cfc8145ec871",
+        "016576db92ed5d2e",
+        "61376db5f90fffb1",
+        "618b45367b3c6ac0",
+        "8c89eae862ed1968",
+        "a48deb354f4d8245",
+        "97511be382144230",
+        "130fbda121e185ee",
+        "bdec7c76d55cd9b8"
+      ],
+      "notes": "28/04 - Check out the pretty pictures! Landscaping, foundations, walls, exterior, roof and environment completed. Cycled through a couple of techniques and building materials for this. We now have some decent stencils (trees, walls, bricks, roads) we can copy to new buildings.\n\n01/05 - Completed floors 1-3 interiors, lower ground in progress - choosing between a big catalogue of potential furnishings for future houses\n\n04/05 - And we've finished our first proper feature! All floors are completed and decorated, including the minor island and faerie ring to the north.\n\nNext stop - Draynor Village.\n\nQuest complete!",
+      "legacy": {
+        "id": "wizard-s-tower",
+        "name": "Wizard's Tower",
+        "subtitle": "Our first building! Testing out WorldEdit on the Wizard's Tower near Draynor. Trialling a landscaping - foundation planning - walls and exterior - roof exterior - decorating exterior - designing interior - designing underground - placing lighting - finishing homely touches. Includes the connecting bridge with the STASH",
+        "location": "done",
+        "region": "Misthalin",
+        "category": "building",
+        "progress": 100,
+        "featured": true,
+        "completedAt": "",
+        "estimatedTotalTime": 12,
+        "estimatedTimeLeft": "0 hours",
+        "what": "28/04 - Check out the pretty pictures! Landscaping, foundations, walls, exterior, roof and environment completed. Cycled through a couple of techniques and building materials for this. We now have some decent stencils (trees, walls, bricks, roads) we can copy to new buildings.\n\n01/05 - Completed floors 1-3 interiors, lower ground in progress - choosing between a big catalogue of potential furnishings for future houses\n\n04/05 - And we've finished our first proper feature! All floors are completed and decorated, including the minor island and faerie ring to the north.\n\nNext stop - Draynor Village.\n\nQuest complete!",
+        "images": [
+          {
+            "src": "/.netlify/functions/board?asset=1777933713437-2026-05-04-23-09-33.jpg",
+            "caption": "exterior - north east"
+          },
+          {
+            "src": "assets/uploads/1777415089285-exterior-wizards-tower-6.jpg",
+            "caption": "exterior - fairy ring"
+          },
+          {
+            "src": "assets/uploads/1777415090776-exterior-wizards-tower-7.jpg",
+            "caption": "exterior - south west"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1777933758292-2026-05-04-23-09-16.jpg",
+            "caption": "Wizard's Tower Bridge & exterior"
+          },
+          {
+            "src": "assets/uploads/1777415098668-exterior-wizards-tower-4.jpg",
+            "caption": "exterior - aerial view"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1777920747421-wizard-sedridor-s-lair.jpg",
+            "caption": "Wizard Sedridor's Lair"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1777920750260-wizard-magog-s-chambers.jpg",
+            "caption": "Wizard Magog's Chambers"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1777933104084-2026-05-04-23-09-56.jpg",
+            "caption": "Underground Chapel and Chambers"
+          },
+          {
+            "src": "/.netlify/functions/board?asset=1777933125147-2026-05-04-23-10-55.jpg",
+            "caption": "The Lesser Demon Room"
+          }
+        ]
+      }
+    },
+    {
+      "id": "agree-block-palette",
+      "placeId": null,
+      "publicTitle": "Agree block palette",
+      "status": "Built",
+      "scope": "Test out and agree palette for housing and landmarks across Misthalin.",
+      "estimatedHours": 3,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "other",
+      "regionId": "general",
+      "mediaIds": [],
+      "notes": "We've taken some time to familiarise ourselves with good palettes. Some things we've taken forward:\n\n- Granite, limestone and gradienting them for exterior builds\n- Mixing materials with connected textures for pathways.\n- We've identified a bunch of cool interior objects - e.g. piles of books/rocks - and supporting beams.\n\nWe will figure this out as we go along, as each area will have its own needs. As far as we are concerned...\n\nQuest complete!",
+      "legacy": {
+        "id": "agree-block-palette",
+        "name": "Agree block palette",
+        "subtitle": "Test out and agree palette for housing and landmarks across Misthalin.",
+        "location": "done",
+        "region": "General",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 3,
+        "estimatedTimeLeft": "0 hours",
+        "what": "We've taken some time to familiarise ourselves with good palettes. Some things we've taken forward:\n\n- Granite, limestone and gradienting them for exterior builds\n- Mixing materials with connected textures for pathways.\n- We've identified a bunch of cool interior objects - e.g. piles of books/rocks - and supporting beams.\n\nWe will figure this out as we go along, as each area will have its own needs. As far as we are concerned...\n\nQuest complete!",
+        "images": []
+      }
+    },
+    {
+      "id": "download-supporting-mods",
+      "placeId": null,
+      "publicTitle": "Download supporting mods",
+      "status": "Built",
+      "scope": "Figure out exactly what we need to build this well. Adding WorldEdit + supporting packs (CUI).",
+      "estimatedHours": 8,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "other",
+      "regionId": "general",
+      "mediaIds": [],
+      "notes": "25/04: Identified WorldEdit mod builds compatible with conquest reforged and trialled in sandbox by building a wizard’s tower POC.\n\n27/04: Investigated Ardacraft's modpacks - some good content including Conquest:Architects and Conquest:Hearthfire (as well as minor packs). We decided not to include Create at this stage. We will use native tree functionality. \n\n04/05: Agreed on starting Modlist\n- Conquest Architects\n- Conquest Hearthfire\n- Believe Mod\n- Worldedit\n- Worldedit CUI\n- FTB Ultimine\n- Xaero's Minimap\n- Xaero's Worldmap\n\nQuest Complete!",
+      "legacy": {
+        "id": "download-supporting-mods",
+        "name": "Download supporting mods",
+        "subtitle": "Figure out exactly what we need to build this well. Adding WorldEdit + supporting packs (CUI).",
+        "location": "done",
+        "region": "General",
+        "category": "other",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 8,
+        "estimatedTimeLeft": "0 hours",
+        "what": "25/04: Identified WorldEdit mod builds compatible with conquest reforged and trialled in sandbox by building a wizard’s tower POC.\n\n27/04: Investigated Ardacraft's modpacks - some good content including Conquest:Architects and Conquest:Hearthfire (as well as minor packs). We decided not to include Create at this stage. We will use native tree functionality. \n\n04/05: Agreed on starting Modlist\n- Conquest Architects\n- Conquest Hearthfire\n- Believe Mod\n- Worldedit\n- Worldedit CUI\n- FTB Ultimine\n- Xaero's Minimap\n- Xaero's Worldmap\n\nQuest Complete!",
+        "images": []
+      }
+    },
+    {
+      "id": "identify-foundation-map",
+      "placeId": null,
+      "publicTitle": "Identify foundation map",
+      "status": "Built",
+      "scope": "Scout out different options for the foundation of Gielinor. Scan ProjectMC and forums for pre-designed terrain in WorldPainter.",
+      "estimatedHours": 5,
+      "completedAt": null,
+      "legacyCompletedAt": "",
+      "category": "landscape",
+      "regionId": "general",
+      "mediaIds": [
+        "32449ca5e60e2e7b",
+        "57e1f8ec37ecca28",
+        "231ef47f6191676f",
+        "065c537e8fc14a24"
+      ],
+      "notes": "26/04: We’ve had a look at a few options for maps and found some great contenders. Major thanks to Mefisto148 for the excellent foundations of their map design, available on Curseforge - we will be building from this 👍\n\nQuest complete!",
+      "legacy": {
+        "id": "identify-foundation-map",
+        "name": "Identify foundation map",
+        "subtitle": "Scout out different options for the foundation of Gielinor. Scan ProjectMC and forums for pre-designed terrain in WorldPainter.",
+        "location": "done",
+        "region": "General",
+        "category": "landscape",
+        "progress": 100,
+        "featured": false,
+        "completedAt": "",
+        "estimatedTotalTime": 5,
+        "estimatedTimeLeft": "0 hours",
+        "what": "26/04: We’ve had a look at a few options for maps and found some great contenders. Major thanks to Mefisto148 for the excellent foundations of their map design, available on Curseforge - we will be building from this 👍\n\nQuest complete!",
+        "images": [
+          {
+            "src": "assets/uploads/1777284936704-img-4787.png",
+            "caption": "Wilderness"
+          },
+          {
+            "src": "assets/uploads/1777285605171-27f51d27-a0c4-483f-a7f7-83c01a1c78a3.jpg",
+            "caption": "Black Knights’ fortress"
+          },
+          {
+            "src": "assets/uploads/1777415275308-white-wolf-mountain.jpg",
+            "caption": "white wolf mountain"
+          },
+          {
+            "src": "assets/uploads/1777415331854-fremennik-province-troll-county.jpg",
+            "caption": "fremennik province + troll county"
+          }
+        ]
+      }
+    }
+  ],
+  "updates": [
+    {
+      "id": "milestone-lumbridge-exc-castle-interiors-and-decoration",
+      "slug": "milestone-lumbridge-exc-castle-interiors-and-decoration",
+      "title": "Lumbridge exc castle - interiors and decoration",
+      "body": "27/06 - Started, graveyard built and death's lair.\n\n10/08 - Church interior built, bob's axes and misc houses.\n\n11/08 - Interior builds for all houses inc. smithy complete!",
+      "author": "Marc & David",
+      "placeId": "lumbridge",
+      "stageId": "lumbridge-exc-castle-interiors-and-decoration",
+      "mediaIds": [],
+      "state": "published",
+      "publishedAt": "2026-08-20",
+      "updatedAt": "2026-08-20",
+      "kind": "Archived build milestone"
+    },
+    {
+      "id": "milestone-lumbridge-castle-interior-build-and-decoration",
+      "slug": "milestone-lumbridge-castle-interior-build-and-decoration",
+      "title": "Lumbridge Castle - Interior build and decoration",
+      "body": "22/06 - started!\n01/08 - after some annual leave, we’ve finished this feature! Complete with the roof babk, the duke’s chambers, the cook’s kitchen and dining room.",
+      "author": "Marc & David",
+      "placeId": "lumbridge-castle",
+      "stageId": "lumbridge-castle-interior-build-and-decoration",
+      "mediaIds": [],
+      "state": "published",
+      "publishedAt": "2026-08-20",
+      "updatedAt": "2026-08-20",
+      "kind": "Archived build milestone"
+    },
+    {
+      "id": "milestone-lumbridge-exc-castle-foundation-exteriors",
+      "slug": "milestone-lumbridge-exc-castle-foundation-exteriors",
+      "title": "Lumbridge exc. castle - Foundation & exteriors",
+      "body": "20/06 - Started, graveyard built and death's lair.\n\n04/08 - Church foundations and exterior built, bob's axes and misc houses.\n\n11/08 - Exterior builds for all houses complete!",
+      "author": "Marc & David",
+      "placeId": "lumbridge",
+      "stageId": "lumbridge-exc-castle-foundation-exteriors",
+      "mediaIds": [],
+      "state": "published",
+      "publishedAt": "2026-08-20",
+      "updatedAt": "2026-08-20",
+      "kind": "Archived build milestone"
+    },
+    {
+      "id": "milestone-lumbridge-castle-foundations-and-exterior-build",
+      "slug": "milestone-lumbridge-castle-foundations-and-exterior-build",
+      "title": "Lumbridge Castle - Foundations and exterior build",
+      "body": "21/06 - Build complete!",
+      "author": "Marc & David",
+      "placeId": "lumbridge-castle",
+      "stageId": "lumbridge-castle-foundations-and-exterior-build",
+      "mediaIds": [
+        "e47a429a572e60f8",
+        "10043ca90c4234e4",
+        "7a9cf5906811b00c"
+      ],
+      "state": "published",
+      "publishedAt": "2026-06-23",
+      "updatedAt": "2026-06-23",
+      "kind": "Archived build milestone"
+    },
+    {
+      "id": "milestone-draynor-sewers",
+      "slug": "milestone-draynor-sewers",
+      "title": "Draynor Sewers",
+      "body": "09/06 - Completed the build, including Ruantun's camp within the ruined room.\n\nQuest Complete!",
+      "author": "Marc & David",
+      "placeId": "draynor-sewers",
+      "stageId": "draynor-sewers",
+      "mediaIds": [
+        "49b1f8e3144c6021",
+        "8afc14fe6c1cc68d"
+      ],
+      "state": "published",
+      "publishedAt": "2026-06-09",
+      "updatedAt": "2026-06-09",
+      "kind": "Archived build milestone"
+    },
+    {
+      "id": "milestone-ham-hideout",
+      "slug": "milestone-ham-hideout",
+      "title": "HAM Hideout",
+      "body": "09/06 - Quest complete!",
+      "author": "Marc & David",
+      "placeId": "ham-hideout",
+      "stageId": "ham-hideout",
+      "mediaIds": [
+        "2f371483e7eb6171",
+        "7ee46f95471ef8e0",
+        "9b8b29451f40813d"
+      ],
+      "state": "published",
+      "publishedAt": "2026-06-09",
+      "updatedAt": "2026-06-09",
+      "kind": "Archived build milestone"
+    },
+    {
+      "id": "milestone-lumbridge-swamp",
+      "slug": "milestone-lumbridge-swamp",
+      "title": "Lumbridge Swamp",
+      "body": "04/05 - Finished Father Uhrney's house in the West swamp, and the mining area in the South-West corner.\n23/06 - Finished landscaping the swamp, the house to Zanaris, and populating with foliage. We will pause on the slayer cave and move to Lumbridge before coming back to do this!",
+      "author": "Marc & David",
+      "placeId": "lumbridge-swamp",
+      "stageId": "lumbridge-swamp",
+      "mediaIds": [
+        "54dc2366fc678cb6",
+        "b0f069969b5a9e5e",
+        "ba53a7f177bd27b6"
+      ],
+      "state": "published",
+      "publishedAt": "2026-08-10",
+      "updatedAt": "2026-08-10",
+      "kind": "Archived build milestone"
+    },
+    {
+      "id": "milestone-draynor-village-interior-build",
+      "slug": "milestone-draynor-village-interior-build",
+      "title": "Draynor Village - Interior Build",
+      "body": "14/05 - Bank and the Wise Old Man's house are now complete!\n26/05 - Ned and Aggie's house also complete!\n09/06 - Remaining houses and underground sewers complete!\n\nQuest complete!",
+      "author": "Marc & David",
+      "placeId": "draynor-village",
+      "stageId": "draynor-village-interior-build",
+      "mediaIds": [
+        "21c7f056f823faa0",
+        "e536380e6ba1dfab",
+        "7b519c2ef47aad26"
+      ],
+      "state": "published",
+      "publishedAt": "2026-06-09",
+      "updatedAt": "2026-06-09",
+      "kind": "Archived build milestone"
+    }
+  ],
+  "media": [
+    {
+      "id": "e47a429a572e60f8",
+      "src": "/media/e47a429a572e60f8-1600.webp",
+      "variants": {
+        "400": "/media/e47a429a572e60f8-400.webp",
+        "800": "/media/e47a429a572e60f8-800.webp",
+        "1600": "/media/e47a429a572e60f8-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401397432-2026-08-10-23-12-56.jpg",
+      "sha256": "f9030e6d5cee2761dc75a73621f6502d4fedd3be9c1f076d773ec13dfca7a8a2",
+      "caption": "North-eastern view",
+      "alt": "North-eastern view",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "10043ca90c4234e4",
+      "src": "/media/10043ca90c4234e4-1600.webp",
+      "variants": {
+        "400": "/media/10043ca90c4234e4-400.webp",
+        "800": "/media/10043ca90c4234e4-800.webp",
+        "1600": "/media/10043ca90c4234e4-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401399231-2026-08-10-23-16-43.jpg",
+      "sha256": "3ce2c993a11e4017dafd4a0fd3c5daa9de77f9e1e1ea5b2aa0e501d8f07197f3",
+      "caption": "Lumbridge Castle main gate",
+      "alt": "Lumbridge Castle main gate",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "7a9cf5906811b00c",
+      "src": "/media/7a9cf5906811b00c-1600.webp",
+      "variants": {
+        "400": "/media/7a9cf5906811b00c-400.webp",
+        "800": "/media/7a9cf5906811b00c-800.webp",
+        "1600": "/media/7a9cf5906811b00c-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401398093-2026-08-10-23-15-23.jpg",
+      "sha256": "0a41fcb38b6cca9b5e12cba3e003f949d47b00eb8a57b8518d85c111048a2be5",
+      "caption": "Lumbridge Castle courtyard 1",
+      "alt": "Lumbridge Castle courtyard 1",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "71464523cce94746",
+      "src": "/media/71464523cce94746-1600.webp",
+      "variants": {
+        "400": "/media/71464523cce94746-400.webp",
+        "800": "/media/71464523cce94746-800.webp",
+        "1600": "/media/71464523cce94746-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401399971-2026-08-10-23-17-22.jpg",
+      "sha256": "76b2f0b820c12373d59dfa010e16f00042220758cb00bfc2750da0d1ae2ccae7",
+      "caption": "Lumbridge Castle courtyard 2",
+      "alt": "Lumbridge Castle courtyard 2",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "26b4e50b87b34b3e",
+      "src": "/media/26b4e50b87b34b3e-1600.webp",
+      "variants": {
+        "400": "/media/26b4e50b87b34b3e-400.webp",
+        "800": "/media/26b4e50b87b34b3e-800.webp",
+        "1600": "/media/26b4e50b87b34b3e-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401398702-2026-08-10-23-16-06.jpg",
+      "sha256": "56918628cae201e2edc042a13ad54c172b179a6a9728945ca394e53c49af855f",
+      "caption": "Lumbridge Castle rear",
+      "alt": "Lumbridge Castle rear",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "49b1f8e3144c6021",
+      "src": "/media/49b1f8e3144c6021-1600.webp",
+      "variants": {
+        "400": "/media/49b1f8e3144c6021-400.webp",
+        "800": "/media/49b1f8e3144c6021-800.webp",
+        "1600": "/media/49b1f8e3144c6021-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781117648289-2026-06-10-19-50-30.jpg",
+      "sha256": "ff05df129a0e6aaab7ef7105d502ec98e07a58d60908574183e67290c992f5d4",
+      "caption": "Draynor sewer",
+      "alt": "Draynor sewer",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "8afc14fe6c1cc68d",
+      "src": "/media/8afc14fe6c1cc68d-1600.webp",
+      "variants": {
+        "400": "/media/8afc14fe6c1cc68d-400.webp",
+        "800": "/media/8afc14fe6c1cc68d-800.webp",
+        "1600": "/media/8afc14fe6c1cc68d-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781117652311-2026-06-10-19-51-00.jpg",
+      "sha256": "0eae79ed1b7e9dc84f89513f40dd8489a2c555eedf63b46da909844ab2572204",
+      "caption": "Ruantun's room",
+      "alt": "Ruantun's room",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "2f371483e7eb6171",
+      "src": "/media/2f371483e7eb6171-1600.webp",
+      "variants": {
+        "400": "/media/2f371483e7eb6171-400.webp",
+        "800": "/media/2f371483e7eb6171-800.webp",
+        "1600": "/media/2f371483e7eb6171-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044949998-2026-06-09-23-35-48.jpg",
+      "sha256": "0b40654835775fb1e2d89d779e32d809dda8f1cb57d6a56df2348dc30fcbadf1",
+      "caption": "Hideout main room 1",
+      "alt": "Hideout main room 1",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "7ee46f95471ef8e0",
+      "src": "/media/7ee46f95471ef8e0-1600.webp",
+      "variants": {
+        "400": "/media/7ee46f95471ef8e0-400.webp",
+        "800": "/media/7ee46f95471ef8e0-800.webp",
+        "1600": "/media/7ee46f95471ef8e0-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044948165-2026-06-09-23-34-16.jpg",
+      "sha256": "4fcc0b9005e293609202ed9cebc1a8cea292de278fb3b83925cd2c75bac53d01",
+      "caption": "Hideout main room 2",
+      "alt": "Hideout main room 2",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "9b8b29451f40813d",
+      "src": "/media/9b8b29451f40813d-1600.webp",
+      "variants": {
+        "400": "/media/9b8b29451f40813d-400.webp",
+        "800": "/media/9b8b29451f40813d-800.webp",
+        "1600": "/media/9b8b29451f40813d-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044950710-2026-06-09-23-35-56.jpg",
+      "sha256": "ac03bff13691bbee6110dc311cce698bdaac87b020f795b1859eb37f6e01f33f",
+      "caption": "Hideout main room 3",
+      "alt": "Hideout main room 3",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "06a4243e5b047a56",
+      "src": "/media/06a4243e5b047a56-1600.webp",
+      "variants": {
+        "400": "/media/06a4243e5b047a56-400.webp",
+        "800": "/media/06a4243e5b047a56-800.webp",
+        "1600": "/media/06a4243e5b047a56-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044953407-2026-06-09-23-37-11.jpg",
+      "sha256": "680972f5a432a0a170513deba6b236f807c3c6e2b12b783d9990fcc650a4a8ef",
+      "caption": "Hideout main room 4",
+      "alt": "Hideout main room 4",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "23c20aceb5f24e7f",
+      "src": "/media/23c20aceb5f24e7f-1600.webp",
+      "variants": {
+        "400": "/media/23c20aceb5f24e7f-400.webp",
+        "800": "/media/23c20aceb5f24e7f-800.webp",
+        "1600": "/media/23c20aceb5f24e7f-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044952073-2026-06-09-23-36-16.jpg",
+      "sha256": "7d33a94d3be411c9390ae2cb2040e304794e1f427f69d65994584a0f965411c1",
+      "caption": "Hideout jail cell",
+      "alt": "Hideout jail cell",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "cdc4f275241aaf3b",
+      "src": "/media/cdc4f275241aaf3b-1600.webp",
+      "variants": {
+        "400": "/media/cdc4f275241aaf3b-400.webp",
+        "800": "/media/cdc4f275241aaf3b-800.webp",
+        "1600": "/media/cdc4f275241aaf3b-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044952719-2026-06-09-23-36-34.jpg",
+      "sha256": "4b549ab7133f100b131f12eb3d8e6cb446c886f06afe6466eb6ca37a87c00290",
+      "caption": "Hideout chambers",
+      "alt": "Hideout chambers",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "0393be398b280e0d",
+      "src": "/media/0393be398b280e0d-1600.webp",
+      "variants": {
+        "400": "/media/0393be398b280e0d-400.webp",
+        "800": "/media/0393be398b280e0d-800.webp",
+        "1600": "/media/0393be398b280e0d-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044949287-2026-06-09-23-35-22.jpg",
+      "sha256": "8345e4cb5f21dab337c84045acb9be5dc5d18a3920e14256fdb6d0b965164f33",
+      "caption": "Hideout extra room 1",
+      "alt": "Hideout extra room 1",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "1de5fec131c5d583",
+      "src": "/media/1de5fec131c5d583-1600.webp",
+      "variants": {
+        "400": "/media/1de5fec131c5d583-400.webp",
+        "800": "/media/1de5fec131c5d583-800.webp",
+        "1600": "/media/1de5fec131c5d583-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1781044951412-2026-06-09-23-36-02.jpg",
+      "sha256": "7855eac1b33bb8e506d064d9562924938c6cf5aa7a08ef3df1dfdfdaa76b98a0",
+      "caption": "Hideout extra room 2",
+      "alt": "Hideout extra room 2",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "04089b28eba8bab0",
+      "src": "/media/04089b28eba8bab0-1600.webp",
+      "variants": {
+        "400": "/media/04089b28eba8bab0-400.webp",
+        "800": "/media/04089b28eba8bab0-800.webp",
+        "1600": "/media/04089b28eba8bab0-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115444826-2026-06-02-23-41-06.jpg",
+      "sha256": "76c84496e07bd043790d918819a54f82f58172d3dc7a85980e65b34497ebbfdf",
+      "caption": "Hideout ruin 1",
+      "alt": "Hideout ruin 1",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "836e5cd33a323eaf",
+      "src": "/media/836e5cd33a323eaf-1600.webp",
+      "variants": {
+        "400": "/media/836e5cd33a323eaf-400.webp",
+        "800": "/media/836e5cd33a323eaf-800.webp",
+        "1600": "/media/836e5cd33a323eaf-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115482687-2026-06-02-23-41-17.jpg",
+      "sha256": "7ba6eab57480ace6c80e7ca4373e7da8f27f9c8a06fa0460ce34094a4256db8b",
+      "caption": "Hideout ruin 2",
+      "alt": "Hideout ruin 2",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "54dc2366fc678cb6",
+      "src": "/media/54dc2366fc678cb6-1600.webp",
+      "variants": {
+        "400": "/media/54dc2366fc678cb6-400.webp",
+        "800": "/media/54dc2366fc678cb6-800.webp",
+        "1600": "/media/54dc2366fc678cb6-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401466560-2026-08-10-23-28-26.jpg",
+      "sha256": "0308cf0760e90d848a1d227b36b4ee6fe1eb1710795dad5411826232709805c2",
+      "caption": "Western Lumbridge swamp",
+      "alt": "Western Lumbridge swamp",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "b0f069969b5a9e5e",
+      "src": "/media/b0f069969b5a9e5e-1600.webp",
+      "variants": {
+        "400": "/media/b0f069969b5a9e5e-400.webp",
+        "800": "/media/b0f069969b5a9e5e-800.webp",
+        "1600": "/media/b0f069969b5a9e5e-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401463939-2026-08-10-23-26-18.jpg",
+      "sha256": "80b309cbd6789ecaed260eae862274d6025de98bb259f038cfa79668c00623ad",
+      "caption": "The water altar",
+      "alt": "The water altar",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "ba53a7f177bd27b6",
+      "src": "/media/ba53a7f177bd27b6-1600.webp",
+      "variants": {
+        "400": "/media/ba53a7f177bd27b6-400.webp",
+        "800": "/media/ba53a7f177bd27b6-800.webp",
+        "1600": "/media/ba53a7f177bd27b6-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401466095-2026-08-10-23-28-04.jpg",
+      "sha256": "99bd2ddbfc73ab3103f53ab24f32e800b992e68cc4002187f15ed00f0fa95753",
+      "caption": "Lumbridge south-eastern mine and fishing",
+      "alt": "Lumbridge south-eastern mine and fishing",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "eb583ac924af1b32",
+      "src": "/media/eb583ac924af1b32-1600.webp",
+      "variants": {
+        "400": "/media/eb583ac924af1b32-400.webp",
+        "800": "/media/eb583ac924af1b32-800.webp",
+        "1600": "/media/eb583ac924af1b32-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401465560-2026-08-10-23-26-59.jpg",
+      "sha256": "3e49e8aa512df07f48a4e20e6a96836918825e6d7b82a036dd7ff2b931da45c7",
+      "caption": "No entry! (slayer cave entrance)",
+      "alt": "No entry! (slayer cave entrance)",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "cbecb67eb6e5a714",
+      "src": "/media/cbecb67eb6e5a714-1600.webp",
+      "variants": {
+        "400": "/media/cbecb67eb6e5a714-400.webp",
+        "800": "/media/cbecb67eb6e5a714-800.webp",
+        "1600": "/media/cbecb67eb6e5a714-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401464532-2026-08-10-23-26-29.jpg",
+      "sha256": "06755e153a4c883c3dce65b4023cdb9df1203ad32c95868234acf539951eb873",
+      "caption": "Father Uhrney's shack exterior 1",
+      "alt": "Father Uhrney's shack exterior 1",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "8551208c874b9022",
+      "src": "/media/8551208c874b9022-1600.webp",
+      "variants": {
+        "400": "/media/8551208c874b9022-400.webp",
+        "800": "/media/8551208c874b9022-800.webp",
+        "1600": "/media/8551208c874b9022-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401465036-2026-08-10-23-26-43.jpg",
+      "sha256": "32910c89692781c38fcb3b8ad57a00d9a4f3e34a7513284e4a81df004f27c918",
+      "caption": "Father Uhrney's shack exterior 2",
+      "alt": "Father Uhrney's shack exterior 2",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "681b1099a8cf8406",
+      "src": "/media/681b1099a8cf8406-1600.webp",
+      "variants": {
+        "400": "/media/681b1099a8cf8406-400.webp",
+        "800": "/media/681b1099a8cf8406-800.webp",
+        "1600": "/media/681b1099a8cf8406-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401463347-2026-06-10-20-02-56.jpg",
+      "sha256": "08f87e505927c0eaf052d6568b1b9610a20693681063938cee93d3b392eedb0b",
+      "caption": "Father Uhrney's shack interior",
+      "alt": "Father Uhrney's shack interior",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "b2ca2a17fc572436",
+      "src": "/media/b2ca2a17fc572436-1600.webp",
+      "variants": {
+        "400": "/media/b2ca2a17fc572436-400.webp",
+        "800": "/media/b2ca2a17fc572436-800.webp",
+        "1600": "/media/b2ca2a17fc572436-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401467178-2026-08-10-23-29-58.jpg",
+      "sha256": "6c3c6b26060a98e2a1bfc01de2983a29c4e368cb26acdd5e079736d1c4dcb823",
+      "caption": "The Adventurers' Camp 1",
+      "alt": "The Adventurers' Camp 1",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "0c1086094a53c59e",
+      "src": "/media/0c1086094a53c59e-1600.webp",
+      "variants": {
+        "400": "/media/0c1086094a53c59e-400.webp",
+        "800": "/media/0c1086094a53c59e-800.webp",
+        "1600": "/media/0c1086094a53c59e-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401467739-2026-08-10-23-30-19.jpg",
+      "sha256": "25add6cdaabd8609d6147e7266d69149fb00c30b6d74801347cb7d1f70e7af4b",
+      "caption": "The Adventurers' Camp 2",
+      "alt": "The Adventurers' Camp 2",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "8670d76ab4a1f0b0",
+      "src": "/media/8670d76ab4a1f0b0-1600.webp",
+      "variants": {
+        "400": "/media/8670d76ab4a1f0b0-400.webp",
+        "800": "/media/8670d76ab4a1f0b0-800.webp",
+        "1600": "/media/8670d76ab4a1f0b0-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1786401468210-2026-08-10-23-30-32.jpg",
+      "sha256": "35ed7b40a4882fd003cb2247018ac25f4a59085c7b8a71220b42f38ea16f5cf6",
+      "caption": "The Adventurers' Camp 3",
+      "alt": "The Adventurers' Camp 3",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "21c7f056f823faa0",
+      "src": "/media/21c7f056f823faa0-1600.webp",
+      "variants": {
+        "400": "/media/21c7f056f823faa0-400.webp",
+        "800": "/media/21c7f056f823faa0-800.webp",
+        "1600": "/media/21c7f056f823faa0-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116028095-2026-06-02-23-29-03.jpg",
+      "sha256": "28847ade6e995c181663e87b955cf1a9af14fae416c3d01646de73901ce9d577",
+      "caption": "Draynor bank",
+      "alt": "Draynor bank",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "e536380e6ba1dfab",
+      "src": "/media/e536380e6ba1dfab-1600.webp",
+      "variants": {
+        "400": "/media/e536380e6ba1dfab-400.webp",
+        "800": "/media/e536380e6ba1dfab-800.webp",
+        "1600": "/media/e536380e6ba1dfab-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116029082-2026-06-02-23-29-25.jpg",
+      "sha256": "6b110fbb867a4c7e42ea463b9a56779f3cd618d70f4f2d26e00430035740e388",
+      "caption": "Wise Old Man's house downstairs",
+      "alt": "Wise Old Man's house downstairs",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "7b519c2ef47aad26",
+      "src": "/media/7b519c2ef47aad26-1600.webp",
+      "variants": {
+        "400": "/media/7b519c2ef47aad26-400.webp",
+        "800": "/media/7b519c2ef47aad26-800.webp",
+        "1600": "/media/7b519c2ef47aad26-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116030337-2026-06-02-23-30-17.jpg",
+      "sha256": "aa08f20d4e240f937e7b5f9c5ec6b881698855c4dd87d7ea1fe7716cc5b438b8",
+      "caption": "Wise Old Man's house upstairs",
+      "alt": "Wise Old Man's house upstairs",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "6c7c78355d34a148",
+      "src": "/media/6c7c78355d34a148-1600.webp",
+      "variants": {
+        "400": "/media/6c7c78355d34a148-400.webp",
+        "800": "/media/6c7c78355d34a148-800.webp",
+        "1600": "/media/6c7c78355d34a148-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116030986-2026-06-02-23-30-53.jpg",
+      "sha256": "7bc19b3ed5db574a1c710575cbbe4839d08243f4dbafc7d5d0bd44749393330d",
+      "caption": "Ned's house",
+      "alt": "Ned's house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "4d00bf1bcf1c16e2",
+      "src": "/media/4d00bf1bcf1c16e2-1600.webp",
+      "variants": {
+        "400": "/media/4d00bf1bcf1c16e2-400.webp",
+        "800": "/media/4d00bf1bcf1c16e2-800.webp",
+        "1600": "/media/4d00bf1bcf1c16e2-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116032626-2026-06-02-23-31-15.jpg",
+      "sha256": "3b02a14152eacb3dc8d69313b1eed078f8f095bea024b8b7f11f65892a30bd8f",
+      "caption": "Aggie the Witch's house",
+      "alt": "Aggie the Witch's house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "b3de46005287e614",
+      "src": "/media/b3de46005287e614-1600.webp",
+      "variants": {
+        "400": "/media/b3de46005287e614-400.webp",
+        "800": "/media/b3de46005287e614-800.webp",
+        "1600": "/media/b3de46005287e614-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116034201-2026-06-02-23-31-37.jpg",
+      "sha256": "87832cdaa61e148e860709f51acab98a13c04d190b9a7a911c0a9c467a80da65",
+      "caption": "Morgan's house",
+      "alt": "Morgan's house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "c987353c013a4e3e",
+      "src": "/media/c987353c013a4e3e-1600.webp",
+      "variants": {
+        "400": "/media/c987353c013a4e3e-400.webp",
+        "800": "/media/c987353c013a4e3e-800.webp",
+        "1600": "/media/c987353c013a4e3e-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116034902-2026-06-02-23-32-04.jpg",
+      "sha256": "db5cb93a210aa360a62b61f9caf60a18c61fc564a2a7e8a89ea463e7ef83830f",
+      "caption": "Agility course start house",
+      "alt": "Agility course start house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "4696522c6aecfd19",
+      "src": "/media/4696522c6aecfd19-1600.webp",
+      "variants": {
+        "400": "/media/4696522c6aecfd19-400.webp",
+        "800": "/media/4696522c6aecfd19-800.webp",
+        "1600": "/media/4696522c6aecfd19-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116036355-2026-06-02-23-32-25.jpg",
+      "sha256": "97464b846d908d90ade4978c142171fa7f19b9832d5f20b368ca3a0c841ec283",
+      "caption": "Additional small house",
+      "alt": "Additional small house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "700be0242d4b4452",
+      "src": "/media/700be0242d4b4452-1600.webp",
+      "variants": {
+        "400": "/media/700be0242d4b4452-400.webp",
+        "800": "/media/700be0242d4b4452-800.webp",
+        "1600": "/media/700be0242d4b4452-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116038003-2026-06-02-23-32-46.jpg",
+      "sha256": "8d18127c7e676caeef685dde0b675000442f2abbb997adec1a2929ab94e9849f",
+      "caption": "Diango's Workshop house",
+      "alt": "Diango's Workshop house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "712b261015b99c44",
+      "src": "/media/712b261015b99c44-1600.webp",
+      "variants": {
+        "400": "/media/712b261015b99c44-400.webp",
+        "800": "/media/712b261015b99c44-800.webp",
+        "1600": "/media/712b261015b99c44-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781116039296-2026-06-02-23-33-06.jpg",
+      "sha256": "261cc1e807bfed4dd0e9947a853062761453d436491de3ba7eece97c166f6a48",
+      "caption": "Draynor jail",
+      "alt": "Draynor jail",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "bcc654a8b6548493",
+      "src": "/media/bcc654a8b6548493-1600.webp",
+      "variants": {
+        "400": "/media/bcc654a8b6548493-400.webp",
+        "800": "/media/bcc654a8b6548493-800.webp",
+        "1600": "/media/bcc654a8b6548493-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115289431-2026-05-07-01-28-08.jpg",
+      "sha256": "aefec1447ae74f0303f6a91812da0abf32c71acca9997aa3c8cc854c827f51b8",
+      "caption": "Draynor market square",
+      "alt": "Draynor market square",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "0141a1ad087b37db",
+      "src": "/media/0141a1ad087b37db-1600.webp",
+      "variants": {
+        "400": "/media/0141a1ad087b37db-400.webp",
+        "800": "/media/0141a1ad087b37db-800.webp",
+        "1600": "/media/0141a1ad087b37db-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115290050-2026-06-02-23-22-11.jpg",
+      "sha256": "531d4b936c306030f411ba18b1422c8696cf5316ad7472f6779d55cef03adc86",
+      "caption": "Draynor bank",
+      "alt": "Draynor bank",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "04e9beb20d2f4201",
+      "src": "/media/04e9beb20d2f4201-1600.webp",
+      "variants": {
+        "400": "/media/04e9beb20d2f4201-400.webp",
+        "800": "/media/04e9beb20d2f4201-800.webp",
+        "1600": "/media/04e9beb20d2f4201-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115290709-2026-06-02-23-22-23.jpg",
+      "sha256": "a8ffabedf03c3e6e0e8fd04bddcb457ced94941408eea7f07afece7625eaeda6",
+      "caption": "Draynor market and the Wise Old Man's house",
+      "alt": "Draynor market and the Wise Old Man's house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "c8c7edd6c46ff875",
+      "src": "/media/c8c7edd6c46ff875-1600.webp",
+      "variants": {
+        "400": "/media/c8c7edd6c46ff875-400.webp",
+        "800": "/media/c8c7edd6c46ff875-800.webp",
+        "1600": "/media/c8c7edd6c46ff875-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115291300-2026-06-02-23-22-35.jpg",
+      "sha256": "fe220c1f4b59fb6a2f6c8900d204a6ff57fe1569741ea2e99ac593c905e03a7f",
+      "caption": "The courtyard outside Aggie the Witch's house",
+      "alt": "The courtyard outside Aggie the Witch's house",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "e957779e46002981",
+      "src": "/media/e957779e46002981-1600.webp",
+      "variants": {
+        "400": "/media/e957779e46002981-400.webp",
+        "800": "/media/e957779e46002981-800.webp",
+        "1600": "/media/e957779e46002981-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115291922-2026-06-02-23-23-04.jpg",
+      "sha256": "4234b07316c6fce0463cc9142d8cf04a1c2a99e9a1094229914655971b36d7e6",
+      "caption": "Draynor jail",
+      "alt": "Draynor jail",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "cbf9e60d5a8e206c",
+      "src": "/media/cbf9e60d5a8e206c-1600.webp",
+      "variants": {
+        "400": "/media/cbf9e60d5a8e206c-400.webp",
+        "800": "/media/cbf9e60d5a8e206c-800.webp",
+        "1600": "/media/cbf9e60d5a8e206c-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115292545-2026-06-02-23-23-39.jpg",
+      "sha256": "9a572e19408b1f3728f9e64a84a3c2a104d91d8022d5b9bdc64bb5cf72764d4c",
+      "caption": "The street outside Morgan's house feat. rat",
+      "alt": "The street outside Morgan's house feat. rat",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "9dcb78b782c2d85e",
+      "src": "/media/9dcb78b782c2d85e-1600.webp",
+      "variants": {
+        "400": "/media/9dcb78b782c2d85e-400.webp",
+        "800": "/media/9dcb78b782c2d85e-800.webp",
+        "1600": "/media/9dcb78b782c2d85e-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781115293159-2026-06-02-23-23-52.jpg",
+      "sha256": "7164478ec19c930d6722f23017f06404a73e11039087413a2031e08b031e6166",
+      "caption": "Draynor agility course",
+      "alt": "Draynor agility course",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "63ef8e4cc42a846d",
+      "src": "/media/63ef8e4cc42a846d-1600.webp",
+      "variants": {
+        "400": "/media/63ef8e4cc42a846d-400.webp",
+        "800": "/media/63ef8e4cc42a846d-800.webp",
+        "1600": "/media/63ef8e4cc42a846d-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781114777507-2026-06-02-23-19-06.jpg",
+      "sha256": "d13a185a640a4c52206679c834ed2695540be3bb2334c00a14dd4722c140cd9b",
+      "caption": "Draynor landscape from the south-east",
+      "alt": "Draynor landscape from the south-east",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "2e6ad177bb59a70b",
+      "src": "/media/2e6ad177bb59a70b-1600.webp",
+      "variants": {
+        "400": "/media/2e6ad177bb59a70b-400.webp",
+        "800": "/media/2e6ad177bb59a70b-800.webp",
+        "1600": "/media/2e6ad177bb59a70b-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781114778109-2026-06-02-23-19-30.jpg",
+      "sha256": "df026b14b6af71924abcc28eb8a71cdd2e664c08ed37bee7dbb44e5495c6f8a7",
+      "caption": "Draynor landscape from the south-west",
+      "alt": "Draynor landscape from the south-west",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "b72ff96661f31b5c",
+      "src": "/media/b72ff96661f31b5c-1600.webp",
+      "variants": {
+        "400": "/media/b72ff96661f31b5c-400.webp",
+        "800": "/media/b72ff96661f31b5c-800.webp",
+        "1600": "/media/b72ff96661f31b5c-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781114778790-2026-06-02-23-19-39.jpg",
+      "sha256": "733b1ccdc2a8fcaf9593887419ade5c419d7f469b6a2ceda5ab20e263582d1fd",
+      "caption": "Draynor landscape from the north-west",
+      "alt": "Draynor landscape from the north-west",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "68c112fe3423e90e",
+      "src": "/media/68c112fe3423e90e-1600.webp",
+      "variants": {
+        "400": "/media/68c112fe3423e90e-400.webp",
+        "800": "/media/68c112fe3423e90e-800.webp",
+        "1600": "/media/68c112fe3423e90e-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1781114779516-2026-06-02-23-19-57.jpg",
+      "sha256": "a4238ebf6a67b3b0cb63e291c3d15c6fccea34e5ef9ce0d77bc7de5f62832b7d",
+      "caption": "Draynor landscape from the north-east",
+      "alt": "Draynor landscape from the north-east",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "8c40d0898c2f67ce",
+      "src": "/media/8c40d0898c2f67ce-1600.webp",
+      "variants": {
+        "400": "/media/8c40d0898c2f67ce-400.webp",
+        "800": "/media/8c40d0898c2f67ce-800.webp",
+        "1600": "/media/8c40d0898c2f67ce-1600.webp"
+      },
+      "width": 1080,
+      "height": 1920,
+      "originalUrl": "assets/uploads/1777458004489-composed.jpg",
+      "sha256": "4d99d7c1bdb03ff39b6d3f15b8c125b1cde0ea12b127496bbd84f03cba3f2416",
+      "caption": "Our article",
+      "alt": "Our article",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "c385cfc8145ec871",
+      "src": "/media/c385cfc8145ec871-1600.webp",
+      "variants": {
+        "400": "/media/c385cfc8145ec871-400.webp",
+        "800": "/media/c385cfc8145ec871-800.webp",
+        "1600": "/media/c385cfc8145ec871-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1777933713437-2026-05-04-23-09-33.jpg",
+      "sha256": "b0b9bb039c4cc067a0523198863319ebc473aa1dab0ade40d92b1ad43d8fa56f",
+      "caption": "exterior - north east",
+      "alt": "exterior - north east",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "016576db92ed5d2e",
+      "src": "/media/016576db92ed5d2e-1600.webp",
+      "variants": {
+        "400": "/media/016576db92ed5d2e-400.webp",
+        "800": "/media/016576db92ed5d2e-800.webp",
+        "1600": "/media/016576db92ed5d2e-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "assets/uploads/1777415089285-exterior-wizards-tower-6.jpg",
+      "sha256": "ef27dd863298989dddf1b59bd7fbff45f6a89a00a30fc683cede47860fc46aa5",
+      "caption": "exterior - fairy ring",
+      "alt": "exterior - fairy ring",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "61376db5f90fffb1",
+      "src": "/media/61376db5f90fffb1-1600.webp",
+      "variants": {
+        "400": "/media/61376db5f90fffb1-400.webp",
+        "800": "/media/61376db5f90fffb1-800.webp",
+        "1600": "/media/61376db5f90fffb1-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "assets/uploads/1777415090776-exterior-wizards-tower-7.jpg",
+      "sha256": "42b8f90053ef57749f6e4420904da9eb3f186d8eee2152299b3c58c6a672f11f",
+      "caption": "exterior - south west",
+      "alt": "exterior - south west",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "618b45367b3c6ac0",
+      "src": "/media/618b45367b3c6ac0-1600.webp",
+      "variants": {
+        "400": "/media/618b45367b3c6ac0-400.webp",
+        "800": "/media/618b45367b3c6ac0-800.webp",
+        "1600": "/media/618b45367b3c6ac0-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1777933758292-2026-05-04-23-09-16.jpg",
+      "sha256": "6eb5ee0c8901d250cbdad13fc97ec60901861a6146ed49b8a539218697a1fff6",
+      "caption": "Wizard's Tower Bridge & exterior",
+      "alt": "Wizard's Tower Bridge & exterior",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "8c89eae862ed1968",
+      "src": "/media/8c89eae862ed1968-1600.webp",
+      "variants": {
+        "400": "/media/8c89eae862ed1968-400.webp",
+        "800": "/media/8c89eae862ed1968-800.webp",
+        "1600": "/media/8c89eae862ed1968-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "assets/uploads/1777415098668-exterior-wizards-tower-4.jpg",
+      "sha256": "2d77dde2f1843887354d9406970c33da1e2773874e6b6853f70f2cd921dc8cac",
+      "caption": "exterior - aerial view",
+      "alt": "exterior - aerial view",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "a48deb354f4d8245",
+      "src": "/media/a48deb354f4d8245-1600.webp",
+      "variants": {
+        "400": "/media/a48deb354f4d8245-400.webp",
+        "800": "/media/a48deb354f4d8245-800.webp",
+        "1600": "/media/a48deb354f4d8245-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1777920747421-wizard-sedridor-s-lair.jpg",
+      "sha256": "c2e99f49ab17398df772c7055669094a57057d708e394340ebfa2a8127b09170",
+      "caption": "Wizard Sedridor's Lair",
+      "alt": "Wizard Sedridor's Lair",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "97511be382144230",
+      "src": "/media/97511be382144230-1600.webp",
+      "variants": {
+        "400": "/media/97511be382144230-400.webp",
+        "800": "/media/97511be382144230-800.webp",
+        "1600": "/media/97511be382144230-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "/.netlify/functions/board?asset=1777920750260-wizard-magog-s-chambers.jpg",
+      "sha256": "ecc4b9714eee6275734e1999812066e39a735c5d36072d785860771a3629a9eb",
+      "caption": "Wizard Magog's Chambers",
+      "alt": "Wizard Magog's Chambers",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "130fbda121e185ee",
+      "src": "/media/130fbda121e185ee-1600.webp",
+      "variants": {
+        "400": "/media/130fbda121e185ee-400.webp",
+        "800": "/media/130fbda121e185ee-800.webp",
+        "1600": "/media/130fbda121e185ee-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1777933104084-2026-05-04-23-09-56.jpg",
+      "sha256": "6edfe0911ad552195a713f5879e01668ae32ad9d6f56fe51ae0f1f84ae03d039",
+      "caption": "Underground Chapel and Chambers",
+      "alt": "Underground Chapel and Chambers",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "bdec7c76d55cd9b8",
+      "src": "/media/bdec7c76d55cd9b8-1600.webp",
+      "variants": {
+        "400": "/media/bdec7c76d55cd9b8-400.webp",
+        "800": "/media/bdec7c76d55cd9b8-800.webp",
+        "1600": "/media/bdec7c76d55cd9b8-1600.webp"
+      },
+      "width": 2400,
+      "height": 1283,
+      "originalUrl": "/.netlify/functions/board?asset=1777933125147-2026-05-04-23-10-55.jpg",
+      "sha256": "37004ce85faa077ce4f927d69c1add59df46e383cc5c3e9cf190ab60cd73aa77",
+      "caption": "The Lesser Demon Room",
+      "alt": "The Lesser Demon Room",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Details & interiors"
+    },
+    {
+      "id": "32449ca5e60e2e7b",
+      "src": "/media/32449ca5e60e2e7b-1600.webp",
+      "variants": {
+        "400": "/media/32449ca5e60e2e7b-400.webp",
+        "800": "/media/32449ca5e60e2e7b-800.webp",
+        "1600": "/media/32449ca5e60e2e7b-1600.webp"
+      },
+      "width": 1382,
+      "height": 760,
+      "originalUrl": "assets/uploads/1777284936704-img-4787.png",
+      "sha256": "ca498d6bcbafbfb3f170e06e93c7e923f26b1f14faa704ec45df893449eaca7b",
+      "caption": "Wilderness",
+      "alt": "Wilderness",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "57e1f8ec37ecca28",
+      "src": "/media/57e1f8ec37ecca28-1600.webp",
+      "variants": {
+        "400": "/media/57e1f8ec37ecca28-400.webp",
+        "800": "/media/57e1f8ec37ecca28-800.webp",
+        "1600": "/media/57e1f8ec37ecca28-1600.webp"
+      },
+      "width": 1600,
+      "height": 899,
+      "originalUrl": "assets/uploads/1777285605171-27f51d27-a0c4-483f-a7f7-83c01a1c78a3.jpg",
+      "sha256": "830132a3ee1206730e2c13b13aae9487cdbbb10ddcabe7251bf62382b11d63ca",
+      "caption": "Black Knights’ fortress",
+      "alt": "Black Knights’ fortress",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "231ef47f6191676f",
+      "src": "/media/231ef47f6191676f-1600.webp",
+      "variants": {
+        "400": "/media/231ef47f6191676f-400.webp",
+        "800": "/media/231ef47f6191676f-800.webp",
+        "1600": "/media/231ef47f6191676f-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "assets/uploads/1777415275308-white-wolf-mountain.jpg",
+      "sha256": "b99c3ac5c3abe890852c14c2d9d01be28b06abd03efa5f97493c0c89e42debda",
+      "caption": "white wolf mountain",
+      "alt": "white wolf mountain",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "065c537e8fc14a24",
+      "src": "/media/065c537e8fc14a24-1600.webp",
+      "variants": {
+        "400": "/media/065c537e8fc14a24-400.webp",
+        "800": "/media/065c537e8fc14a24-800.webp",
+        "1600": "/media/065c537e8fc14a24-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "assets/uploads/1777415331854-fremennik-province-troll-county.jpg",
+      "sha256": "a4a57e00487ffe16c0f71f8bd94ebd5ad18f9798c6b48441b0946bf8d050bc96",
+      "caption": "fremennik province + troll county",
+      "alt": "fremennik province + troll county",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Landscapes & exteriors"
+    },
+    {
+      "id": "00846e735be4772a",
+      "src": "/media/00846e735be4772a-1600.webp",
+      "variants": {
+        "400": "/media/00846e735be4772a-400.webp",
+        "800": "/media/00846e735be4772a-800.webp",
+        "1600": "/media/00846e735be4772a-1600.webp"
+      },
+      "width": 2462,
+      "height": 1738,
+      "originalUrl": "/.netlify/functions/board?asset=1782244735817-gielinor-pixel-260526.jpg",
+      "sha256": "ed2364b41db6921349a5d874dd26fa0783b77c55dfa010e826eab75856991b49",
+      "alt": "Map of Gielinor showing the project’s authored terrain and build areas",
+      "caption": "The working atlas. Coloured terrain is an authored map layer, not a measured completion percentage.",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Map"
+    },
+    {
+      "id": "0f40f06d98d275bd",
+      "src": "/media/0f40f06d98d275bd-1600.webp",
+      "variants": {
+        "400": "/media/0f40f06d98d275bd-400.webp",
+        "800": "/media/0f40f06d98d275bd-800.webp",
+        "1600": "/media/0f40f06d98d275bd-1600.webp"
+      },
+      "width": 2558,
+      "height": 1372,
+      "originalUrl": "https://substackcdn.com/image/fetch/$s_!Jk3_!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcbbdc461-a1da-4273-b57d-e0a621c26ae8_2558x1372.png",
+      "sha256": "c08d86f5fb6a6161e9ac072caaf9b8947712e26fa4ef79255a614dd1e3338c11",
+      "alt": "One small update (#1): What we’ve learned building Project Runecraft so far",
+      "caption": "One small update (#1): What we’ve learned building Project Runecraft so far",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Journal"
+    },
+    {
+      "id": "cfea48b98b46c622",
+      "src": "/media/cfea48b98b46c622-1600.webp",
+      "variants": {
+        "400": "/media/cfea48b98b46c622-400.webp",
+        "800": "/media/cfea48b98b46c622-800.webp",
+        "1600": "/media/cfea48b98b46c622-1600.webp"
+      },
+      "width": 2400,
+      "height": 1350,
+      "originalUrl": "https://substackcdn.com/image/fetch/$s_!YaU2!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F085b8643-122f-4756-8700-e35ca43928db_2400x1350.jpeg",
+      "sha256": "3aa9e62efd250a7babbb39a23dea042f4886a3fd14c026dcdb02ea3d8d36ff22",
+      "alt": "Project Runecraft: Getting Started",
+      "caption": "Project Runecraft: Getting Started",
+      "credit": "",
+      "focalPoint": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "subject": "Journal"
+    }
+  ],
+  "regions": [
+    {
+      "id": "misthalin",
+      "name": "Misthalin",
+      "note": "Terrain is in place. Draynor is complete, including dungeons and the Wizard's Tower. Now we are working our way East towards Lumbridge, having completed the HAM hideout and the Lumbridge swamp.",
+      "status": "In progress",
+      "estimate": 20,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "asgarnia",
+      "name": "Asgarnia",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "kandarin",
+      "name": "Kandarin",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "morytania",
+      "name": "Morytania",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "kharidian-desert",
+      "name": "Kharidian Desert",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "fremennik-province",
+      "name": "Fremennik Province",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "wilderness",
+      "name": "Wilderness",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "karamja",
+      "name": "Karamja",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "tirannwn",
+      "name": "Tirannwn",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "great-kourend",
+      "name": "Great Kourend",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    },
+    {
+      "id": "varlamore",
+      "name": "Varlamore",
+      "note": "Terrain is in place. We haven't started building on this yet.",
+      "status": "Terrain only",
+      "estimate": 1,
+      "estimateBasis": "Legacy author assessment; not a geographic measurement",
+      "estimateDate": null
+    }
+  ],
+  "articles": [
+    {
+      "id": "substack-1",
+      "title": "One small update (#1): What we’ve learned building Project Runecraft so far",
+      "excerpt": "Hi folks! This is an excerpt from our initial reflections on our project so far! As always, follow us on Instagram @ProjectRunecraft for the latest, or our dedicated web...",
+      "date": "2026-09-07T19:45:19.000Z",
+      "url": "https://dhmorgan.substack.com/p/one-small-update-1-what-weve-learned",
+      "image": "https://substackcdn.com/image/fetch/$s_!Jk3_!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcbbdc461-a1da-4273-b57d-e0a621c26ae8_2558x1372.png",
+      "placeIds": [],
+      "imageId": "0f40f06d98d275bd"
+    },
+    {
+      "id": "substack-2",
+      "title": "Project Runecraft: Getting Started",
+      "excerpt": "Two childhood players, one gargantuan idea. We’re Marc and David, two childhood friends who grew up on Runescape and Minecraft. Our goal is simple. Recreate Gielinor in...",
+      "date": "2026-04-29T07:21:43.000Z",
+      "url": "https://dhmorgan.substack.com/p/project-runecraft-getting-started",
+      "image": "https://substackcdn.com/image/fetch/$s_!YaU2!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F085b8643-122f-4756-8700-e35ca43928db_2400x1350.jpeg",
+      "placeIds": [],
+      "imageId": "cfea48b98b46c622"
+    }
+  ],
+  "tours": [
+    {
+      "id": "through-draynor",
+      "slug": "through-draynor",
+      "title": "A walk through Draynor",
+      "summary": "From the market square to the rooms behind familiar doors, then below the streets.",
+      "state": "published",
+      "stops": [
+        {
+          "placeId": "draynor-village",
+          "mediaId": "bcc654a8b6548493",
+          "note": "Begin in Draynor market square. The exterior stage includes the bank, houses, market and nearby farms."
+        },
+        {
+          "placeId": "draynor-village",
+          "mediaId": "21c7f056f823faa0",
+          "note": "Step inside Draynor bank. Its interior was one of the first rooms completed in the village."
+        },
+        {
+          "placeId": "draynor-village",
+          "mediaId": "e536380e6ba1dfab",
+          "note": "Look inside the Wise Old Man’s house. The original build notes record the bank and this house together."
+        },
+        {
+          "placeId": "draynor-village",
+          "mediaId": "4d00bf1bcf1c16e2",
+          "note": "Visit Aggie the Witch’s house, another of the village interiors recorded in our build notes."
+        },
+        {
+          "placeId": "draynor-sewers",
+          "mediaId": "8afc14fe6c1cc68d",
+          "note": "Finish below the village in Ruantun’s room, part of the Draynor sewers build."
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "id": "site",
+      "brand": "Gielinor: Reforged",
+      "tagline": "Gielinor, built by hand.",
+      "introduction": "Rebuilding RuneScape’s Gielinor in Minecraft with Conquest Reforged.",
+      "heroId": "e47a429a572e60f8",
+      "mapId": "00846e735be4772a",
+      "featuredPlaceIds": [
+        "draynor-village",
+        "lumbridge-castle",
+        "wizards-tower"
+      ],
+      "galleryMediaIds": [
+        "e47a429a572e60f8",
+        "10043ca90c4234e4",
+        "7a9cf5906811b00c",
+        "71464523cce94746",
+        "26b4e50b87b34b3e",
+        "21c7f056f823faa0",
+        "e536380e6ba1dfab",
+        "7b519c2ef47aad26",
+        "6c7c78355d34a148",
+        "4d00bf1bcf1c16e2",
+        "b3de46005287e614",
+        "c987353c013a4e3e",
+        "4696522c6aecfd19",
+        "700be0242d4b4452",
+        "712b261015b99c44",
+        "bcc654a8b6548493",
+        "0141a1ad087b37db",
+        "04e9beb20d2f4201",
+        "c8c7edd6c46ff875",
+        "e957779e46002981",
+        "cbf9e60d5a8e206c",
+        "9dcb78b782c2d85e",
+        "c385cfc8145ec871",
+        "016576db92ed5d2e",
+        "61376db5f90fffb1",
+        "618b45367b3c6ac0",
+        "8c89eae862ed1968",
+        "a48deb354f4d8245",
+        "97511be382144230",
+        "130fbda121e185ee",
+        "bdec7c76d55cd9b8"
+      ],
+      "focusStageId": "lumbridge-north-to-draynor-manor-al-kharid-border",
+      "instagram": "https://www.instagram.com/projectrunecraft/",
+      "substack": "https://dhmorgan.substack.com",
+      "fundraiser": "https://gofund.me/7dc3fc541",
+      "supportCopy": "",
+      "aboutCopy": "We’re Marc and David. We grew up playing RuneScape and Minecraft, and decided to bring the two together. We’re rebuilding Gielinor using Conquest Reforged, starting with the Wizard’s Tower, Draynor and Lumbridge.",
+      "creditsCopy": "Gielinor and RuneScape belong to Jagex. Minecraft belongs to Mojang and Microsoft. This is an independent fan project, not an official product or an endorsed partnership.\n\nBuilds by Marc and David, using Conquest Reforged, WorldEdit and supporting mods. Terrain foundations by Mefisto148, whose map the original build notes credit on CurseForge. Historical references and image captions are retained in the original build logs.\n\nLiterata and Source Sans 3 are distributed under the SIL Open Font License. Legacy RuneScape fonts are credited in the retained project archive.",
+      "privacyCopy": "You can browse without a site account. Saved places and unfinished author drafts stay in this browser and can be cleared. Hosting processes requests to serve the website. External Instagram, Substack and fundraiser links have their own privacy policies. We do not run advertising or behavioural analytics here.",
+      "faq": [
+        {
+          "question": "Can I visit or download the world?",
+          "answer": "There is no public server or download available yet."
+        },
+        {
+          "question": "How is the world made?",
+          "answer": "Minecraft, Conquest Reforged and WorldEdit, on Mefisto148’s Gielinor map."
+        }
+      ],
+      "activeQuestion": "",
+      "ideasEnabled": false,
+      "ideaReviewer": "",
+      "retentionDays": 90
+    }
+  ]
+}

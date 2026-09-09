@@ -109,49 +109,17 @@ exports.handler = async function handler(event) {
 
     if (event.httpMethod === "PUT") {
       authorize(event);
-      const payload = JSON.parse(event.body || "{}");
-      if (url.searchParams.has("settings")) {
-        const settings = normalizeSiteSettings(payload.settings || payload);
-        const result = await writeSettingsFile(settings);
-        return respond(200, {
-          settings,
-          storage: result.storage || "",
-          etag: result.etag || ""
-        });
-      }
-
-      const incomingBoard = normalizeBoard(payload.board);
-      const board = await resolveBoardSave(incomingBoard, payload);
-      const result = await writeBoardFile(board);
-      return respond(200, {
-        board,
-        storage: result.storage || "",
-        etag: result.etag || "",
-        commitSha: result.commit?.sha || "",
-        commitUrl: result.commit?.html_url || "",
-        backupCommitSha: result.backupCommit?.commit?.sha || "",
-        backupCommitUrl: result.backupCommit?.commit?.html_url || ""
-      });
+      return respond(409, { error: 'This legacy publishing endpoint is now read-only. Open /admin/ to preserve your draft and publish through the Gielinor: Reforged workspace.' });
     }
 
     if (event.httpMethod === "PATCH") {
       authorize(event);
-      const result = await migrateBoardFile();
-      return respond(200, result);
+      return respond(409, { error: 'Use the Gielinor: Reforged migration workflow and author workspace.' });
     }
 
     if (event.httpMethod === "POST") {
       authorize(event);
-      const payload = JSON.parse(event.body || "{}");
-      const upload = normalizeUpload(payload);
-      const result = await writeUploadFile(upload);
-      return respond(200, {
-        path: result.publicPath || publicPathForUpload(result.path),
-        fileName: result.fileName,
-        storage: result.storage || "",
-        commitSha: result.commit?.sha || "",
-        commitUrl: result.commit?.html_url || ""
-      });
+      return respond(409, { error: 'Upload photographs through /admin/. The new image pipeline validates images and creates reusable responsive variants.' });
     }
 
     return respond(405, { error: "Method not allowed" }, { Allow: "GET, PUT, PATCH, POST, OPTIONS" });

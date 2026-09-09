@@ -1,0 +1,13 @@
+{
+  "pinBasis": "Approximate locations placed against the preserved Gielinor map during the redesign; authors can refine or remove them in Atlas settings.",
+  "pins": {
+    "lumbridge-castle": { "x": 0.737, "y": 0.46 },
+    "draynor-village": { "x": 0.710, "y": 0.437 },
+    "wizards-tower": { "x": 0.708, "y": 0.49 },
+    "lumbridge": { "x": 0.746, "y": 0.447 },
+    "around-lumbridge": { "x": 0.734, "y": 0.423 },
+    "lumbridge-swamp": { "x": 0.727, "y": 0.485 },
+    "draynor-sewers": { "x": 0.702, "y": 0.442 },
+    "ham-hideout": { "x": 0.722, "y": 0.45 }
+  }
+}
