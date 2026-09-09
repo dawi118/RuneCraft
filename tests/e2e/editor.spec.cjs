@@ -34,3 +34,17 @@ test('anonymous requests cannot read drafts, preview, workspace or private queue
   const rss=await request.get('/rss.xml');expect(await rss.text()).not.toContain('Session recovery');
   const map=await request.get('/sitemap.xml');expect(await map.text()).not.toContain('/admin/');
 });
+test('uploaded map masters are available at source resolution to public Atlas readers',async({request,browser})=>{
+  const sharp=require('sharp'),headers={Origin:'http://127.0.0.1:4378'};
+  expect((await request.post('/api/session',{headers,data:{token:'local-e2e-project-key'}})).status()).toBe(200);
+  const input=await sharp({create:{width:2000,height:1400,channels:3,background:'#3a6e54'}}).png().toBuffer();
+  const uploaded=await request.post('/api/media',{headers,data:{contentType:'image/png',data:input.toString('base64'),fileName:'Atlas master test'}});
+  expect(uploaded.status()).toBe(201);const media=await uploaded.json();
+  const reader=await browser.newContext();
+  try{
+    const response=await reader.request.get(`http://127.0.0.1:4378/api/media/${media.id}/master`);
+    expect(response.status()).toBe(200);expect(response.headers()['content-type']).toBe('image/webp');
+    const metadata=await sharp(await response.body()).metadata();expect(metadata.width).toBe(2000);expect(metadata.height).toBe(1400);
+    expect((await reader.request.get('http://127.0.0.1:4378/api/media/000000000000000000000000/master')).status()).toBe(404);
+  }finally{await reader.close();}
+});

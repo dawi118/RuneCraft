@@ -49,3 +49,27 @@ html{background:#07131d}
 .atlas-shell .map-pin{width:44px;height:44px;min-width:44px;min-height:44px;transform:scale(calc(1 / var(--map-scale,1))) translate(-50%,-100%);transform-origin:0 0;justify-content:center}
 .atlas-shell .pin-label{position:absolute;top:100%;left:50%;transform:translateX(-50%);pointer-events:none}
 .atlas-intro{padding-top:24px;padding-bottom:20px}.atlas-intro h1{font-size:42px;margin:0}.ticket-card .missing-photo img{width:72px;height:72px;aspect-ratio:1;object-fit:contain}.atlas-shell .map-pin::before{display:none}
+/* Keep map pixels sharp and screen-sized pins independent of map magnification. */
+.atlas-shell .map-canvas{width:100%;will-change:transform}
+.atlas-shell .map-canvas>.atlas-image{min-height:0;image-rendering:pixelated}
+.map-pins{position:absolute;inset:0;pointer-events:none}
+.atlas-shell .map-pins .map-pin{pointer-events:auto;transform:translate(-50%,-100%);transform-origin:center}
+.atlas-popup{width:410px}
+.ticket-carousel{min-width:0}
+.ticket-carousel-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;align-items:stretch;border-radius:3px}
+.ticket-carousel-track::-webkit-scrollbar{display:none}
+.ticket-carousel-track.dragging{scroll-snap-type:none;cursor:grabbing;user-select:none}
+.ticket-slide{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column}
+.ticket-slide .button{margin-top:auto}
+.ticket-slide img{margin-top:0;user-select:none}
+.ticket-carousel-controls{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;gap:1rem}
+.ticket-carousel-controls button{width:48px;padding:8px;font-size:1.25rem;background:#102936;border-color:#8b794f;color:#f0dfb5}
+.ticket-carousel-controls [data-ticket-count]{font-size:.9rem;color:#d9c99f;font-variant-numeric:tabular-nums}
+.ticket-carousel-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:0}
+.ticket-carousel-dots button{width:32px;min-height:32px;padding:10px;border:0;background:transparent}
+.ticket-carousel-dots span{width:7px;height:7px;border-radius:50%;background:#86929b}
+.ticket-carousel-dots [aria-current] span{background:#f0cf8a;box-shadow:0 0 0 3px #e6c58330}
+@media(max-width:650px){.atlas-popup{width:calc(100% - 24px);max-height:78%}.ticket-carousel-controls{margin-top:.75rem}.ticket-carousel-dots button{min-height:28px;padding-block:8px}}
+
+.atlas-raster{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.map-canvas.raster-ready{visibility:hidden}
