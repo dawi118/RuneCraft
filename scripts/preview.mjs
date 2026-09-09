@@ -14,7 +14,7 @@ http.createServer(async(req,res)=>{
     if (file.startsWith(`${staticRoot}${path.sep}`) && ['GET','HEAD'].includes(req.method)) {
       try {
         const stat=await fs.stat(file);
-        if(stat.isFile()) { const type=types[path.extname(file)]||'application/octet-stream';let data=await fs.readFile(file);const headers={'Content-Type':type,'Cache-Control':'public, max-age=3600'};
+        if(stat.isFile()) { const type=types[path.extname(file)]||'application/octet-stream';let data=await fs.readFile(file);const headers={'Content-Type':type,'Cache-Control':url.pathname.startsWith('/media/')||url.pathname.startsWith('/fonts/')?'public, max-age=3600':'no-cache'};
           if(/^(text\/|image\/svg)/.test(type)&&req.headers['accept-encoding']?.includes('gzip')){data=gzipSync(data);headers['Content-Encoding']='gzip';headers.Vary='Accept-Encoding';}
           res.writeHead(200,{...headers,'Content-Length':data.length});res.end(req.method==='HEAD'?undefined:data);return;
         }

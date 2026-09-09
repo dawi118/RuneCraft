@@ -22,7 +22,9 @@ try {
     const assetTransfer = metrics.resources.filter(r => !r.name.includes('/@') && !r.name.includes('/node_modules/') && !r.name.includes('vite')).reduce((sum,r) => sum + r.transferSize,0);
     // Scroll to load all editorial images before full-page visual QA.
     await page.evaluate(async () => { for (let y=0;y<document.body.scrollHeight;y+=600) { window.scrollTo(0,y); await new Promise(r=>setTimeout(r,40)); } });
-    await page.waitForLoadState('networkidle'); await page.evaluate(() => scrollTo(0,0));
+    await page.waitForLoadState('networkidle');
+    await page.locator('main img').evaluateAll(async images => { for (const img of images) { img.scrollIntoView({behavior:'instant',block:'center'}); await img.decode().catch(()=>{}); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))); } });
+    await page.evaluate(() => scrollTo({top:0,behavior:'instant'}));
     await fs.mkdir('verification', { recursive: true });
     await page.screenshot({ path: `verification/home-${width}${slow?'-slow':''}.png`, fullPage: true });
     await page.goto(`${origin}/places/draynor-village/`); await page.locator('[data-photo]').first().click();

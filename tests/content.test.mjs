@@ -35,3 +35,23 @@ test('rich text and links cannot introduce script into server-returned HTML', ()
   assert.ok(!richText('<script>alert(1)</script>\n\n**hello**').includes('<script>'));
   assert.ok(richText('**hello**').includes('<strong>hello</strong>'));
 });
+test('public templates use the supplied identity and omit editorial filler', async () => {
+  const {renderPage,shell,picture}=await import('../src/lib/render.mjs');
+  const {default:content}=await import('../migration/content.json',{with:{type:'json'}});
+  for(const route of ['/','/explore/','/places/draynor-village/','/gallery/','/journal/','/community/','/support/']) {
+    const html=shell(renderPage(route,content),content,{source:'snapshot'});
+    assert.ok(html.includes('/brand/logo.webp'));
+    assert.doesNotMatch(html,/Photos coming|next visit|Somewhere you remember|A little further|Pull up a chair|content snapshot|A little more Gielinor|one room, road and landscape|production schedule/i);
+  }
+  assert.doesNotMatch(picture(null),/coming|visit|next/i);
+});
+test('the G favicon is a centred square with transparent padding', async () => {
+  const {default:sharp}=await import('sharp');
+  const metadata=await sharp('public/brand/icon.png').metadata();
+  assert.equal(metadata.width,256);assert.equal(metadata.height,256);assert.equal(metadata.hasAlpha,true);
+  const {data,info}=await sharp('public/brand/icon.png').raw().toBuffer({resolveWithObject:true});
+  let left=256,right=0,top=256,bottom=0;
+  for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++)if(data[(y*info.width+x)*4+3]>20){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
+  assert.ok(Math.abs(left-(255-right))<=4);assert.ok(Math.abs(top-(255-bottom))<=4);
+  assert.ok(left>=15&&top>=15);
+});

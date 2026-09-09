@@ -21,7 +21,7 @@ document.querySelectorAll('img[data-media-image]').forEach(img => img.addEventLi
   img.dataset.failed = 'true';
   const placeholder = document.createElement('span');
   placeholder.className = 'missing-photo';
-  placeholder.textContent = `Photograph unavailable: ${img.alt}. You can still explore the place and its build notes.`;
+  placeholder.textContent = 'Photograph unavailable';
   img.replaceWith(placeholder);
 }));
 const savedKey = 'gielinor-saved-places';
@@ -93,7 +93,7 @@ viewer?.addEventListener('keydown', event => {
   if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 });
-document.querySelector('#viewer-image')?.addEventListener('error', () => { document.querySelector('#viewer-status').textContent = 'This photograph could not load. Try another image or visit the place page.'; });
+document.querySelector('#viewer-image')?.addEventListener('error', () => { document.querySelector('#viewer-status').textContent = 'Photograph unavailable.'; });
 document.querySelector('[data-share-photo]')?.addEventListener('click', async () => {
   const id = galleryPhotos()[photoIndex].id, url = `${location.origin}${location.pathname}${location.search}#photo-${id}`;
   try { await navigator.clipboard.writeText(url); document.querySelector('#viewer-status').textContent = 'Photograph link copied.'; } catch { document.querySelector('#viewer-status').textContent = url; }

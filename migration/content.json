@@ -11,7 +11,7 @@
       "regionId": "misthalin",
       "category": "building",
       "status": "Built",
-      "summary": "From the courtyard to the kitchen, the castle that welcomed so many of us. The cook’s pantry is still on our list.",
+      "summary": "",
       "stageIds": [
         "lumbridge-castle-foundations-and-exterior-build",
         "lumbridge-castle-interior-build-and-decoration",
@@ -41,7 +41,7 @@
       "regionId": "misthalin",
       "category": "town",
       "status": "Built",
-      "summary": "Familiar crooked rooftops, a busy little market, and the lives tucked away behind every door.",
+      "summary": "",
       "stageIds": [
         "draynor-village-exterior-build",
         "draynor-village-interior-build",
@@ -89,7 +89,7 @@
       "regionId": "misthalin",
       "category": "landmark",
       "status": "Built",
-      "summary": "Our first build. Across the little stone bridge, every floor has a story — and something strange waits downstairs.",
+      "summary": "",
       "stageIds": [
         "wizard-s-tower"
       ],
@@ -122,7 +122,7 @@
       "regionId": "misthalin",
       "category": "town",
       "status": "Built",
-      "summary": "The chapel, Bob’s axes, and the houses and paths beyond the castle walls.",
+      "summary": "",
       "stageIds": [
         "lumbridge-exc-castle-foundation-exteriors",
         "lumbridge-exc-castle-interiors-and-decoration"
@@ -146,7 +146,7 @@
       "regionId": "misthalin",
       "category": "landscape",
       "status": "In progress",
-      "summary": "Following the farms and windmill north towards Draynor Manor and the Al-Kharid border.",
+      "summary": "",
       "stageIds": [
         "lumbridge-north-to-draynor-manor-al-kharid-border"
       ],
@@ -169,7 +169,7 @@
       "regionId": "misthalin",
       "category": "landscape",
       "status": "Built",
-      "summary": "Reeds, pools, Father Uhrney’s shack and the paths through the marsh. The surface is built; the caves remain planned.",
+      "summary": "",
       "stageIds": [
         "lumbridge-swamp",
         "lumbridge-swamp-caves"
@@ -204,7 +204,7 @@
       "regionId": "misthalin",
       "category": "underground",
       "status": "Built",
-      "summary": "Below the village: pipework, ruined rooms and Ruantun’s secret camp.",
+      "summary": "",
       "stageIds": [
         "draynor-sewers"
       ],
@@ -230,7 +230,7 @@
       "regionId": "misthalin",
       "category": "underground",
       "status": "Built",
-      "summary": "Our first dungeon, from the ruined entrance to the chambers and gathering hall below.",
+      "summary": "",
       "stageIds": [
         "ham-hideout"
       ],
@@ -2805,7 +2805,7 @@
       "id": "site",
       "brand": "Gielinor: Reforged",
       "tagline": "Gielinor, built by hand.",
-      "introduction": "We’re Marc and David. We’re rebuilding the places we grew up exploring in RuneScape, using Minecraft and Conquest Reforged.",
+      "introduction": "Rebuilding RuneScape’s Gielinor in Minecraft with Conquest Reforged.",
       "heroId": "e47a429a572e60f8",
       "mapId": "00846e735be4772a",
       "featuredPlaceIds": [
@@ -2850,21 +2850,21 @@
       "instagram": "https://www.instagram.com/projectrunecraft/",
       "substack": "https://dhmorgan.substack.com",
       "fundraiser": "https://gofund.me/7dc3fc541",
-      "supportCopy": "If you’d like to support the project, our existing fundraiser has the details. Following along and sharing a favourite build helps too.",
-      "aboutCopy": "We’re Marc and David, two childhood friends who grew up on RuneScape and Minecraft. Now we’re recreating the places we remember, one room, road and landscape at a time. Conquest Reforged gives us the materials and small details to make those places feel lived in.",
+      "supportCopy": "",
+      "aboutCopy": "We’re Marc and David. We grew up playing RuneScape and Minecraft, and decided to bring the two together. We’re rebuilding Gielinor using Conquest Reforged, starting with the Wizard’s Tower, Draynor and Lumbridge.",
       "creditsCopy": "Gielinor and RuneScape belong to Jagex. Minecraft belongs to Mojang and Microsoft. This is an independent fan project, not an official product or an endorsed partnership.\n\nBuilds by Marc and David, using Conquest Reforged, WorldEdit and supporting mods. Terrain foundations by Mefisto148, whose map the original build notes credit on CurseForge. Historical references and image captions are retained in the original build logs.\n\nLiterata and Source Sans 3 are distributed under the SIL Open Font License. Legacy RuneScape fonts are credited in the retained project archive.",
       "privacyCopy": "You can browse without a site account. Saved places and unfinished author drafts stay in this browser and can be cleared. Hosting processes requests to serve the website. External Instagram, Substack and fundraiser links have their own privacy policies. We do not run advertising or behavioural analytics here.",
       "faq": [
         {
           "question": "Can I visit or download the world?",
-          "answer": "No public access or download details have been announced here. A finished build is a building milestone, not a release announcement."
+          "answer": "There is no public server or download available yet."
         },
         {
           "question": "How is the world made?",
-          "answer": "We build in Minecraft with Conquest Reforged, using WorldEdit and a terrain foundation credited to Mefisto148. Our build logs record the materials, experiments and changes along the way."
+          "answer": "Minecraft, Conquest Reforged and WorldEdit, on Mefisto148’s Gielinor map."
         }
       ],
-      "activeQuestion": "Which detail in Draynor do you remember best?",
+      "activeQuestion": "",
       "ideasEnabled": false,
       "ideaReviewer": "",
       "retentionDays": 90

@@ -21,10 +21,10 @@ const image = page.image ? new URL(page.image.src, Astro.site).href : undefined;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{page.title} | {BRAND}</title>
+    <title>{page.title === BRAND ? BRAND : `${page.title} | ${BRAND}`}</title>
     <meta name="description" content={page.description} />
     <link rel="canonical" href={canonical} />
-    <meta property="og:title" content={`${page.title} | ${BRAND}`} />
+    <meta property="og:title" content={page.title === BRAND ? BRAND : `${page.title} | ${BRAND}`} />
     <meta property="og:description" content={page.description} />
     <meta property="og:type" content={page.path.startsWith('/journal/') && page.path !== '/journal/' ? 'article' : 'website'} />
     <meta property="og:url" content={canonical} />
@@ -32,15 +32,16 @@ const image = page.image ? new URL(page.image.src, Astro.site).href : undefined;
     {image && <meta property="og:image" content={image} />}
     {page.image && <meta property="og:image:alt" content={page.image.alt} />}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#141B19" />
+    <link rel="apple-touch-icon" href="/brand/icon.png" />
+    <meta name="theme-color" content="#06111b" />
     {page.status === 404 && <meta name="robots" content="noindex" />}
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/brand/icon.png" />
     <link rel="alternate" type="application/rss+xml" title="Gielinor: Reforged journal" href="/rss.xml" />
     <script is:inline>document.documentElement.classList.add('enhanced');</script>
-    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="/theme.css?v=gold-20260909" />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/literata-latin-400-normal.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/source-sans-3-latin-400-normal.woff2" crossorigin />
-    <script is:inline src="/site.js" defer></script>
+    <script is:inline src="/site.js?v=gold-20260909" defer></script>
     {page.path === '/explore/' && <script is:inline src="/atlas.js" defer></script>}
   </head>
   <body set:html={shell(page, publication.content, publication)} />

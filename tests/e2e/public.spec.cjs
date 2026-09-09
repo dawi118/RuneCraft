@@ -33,7 +33,7 @@ test('legacy hashes, real 404 responses and filter history remain usable', async
   await page.goto('/progress/?q=Draynor&status=Built&view=board');
   const link=page.locator('.stage-row h3 a').first(); const href=await link.getAttribute('href'); await link.click(); await expect(page).toHaveURL(new RegExp(href)); await page.goBack();
   await expect(page.locator('input[name=q]')).toHaveValue('Draynor'); await expect(page.locator('select[name=view]')).toHaveValue('board');
-  const missing=await page.goto('/places/not-a-real-place/'); expect(missing.status()).toBe(404); await expect(page.locator('h1')).toContainText('path');
+  const missing=await page.goto('/places/not-a-real-place/'); expect(missing.status()).toBe(404); await expect(page.locator('h1')).toHaveText('Page not found');
 });
 test('saved places and clear controls survive a reload', async ({ page }) => {
   await page.goto('/places/draynor-village/'); await page.getByRole('button',{name:'Save this place'}).click(); await page.reload(); await expect(page.locator('[data-save]')).toHaveAttribute('aria-pressed','true');
@@ -41,8 +41,8 @@ test('saved places and clear controls survive a reload', async ({ page }) => {
 });
 test('WCAG AA automated checks cover public navigation and key templates', async ({ page }) => {
   for(const route of ['/', '/explore/', '/places/draynor-village/', '/gallery/', '/progress/', '/community/']) {
-    await page.goto(route); const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
-    expect(results.violations.map(v=>({id:v.id,help:v.help,nodes:v.nodes.map(n=>n.target)})),route).toEqual([]);
+    await page.goto(route); await page.evaluate(()=>document.fonts.ready); const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
+    expect(results.violations.map(v=>({id:v.id,help:v.help,nodes:v.nodes.map(n=>({target:n.target,reason:n.failureSummary}))})),route).toEqual([]);
   }
 });
 test('essential content works without JavaScript and at 320px reflow', async ({ browser }) => {
@@ -55,7 +55,7 @@ test('reduced motion removes scripted and CSS smooth movement', async ({ page })
 });
 test('mobile navigation reserves its collapsed layout before the main script arrives', async ({page}) => {
   let release;const gate=new Promise(resolve=>{release=resolve;});
-  await page.route('**/site.js',async route=>{await gate;await route.continue();});
+  await page.route('**/site.js*',async route=>{await gate;await route.continue();});
   await page.goto('/',{waitUntil:'commit'});
   await expect(page.locator('h1')).toBeVisible();
   if(await page.locator('.menu-toggle').isVisible()) await expect(page.locator('#primary-nav')).toBeHidden();

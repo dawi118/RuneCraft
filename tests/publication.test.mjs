@@ -55,7 +55,7 @@ test('restore creates a new complete publication and retains historical media an
 });
 test('storage outages are labelled and never claim author publication success',async()=>{
   useTestStore({getWithMetadata:async()=>{throw new Error('offline');}});
-  const fallback=await readPublication();assert.equal(fallback.stale,true);assert.ok(shell(renderPage('/',fallback.content),fallback.content,fallback).includes('temporarily unavailable'));
+  const fallback=await readPublication();assert.equal(fallback.stale,true);assert.ok(shell(renderPage('/',fallback.content),fallback.content,fallback).includes('Offline copy'));
   await assert.rejects(readPublication({author:true}),e=>e.status===503);
 });
 test('media endpoint rejects SVGs, spoofed bytes and oversized uploads',async()=>{

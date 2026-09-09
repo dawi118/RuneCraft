@@ -1,18 +1,18 @@
 {
-  "measuredAt": "2026-09-09T19:47:14.511Z",
+  "measuredAt": "2026-09-09T20:14:39.098Z",
   "environment": "Built Netlify SSR handler served locally with gzip; synthetic measurements, not field Core Web Vitals",
   "assets": {
     "site.js": {
-      "bytes": 9606,
-      "gzipBytes": 3017
+      "bytes": 9489,
+      "gzipBytes": 2950
     },
     "atlas.js": {
       "bytes": 1467,
       "gzipBytes": 625
     },
     "theme.css": {
-      "bytes": 28750,
-      "gzipBytes": 7250
+      "bytes": 41585,
+      "gzipBytes": 10063
     },
     "admin/editor.js": {
       "bytes": 49636,
@@ -23,38 +23,38 @@
     {
       "width": 390,
       "profile": "Local unthrottled",
-      "lcpMs": 476,
+      "lcpMs": 324,
       "cls": 0,
       "longestTaskMs": 0,
-      "assetTransferBytes": 169069,
-      "galleryInteractionToNextPaintMs": 18
+      "assetTransferBytes": 414843,
+      "galleryInteractionToNextPaintMs": 25
     },
     {
       "width": 768,
       "profile": "Local unthrottled",
-      "lcpMs": 316,
+      "lcpMs": 152,
       "cls": 0,
       "longestTaskMs": 0,
-      "assetTransferBytes": 296815,
-      "galleryInteractionToNextPaintMs": 62
+      "assetTransferBytes": 542589,
+      "galleryInteractionToNextPaintMs": 58
     },
     {
       "width": 1440,
       "profile": "Local unthrottled",
-      "lcpMs": 136,
+      "lcpMs": 252,
       "cls": 0,
       "longestTaskMs": 0,
-      "assetTransferBytes": 713099,
-      "galleryInteractionToNextPaintMs": 14
+      "assetTransferBytes": 1059311,
+      "galleryInteractionToNextPaintMs": 59
     },
     {
       "width": 390,
       "profile": "4× CPU slowdown, 1.6 Mbps down, 150 ms latency",
-      "lcpMs": 876,
+      "lcpMs": 2304,
       "cls": 0,
       "longestTaskMs": 0,
-      "assetTransferBytes": 123047,
-      "galleryInteractionToNextPaintMs": 21
+      "assetTransferBytes": 392637,
+      "galleryInteractionToNextPaintMs": 19
     }
   ]
 }
