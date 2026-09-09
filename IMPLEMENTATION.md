@@ -20,7 +20,9 @@ The root catch-all redirect into `runecraft_site` has been removed. Both the roo
 
 ## Author access and publishing
 
-Configure `SESSION_SECRET`, `ADMIN_MARC_TOKEN` and `ADMIN_DAVID_TOKEN` in Netlify's runtime environment. Keys are entered once, verified on the server, and exchanged for an eight-hour HttpOnly, SameSite=Strict session. No access key is saved in localStorage or bundled in the client. `ADMIN_TOKEN` remains optional transition access under the honest shared identity “Project authors”.
+Use the existing `ADMIN_TOKEN` in Netlify’s environment, with Functions scope and a value for the relevant deployment context. The sole author identity is “Project authors”; sign-in only asks for the access key. No named author credentials or separate session secret are required. The key is verified on the server and exchanged for an eight-hour HttpOnly, SameSite=Strict session. `SESSION_SECRET` is optional; if unset, `ADMIN_TOKEN` signs sessions. No access key is saved in localStorage or bundled in the client.
+
+Local preview/development loads an untracked `.env` file if present; existing process environment variables take precedence. Set `ADMIN_TOKEN` there to use the same key locally, then restart the server. The local preview does not automatically fetch Netlify’s hosted secrets. Deploying to the existing Netlify site uses its configured key; changing hosted environment variables requires a new deployment.
 
 The default workflow is place → photographs → title/note → real-template preview → publish. Rich text supports a small bold/italic toolbar and paragraph breaks, with escaped authored HTML. Stages, cover selection and completion dates are optional details. Publication supplies the verified author, URL and timestamps and distributes the note to its place, journal, home and region.
 
@@ -34,7 +36,7 @@ Uploads accept still JPEG, PNG and WebP up to 4 MB, fitting inside Netlify's req
 
 1. Use Node 24 and `npm ci`; run `npm test`, `npm run build`, then `npm run test:e2e`.
 2. Create a Netlify deploy preview from the implementation branch. Do not point it at the old production Blob stores. Preview content uses a namespace derived from its deploy ID; production uses `CONTENT_NAMESPACE` or the default production namespace.
-3. Configure named author credentials for the preview. Rehearse publishing, concurrent edits, failed uploads and a revision restore there. Confirm cache freshness from a separate browser.
+3. Make the existing shared author key available to Functions in the preview context. Rehearse publishing, concurrent edits, failed uploads and a revision restore there. Confirm cache freshness from a separate browser.
 4. Before production cutover, fetch another live board/settings/media export and compare it with the preserved source so intervening author work is not overwritten. The migration scripts are for an initial import, not routine author publishing. Do not rerun them over post-migration editorial work.
 5. Keep the old deploy, original Blob stores and complete original-media backup available. The new content store is separate. Rolling the frontend back to the old deployment therefore preserves its original board and media. Rolling back a publication within the new frontend uses Version history.
 

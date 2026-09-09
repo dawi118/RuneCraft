@@ -1,8 +1,14 @@
 const {test,expect}=require('@playwright/test');
 const AxeBuilder=require('@axe-core/playwright').default;
 test.beforeEach(async({},info)=>test.skip(info.project.name!=='chromium-desktop','Author scenarios run once against isolated test storage.'));
-async function login(page,name='Marc'){
-  await page.goto('/admin/');await page.getByRole('combobox',{name:'Author',exact:true}).selectOption(name);await page.getByLabel('Access key').fill(`local-e2e-${name.toLowerCase()}-key`);await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.locator('#update-form')).toBeVisible();
+test('shared-key sign-in fixes the author identity on the server',async({request})=>{
+  const options={headers:{Origin:'http://127.0.0.1:4378'}};
+  const rejected=await request.post('/api/session',{...options,data:{token:'wrong-key'}});expect(rejected.status()).toBe(401);
+  const session=await request.post('/api/session',{...options,data:{name:'Someone else',token:'local-e2e-project-key'}});expect(session.status()).toBe(200);expect((await session.json()).author).toBe('Project authors');
+  expect((await (await request.get('/api/workspace')).json()).author).toBe('Project authors');
+});
+async function login(page){
+  await page.goto('/admin/');await expect(page.getByRole('combobox',{name:'Author',exact:true})).toHaveCount(0);await page.getByLabel('Access key').fill('local-e2e-project-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.locator('#update-form')).toBeVisible();
 }
 test('author adds three-photo update, previews privately and publishes across pages',async({page,browser})=>{
   await login(page);await page.getByRole('combobox',{name:'Place',exact:true}).selectOption('draynor-village');await page.getByLabel('Title',{exact:true}).fill('Three photographs from Draynor');await page.getByLabel('What changed?').fill('A browser-tested update about the bank, the market and the Wise Old Man’s house.');
@@ -20,7 +26,7 @@ test('interrupted publish preserves writing and recovery works after reload',asy
 });
 test('expired session preserves the draft and requires server authentication',async({page,context})=>{
   await login(page);await page.getByLabel('Title',{exact:true}).fill('Session recovery');await page.getByLabel('What changed?').fill('Still here when the session expires.');await context.clearCookies();await page.getByRole('button',{name:'Publish update',exact:true}).click();await expect(page.getByRole('heading',{name:'Sign in again'})).toBeVisible();
-  await page.getByLabel('Access key').fill('local-e2e-marc-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByLabel('What changed?')).toHaveValue('Still here when the session expires.');
+  await page.getByLabel('Access key').fill('local-e2e-project-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByLabel('What changed?')).toHaveValue('Still here when the session expires.');
 });
 test('anonymous requests cannot read drafts, preview, workspace or private queue',async({request})=>{
   for(const route of ['workspace','drafts','revisions','ideas'])expect((await request.get(`/api/${route}`)).status()).toBe(401);

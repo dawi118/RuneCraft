@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 test('author workspace and atlas controls reflow on this device',async({page},info)=>{
-  await page.goto('/admin/');await page.getByRole('combobox',{name:'Author',exact:true}).selectOption('David');await page.getByLabel('Access key').fill('local-e2e-david-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.locator('#update-form')).toBeVisible();
+  await page.goto('/admin/');await page.getByLabel('Access key').fill('local-e2e-project-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.locator('#update-form')).toBeVisible();
   for(const tab of ['Add an update','Edit a place','Atlas','Site settings','Version history','Advanced']){
     await page.getByRole('button',{name:tab,exact:true}).first().click();await expect(page.locator('#workspace-panel')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),tab).toBe(true);
   }

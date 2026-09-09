@@ -26,11 +26,11 @@ function saveLocal() {
 }
 function changed() { clearTimeout(localTimer); localTimer = setTimeout(saveLocal, 300); }
 function renderLogin(expired = false) {
-  root.innerHTML = `<section class="admin-card login-card"><h2>${expired ? 'Sign in again' : 'Welcome back.'}</h2><p>${expired ? 'Your writing is preserved on this device. Sign in to continue.' : 'Use your author name and access key. Your key is never stored in this browser.'}</p><form id="login" class="admin-form"><label>Author<select name="name"><option>Marc</option><option>David</option><option>Project authors</option></select></label>${field('Access key', 'token', '', 'password', 'required autocomplete="current-password"')}<button type="submit">Sign in</button></form><p class="admin-help">The shared legacy key uses “Project authors”. Named access identifies Marc and David separately.</p></section>`;
+  root.innerHTML = `<section class="admin-card login-card"><h2>${expired ? 'Sign in again' : 'Project authors'}</h2><p>${expired ? 'Your writing is preserved on this device. Sign in to continue.' : 'Enter your existing access key.'}</p><form id="login" class="admin-form">${field('Access key', 'token', '', 'password', 'required autocomplete="current-password"')}<button type="submit">Sign in</button></form></section>`;
   document.querySelector('#login').addEventListener('submit', async event => {
     event.preventDefault(); const form = event.currentTarget, button = form.querySelector('button'); button.disabled = true;
-    const name = form.elements.name.value, token = form.elements.token.value;
-    try { const session = await api('session', 'POST', { name, token }); form.elements.token.value = ''; author = session.author; await loadWorkspace(expired); }
+    const token = form.elements.token.value;
+    try { const session = await api('session', 'POST', { token }); form.elements.token.value = ''; author = session.author; await loadWorkspace(expired); }
     catch (error) { say(error.message, true); button.disabled = false; }
   });
 }

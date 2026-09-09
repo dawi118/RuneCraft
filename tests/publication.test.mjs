@@ -64,10 +64,10 @@ test('media endpoint rejects SVGs, spoofed bytes and oversized uploads',async()=
   await assert.rejects(uploadMedia({contentType:'image/png',data:'A'.repeat(12*1024*1024+1)}),e=>e.status===413);
 });
 test('sessions are server-signed, expire, and reject cross-origin mutations',()=>{
-  process.env.SESSION_SECRET='unit-test-secret';process.env.ADMIN_MARC_TOKEN='unit-test-key';
-  const session=createSession('Marc','unit-test-key');assert.match(session.cookie,/HttpOnly; SameSite=Strict/);
-  assert.equal(authorFrom(new Request('https://example.test',{headers:{cookie:session.cookie}})),'Marc');
+  process.env.SESSION_SECRET='unit-test-secret';process.env.ADMIN_TOKEN='unit-test-key';
+  const session=createSession('unit-test-key');assert.match(session.cookie,/HttpOnly; SameSite=Strict/);
+  assert.equal(authorFrom(new Request('https://example.test',{headers:{cookie:session.cookie}})),'Project authors');
   assert.equal(authorFrom(new Request('https://example.test',{headers:{cookie:'reforged-author=tampered.signature'}})),null);
   assert.throws(()=>sameOrigin(new Request('https://example.test/api/publish',{method:'POST',headers:{origin:'https://evil.test'}})),e=>e.status===403);
-  delete process.env.SESSION_SECRET;delete process.env.ADMIN_MARC_TOKEN;
+  delete process.env.SESSION_SECRET;delete process.env.ADMIN_TOKEN;
 });

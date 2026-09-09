@@ -30,7 +30,7 @@ export async function ALL({ request, params }) {
     if (path === 'session' && method === 'GET') return json({ author: authorFrom(request) });
     if (path === 'session' && method === 'POST') {
       await rateLimit(`login:${ip}`, 20, 15 * 60 * 1000);
-      const { name, token } = await payload(request, 4096), session = createSession(name, token);
+      const { token } = await payload(request, 4096), session = createSession(token);
       return json({ author: session.author }, 200, { 'Set-Cookie': session.cookie });
     }
     if (path === 'session' && method === 'DELETE') return json({ signedOut: true }, 200, { 'Set-Cookie': expiredCookie });
