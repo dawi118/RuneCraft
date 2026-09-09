@@ -40,3 +40,20 @@ test('bylines and saved-place controls are absent from the public site; Atlas is
   const map=renderPage('/atlas/',c,new URLSearchParams('place=draynor-village')).body;
   assert.ok(map.includes('data-popup-build="draynor-village-interior-build"'));assert.ok(map.includes('View complete ticket'));assert.ok(!map.includes('data-map-pan'));
 });
+test('Atlas uses source-resolution imagery and an accessible ticket carousel with stable deep links',()=>{
+  const c=publicContent(seed),selected='draynor-village-interior-build';
+  const html=renderPage('/atlas/',c,new URLSearchParams(`place=draynor-village&ticket=${selected}`)).body;
+  assert.match(html,/class="atlas-image" src="\/media\/atlas-original.jpg"/);
+  assert.doesNotMatch(html,/data-popup-ticket|<select/);
+  assert.match(html,/aria-roledescription="carousel"/);
+  assert.match(html,/aria-label="Next build ticket"/);
+  assert.match(html,new RegExp(`href="/builds/${selected}/"`));
+  const map=c.media.find(m=>m.id===c.settings[0].mapId);map.id='replacement';map.src='/api/media/replacement/1600';c.settings[0].mapId=map.id;
+  assert.match(renderPage('/atlas/',c).body,/class="atlas-image" src="\/api\/media\/replacement\/master"/);
+  c.stages=c.stages.filter(s=>s.placeId!=='draynor-village'||s.id===selected);
+  const single=renderPage('/atlas/',c,new URLSearchParams('place=draynor-village')).body.split('<aside')[1].split('</aside>')[0];
+  assert.doesNotMatch(single,/data-ticket-next|data-ticket-prev/);assert.match(single,/View complete ticket/);
+  c.stages=c.stages.filter(s=>s.placeId!=='draynor-village');
+  const empty=renderPage('/atlas/',c,new URLSearchParams('place=draynor-village')).body.split('<aside')[1].split('</aside>')[0];
+  assert.match(empty,/View place/);assert.doesNotMatch(empty,/ticket-carousel/);
+});
