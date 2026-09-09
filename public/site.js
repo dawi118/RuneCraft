@@ -1,10 +1,11 @@
 document.documentElement.classList.add('enhanced');
-const legacy = { tutorial: '/', lumber: '/progress/', map: '/explore/', exchange: '/community/', bonanza: '/gallery/' };
+const legacy = { tutorial: '/', lumber: '/progress/', map: '/atlas/', exchange: '/community/', bonanza: '/gallery/' };
 if (location.pathname === '/') {
   const fragment = decodeURIComponent(location.hash.slice(1));
   const target = legacy[fragment] || (/^build-[a-z0-9-]+$/.test(fragment) ? `/builds/${fragment.slice(6)}/` : '');
   if (target) location.replace(target);
 }
+if(location.pathname==='/explore/'&&location.hash==='#atlas')location.replace(`/atlas/${location.search}`);
 const menu = document.querySelector('.menu-toggle');
 menu?.addEventListener('click', () => {
   const open = menu.getAttribute('aria-expanded') !== 'true';
@@ -24,21 +25,9 @@ document.querySelectorAll('img[data-media-image]').forEach(img => img.addEventLi
   placeholder.textContent = 'Photograph unavailable';
   img.replaceWith(placeholder);
 }));
-const savedKey = 'gielinor-saved-places';
-const readSaved = () => { try { const value = JSON.parse(localStorage.getItem(savedKey) || '[]'); return Array.isArray(value) ? value.filter(v => typeof v === 'string') : []; } catch { return []; } };
-function updateSavedUI() {
-  const saved = readSaved();
-  document.querySelectorAll('[data-save]').forEach(button => { const active = saved.includes(button.dataset.save); button.setAttribute('aria-pressed', String(active)); button.textContent = active ? 'Saved on this browser ✓' : 'Save this place'; });
-  document.querySelectorAll('[data-saved-card]').forEach(card => { card.hidden = !saved.includes(card.dataset.savedCard); });
-  const empty = document.querySelector('[data-saved-empty]'); if (empty) empty.hidden = document.querySelectorAll('[data-saved-card]:not([hidden])').length > 0;
-}
-document.querySelectorAll('[data-save]').forEach(button => button.addEventListener('click', () => {
-  const saved = readSaved(), id = button.dataset.save;
-  try { localStorage.setItem(savedKey, JSON.stringify(saved.includes(id) ? saved.filter(v => v !== id) : [...saved, id])); updateSavedUI(); }
-  catch { button.textContent = 'Browser storage unavailable'; }
-}));
-document.querySelectorAll('[data-clear-saved]').forEach(button => button.addEventListener('click', () => { try { localStorage.removeItem(savedKey); updateSavedUI(); document.querySelector('[data-saved-status]').textContent = 'Saved places cleared from this browser.'; } catch { document.querySelector('[data-saved-status]').textContent = 'Browser storage is unavailable.'; } }));
-updateSavedUI();
+// Region changes clear a now-incompatible place before refreshing its available options.
+const galleryFilter=document.querySelector('form[action="/gallery/"]');
+galleryFilter?.querySelector('[name="region"]')?.addEventListener('change',()=>{galleryFilter.querySelector('[name="place"]').value='';galleryFilter.requestSubmit();});
 // Native links and GET forms preserve full URL state; remember focus as well as browser scroll restoration.
 document.addEventListener('click', event => {
   const a = event.target.closest('a[href]');

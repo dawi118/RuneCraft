@@ -4,7 +4,8 @@ module.exports = defineConfig({
   timeout: 90000,
   expect: { timeout: 10000 },
   fullyParallel: false,
-  workers: 2,
+  // Author scenarios share one isolated store; stale-session protection deliberately rejects concurrent editors.
+  workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: { baseURL: 'http://127.0.0.1:4378', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [

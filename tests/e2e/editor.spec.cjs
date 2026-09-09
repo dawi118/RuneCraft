@@ -8,24 +8,24 @@ test('shared-key sign-in fixes the author identity on the server',async({request
   expect((await (await request.get('/api/workspace')).json()).author).toBe('Project authors');
 });
 async function login(page){
-  await page.goto('/admin/');await expect(page.getByRole('combobox',{name:'Author',exact:true})).toHaveCount(0);await page.getByLabel('Access key').fill('local-e2e-project-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.locator('#update-form')).toBeVisible();
+  await page.goto('/admin/');await expect(page.getByRole('combobox',{name:'Author',exact:true})).toHaveCount(0);await page.getByLabel('Access key').fill('local-e2e-project-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByRole('heading',{name:'Build tickets',exact:true})).toBeVisible();await page.getByRole('button',{name:'Published updates',exact:true}).click();await page.getByRole('button',{name:'Add journal update',exact:true}).click();await expect(page.locator('#update-form')).toBeVisible();
 }
 test('author adds three-photo update, previews privately and publishes across pages',async({page,browser})=>{
   await login(page);await page.getByRole('combobox',{name:'Place',exact:true}).selectOption('draynor-village');await page.getByLabel('Title',{exact:true}).fill('Three photographs from Draynor');await page.getByLabel('What changed?').fill('A browser-tested update about the bank, the market and the Wise Old Man’s house.');
   await page.getByText('Choose from the media library',{exact:true}).click();for(const box of await page.locator('[data-select-media]').all().then(a=>a.slice(0,3)))await box.check();
   await page.getByRole('button',{name:'Preview',exact:true}).click();await expect(page.locator('#preview-dialog')).toBeVisible();await expect(page.frameLocator('iframe').locator('h1')).toHaveText('Three photographs from Draynor');await page.getByRole('button',{name:'Phone',exact:true}).click();await expect(page.locator('iframe')).toHaveClass(/phone/);await page.getByRole('button',{name:'Close ×',exact:true}).click();
-  await page.getByRole('button',{name:'Publish update',exact:true}).click();await expect(page.locator('#editor-status')).toContainText('Published and verified');
+  await page.getByRole('button',{name:'Add update to website',exact:true}).click();await expect(page.locator('#editor-status')).toContainText('Saved to website and verified');
   const context=await browser.newContext();const reader=await context.newPage();for(const route of ['/','/journal/','/places/draynor-village/','/regions/misthalin/']){await reader.goto(`http://127.0.0.1:4378${route}`);await expect(reader.locator('main')).toContainText('Three photographs from Draynor');}await context.close();
   const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(results.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);
 });
 test('interrupted publish preserves writing and recovery works after reload',async({page})=>{
   await login(page);await page.getByLabel('Title',{exact:true}).fill('Recover this private note');await page.getByLabel('What changed?').fill('This must never disappear after a failed request.');
-  await page.route('**/api/publish',route=>route.abort('failed'));await page.getByRole('button',{name:'Publish update',exact:true}).click();await expect(page.getByLabel('What changed?')).toHaveValue('This must never disappear after a failed request.');await expect(page.locator('#editor-status')).not.toContainText('Published and verified');
-  await page.reload();await page.getByRole('button',{name:'Recover saved work'}).click();await expect(page.getByLabel('Title',{exact:true})).toHaveValue('Recover this private note');
+  await page.route('**/api/publish',route=>route.abort('failed'));await page.getByRole('button',{name:'Add update to website',exact:true}).click();await expect(page.getByLabel('What changed?')).toHaveValue('This must never disappear after a failed request.');await expect(page.locator('#editor-status')).not.toContainText('Saved to website and verified');
+  await page.reload();await page.getByRole('button',{name:'Recover local changes'}).click();await expect(page.getByLabel('Title',{exact:true})).toHaveValue('Recover this private note');
   const publicResponse=await page.request.get('/api/content');expect(await publicResponse.text()).not.toContain('Recover this private note');
 });
 test('expired session preserves the draft and requires server authentication',async({page,context})=>{
-  await login(page);await page.getByLabel('Title',{exact:true}).fill('Session recovery');await page.getByLabel('What changed?').fill('Still here when the session expires.');await context.clearCookies();await page.getByRole('button',{name:'Publish update',exact:true}).click();await expect(page.getByRole('heading',{name:'Sign in again'})).toBeVisible();
+  await login(page);await page.getByLabel('Title',{exact:true}).fill('Session recovery');await page.getByLabel('What changed?').fill('Still here when the session expires.');await context.clearCookies();await page.getByRole('button',{name:'Add update to website',exact:true}).click();await expect(page.getByRole('heading',{name:'Sign in again'})).toBeVisible();
   await page.getByLabel('Access key').fill('local-e2e-project-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByLabel('What changed?')).toHaveValue('Still here when the session expires.');
 });
 test('anonymous requests cannot read drafts, preview, workspace or private queue',async({request})=>{

@@ -22,7 +22,7 @@ export async function uploadMedia(payload) {
     variants[width] = `/api/media/${id}/${width}`;
   }
   await store.setJSON(`media/${id}/master`, { data: master.toString('base64'), type: 'image/webp' }, { onlyIfNew: true });
-  const record = { id, src: variants[1600], variants, width: dimensions.width, height: dimensions.height, alt: String(payload.alt || payload.fileName || 'Project photograph').slice(0, 4000), caption: '', credit: '', focalPoint: { x: .5, y: .5 }, subject: 'Landscapes & exteriors' };
+  const record = { id, createdAt: new Date().toISOString(), src: variants[1600], variants, width: dimensions.width, height: dimensions.height, alt: String(payload.alt || payload.fileName || 'Project photograph').slice(0, 4000), caption: '', credit: '', focalPoint: { x: .5, y: .5 }, subject: 'Landscapes & exteriors' };
   await store.setJSON(`media-records/${id}`, record, { onlyIfNew: true });
   return record;
 }
