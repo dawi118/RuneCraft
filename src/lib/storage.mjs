@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getStore } from '@netlify/blobs';
 import seed from '../../migration/content.json' with { type: 'json' };
-import { clone, mergeRecords, publicContent, validateContent } from './content.mjs';
+import { clone, mergeRecords, publicContent, validateContent, normalizeContent } from './content.mjs';
 
 export class ContentError extends Error {
   constructor(status, message, details = {}) { super(message); this.status = status; this.details = details; }
@@ -50,7 +50,7 @@ let lastGood;
 export async function readPublication({ author = false } = {}) {
   try {
     const record = await storage().getWithMetadata('published', { type: 'json', consistency: 'strong' });
-    const content = record?.data?.content || clone(seed);
+    const content = normalizeContent(record?.data?.content || seed);
     if (record) lastGood = clone(content);
     return { content: author ? content : publicContent(content), etag: record?.etag || null, source: record ? 'live' : 'snapshot', stale: false };
   } catch (error) {
@@ -58,12 +58,14 @@ export async function readPublication({ author = false } = {}) {
     return { content: publicContent(lastGood || seed), etag: null, source: lastGood ? 'cached' : 'snapshot', stale: true };
   }
 }
-export async function publish({ content, baseRevision, requestId, author }) {
+export async function publish({ content, baseRevision, requestId, author, requireCurrent = false }) {
+  content = normalizeContent(content);
   if (!/^[a-zA-Z0-9-]{8,100}$/.test(requestId || '')) throw new ContentError(400, 'A valid request ID is required.');
   const store = storage();
   let base;
   if (baseRevision === seed.revision) base = clone(seed);
   else base = (await readJSON(store, `revisions/${baseRevision}`))?.content;
+  if (base) base = normalizeContent(base);
   if (!base) throw new ContentError(409, 'This base revision is no longer available. Export your draft, then load the latest publication.');
   const inputErrors = validateContent(content);
   if (inputErrors.length) throw new ContentError(422, inputErrors.join(' '));
@@ -83,17 +85,19 @@ export async function publish({ content, baseRevision, requestId, author }) {
   for (let attempt = 0; attempt < 4; attempt++) {
     const current = await store.getWithMetadata('published', { type: 'json', consistency: 'strong' });
     const envelope = current?.data;
-    const live = envelope?.content || clone(seed);
+    const live = normalizeContent(envelope?.content || seed);
     const prior = envelope?.receipts?.find(r => r.id === requestId);
     if (prior) {
       if (prior.fingerprint && prior.fingerprint !== fingerprint) throw new ContentError(409, 'This request already published an earlier version. Load the verified publication before sending changed content.', { requestAlreadyUsed: true });
       return { revision: prior.revision, content: live, verified: true, duplicate: true };
     }
+    if (requireCurrent && live.revision !== baseRevision) throw new ContentError(409, 'The website has a newer version. Load the published version before saving.', { staleRevision: true, live });
     const { merged, conflicts } = mergeRecords(base, content, live);
     if (conflicts.length) throw new ContentError(409, 'Another author changed the same fields. Choose which values to keep, then retry.', { conflicts, live });
     const now = new Date().toISOString();
     for (const stage of merged.stages) {
       const old = live.stages.find(s => s.id === stage.id);
+      if (!old) stage.createdAt = now;
       if (!old || JSON.stringify(old) !== JSON.stringify(stage)) stage.updatedAt = now;
     }
     for (const update of merged.updates) {
@@ -130,6 +134,7 @@ export async function revisions() {
 }
 export async function revisionById(id) {
   if (!(await revisions()).some(r => r.revision === id)) throw new ContentError(404, 'Revision not found.');
-  return readJSON(storage(), `revisions/${id}`);
+  const record = await readJSON(storage(), `revisions/${id}`);
+  return { ...record, content: normalizeContent(record.content) };
 }
 export { readJSON };

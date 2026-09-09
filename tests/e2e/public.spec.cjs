@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const fs = require('node:fs/promises');
-const routes = ['/', '/explore/', '/places/draynor-village/', '/places/lumbridge-castle/', '/regions/misthalin/', '/progress/', '/journal/', '/gallery/', '/about/', '/community/', '/support/', '/credits/', '/privacy/', '/search/'];
+const routes = ['/', '/explore/', '/atlas/', '/places/draynor-village/', '/places/lumbridge-castle/', '/regions/misthalin/', '/progress/', '/journal/', '/gallery/', '/about/', '/community/', '/support/', '/credits/', '/privacy/', '/search/'];
 test('public routes render without overflow, broken visible photographs or script errors', async ({ page }, info) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   for (const route of routes) {
@@ -32,15 +32,15 @@ test('legacy hashes, real 404 responses and filter history remain usable', async
   await page.goto('/#build-draynor-village-interior-build'); await expect(page).toHaveURL(/\/builds\/draynor-village-interior-build\//); await expect(page.locator('h1')).toContainText('Draynor');
   await page.goto('/progress/?q=Draynor&status=Built&view=board');
   const link=page.locator('.stage-row h3 a').first(); const href=await link.getAttribute('href'); await link.click(); await expect(page).toHaveURL(new RegExp(href)); await page.goBack();
-  await expect(page.locator('input[name=q]')).toHaveValue('Draynor'); await expect(page.locator('select[name=view]')).toHaveValue('board');
+  await expect(page.locator('input[name=q]')).toHaveValue('Draynor'); await expect(page.getByRole('link',{name:'Build Board',exact:true})).toHaveAttribute('aria-current','page');
   const missing=await page.goto('/places/not-a-real-place/'); expect(missing.status()).toBe(404); await expect(page.locator('h1')).toHaveText('Page not found');
 });
-test('saved places and clear controls survive a reload', async ({ page }) => {
-  await page.goto('/places/draynor-village/'); await page.getByRole('button',{name:'Save this place'}).click(); await page.reload(); await expect(page.locator('[data-save]')).toHaveAttribute('aria-pressed','true');
-  await page.goto('/search/?saved=1'); await expect(page.locator('[data-saved-card="draynor-village"]')).toBeVisible(); await page.getByRole('button',{name:'Clear saved places'}).click(); await expect(page.locator('[data-saved-empty]')).toBeVisible();
+test('saved-place controls are removed and old place links redirect', async ({ page }) => {
+  await page.goto('/places/draynor-village/');await expect(page.locator('[data-save]')).toHaveCount(0);
+  await page.goto('/places/around-lumbridge/');await expect(page).toHaveURL(/\/places\/lumbridge\//);await expect(page.locator('h1')).toHaveText('Lumbridge');
 });
 test('WCAG AA automated checks cover public navigation and key templates', async ({ page }) => {
-  for(const route of ['/', '/explore/', '/places/draynor-village/', '/gallery/', '/progress/', '/community/']) {
+  for(const route of ['/', '/explore/', '/atlas/', '/places/draynor-village/', '/gallery/', '/progress/', '/community/']) {
     await page.goto(route); await page.evaluate(()=>document.fonts.ready); const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
     expect(results.violations.map(v=>({id:v.id,help:v.help,nodes:v.nodes.map(n=>({target:n.target,reason:n.failureSummary}))})),route).toEqual([]);
   }

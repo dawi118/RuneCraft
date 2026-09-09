@@ -71,3 +71,12 @@ test('sessions are server-signed, expire, and reject cross-origin mutations',()=
   assert.throws(()=>sameOrigin(new Request('https://example.test/api/publish',{method:'POST',headers:{origin:'https://evil.test'}})),e=>e.status===403);
   delete process.env.SESSION_SECRET;delete process.env.ADMIN_TOKEN;
 });
+
+test('server-current saves reject stale drafts even when fields could merge',async()=>{
+  const {content:before}=await readPublication({author:true});
+  const first=structuredClone(before);first.places[0].summary='Published elsewhere';
+  const saved=await publish({content:first,baseRevision:before.revision,requestId:'current-first-123',author:'Project authors',requireCurrent:true});
+  const stale=structuredClone(before);stale.places[1].summary='Old local draft';
+  await assert.rejects(publish({content:stale,baseRevision:before.revision,requestId:'current-second-123',author:'Project authors',requireCurrent:true}),e=>e.status===409&&e.details.staleRevision&&e.details.live.revision===saved.revision);
+  assert.notEqual((await readPublication({author:true})).content.places[1].summary,'Old local draft');
+});

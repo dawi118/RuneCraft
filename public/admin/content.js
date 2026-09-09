@@ -1,6 +1,51 @@
 export const BRAND = 'Gielinor: Reforged';
 export const COLLECTIONS = ['places', 'stages', 'updates', 'regions', 'media', 'articles', 'tours', 'settings'];
-export const STATUSES = ['Built', 'In progress', 'Planned', 'Terrain only'];
+export const STATUSES = ['Not Started', 'In Progress', 'Built'];
+export const canonicalStatus = value => ({ Planned: 'Not Started', 'Terrain only': 'Not Started', 'In progress': 'In Progress' }[value] || value);
+export const placeNameKey = value => String(value || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en');
+export const recordDate = record => record.updatedAt || record.createdAt || record.publishedAt || record.completedAt || '';
+export function sortRecent(records, order = 'newest') {
+  return [...records].sort((a, b) => {
+    const aa = recordDate(a), bb = recordDate(b);
+    if (!aa || !bb) return aa ? -1 : bb ? 1 : a.id.localeCompare(b.id);
+    return (order === 'oldest' ? aa.localeCompare(bb) : bb.localeCompare(aa)) || a.id.localeCompare(b.id);
+  });
+}
+export function mergePlaces(content, fromId, toId) {
+  const from = content.places.find(p => p.id === fromId), to = content.places.find(p => p.id === toId);
+  if (!from || !to || from === to) throw new Error('Choose two different places to merge.');
+  to.aliasSlugs = [...new Set([...(to.aliasSlugs || []), ...(from.aliasSlugs || []), from.slug])].filter(s => s !== to.slug);
+  for (const field of ['mediaIds', 'stageIds', 'relatedIds']) to[field] = [...new Set([...(to[field] || []), ...(from[field] || [])])].filter(id => id !== fromId && id !== toId);
+  to.coverId ||= from.coverId; to.pin ||= from.pin;
+  for (const record of [...content.stages, ...content.updates]) if (record.placeId === fromId) record.placeId = toId;
+  for (const p of content.places) p.relatedIds = [...new Set((p.relatedIds || []).map(id => id === fromId ? toId : id))].filter(id => id !== p.id);
+  for (const a of content.articles) a.placeIds = [...new Set((a.placeIds || []).map(id => id === fromId ? toId : id))];
+  for (const t of content.tours) for (const stop of t.stops || []) if (stop.placeId === fromId) stop.placeId = toId;
+  for (const s of content.settings) s.featuredPlaceIds = [...new Set(s.featuredPlaceIds.map(id => id === fromId ? toId : id))];
+  content.places = content.places.filter(p => p.id !== fromId);
+  return to;
+}
+// Read-time migration applies equally to the seed, saved publications, and restored revisions.
+// It never writes to the server until an author explicitly saves a publication.
+export function normalizeContent(source) {
+  const content = structuredClone(source);
+  if (content.places.some(p => p.id === 'around-lumbridge') && content.places.some(p => p.id === 'lumbridge')) mergePlaces(content, 'around-lumbridge', 'lumbridge');
+  for (const r of [...content.places, ...content.stages, ...content.regions]) r.status = canonicalStatus(r.status);
+  for (const u of content.updates) u.author = 'Project authors';
+  for (const m of content.media) if (/^Marc\s*(?:&|and)\s*David$/i.test((m.credit||'').trim())) m.credit='';
+  for (const s of content.stages) { const p = content.places.find(p => p.id === s.placeId); if (p) s.regionId = p.regionId; }
+  for (const p of content.places) {
+    const stages = content.stages.filter(s => s.placeId === p.id && s.state !== 'archived');
+    p.stageIds = stages.map(s => s.id);
+    if (stages.length) p.status = stages.every(s => s.status === 'Built') ? 'Built' : stages.every(s => s.status === 'Not Started') ? 'Not Started' : 'In Progress';
+  }
+  for (const s of content.settings) {
+    s.aboutCopy = (s.aboutCopy || '').replace(/We’re Marc and David\. /g, '').replace(/We grew up/g, 'We grew up');
+    s.creditsCopy = (s.creditsCopy || '').replace(/Builds by Marc and David, using/g, 'Built using');
+    s.privacyCopy = (s.privacyCopy || '').replace(/Saved places and unfinished author drafts stay in this browser and can be cleared\./g, 'Unfinished author drafts stay in this browser until cleared.');
+  }
+  return content;
+}
 export const slugify = value => String(value).toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 export const clone = value => structuredClone(value);
 export const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -19,13 +64,14 @@ export function legacyDate(stamp) {
 }
 export const formatDate = value => value ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(value)) : 'Date not recorded';
 export function publicContent(source) {
+  source = normalizeContent(source);
   const result = { schemaVersion: 1, revision: source.revision, publishedAt: source.publishedAt, snapshotAt: source.snapshotAt };
   const fields = {
-    places: 'id slug name regionId status summary coverId mediaIds pin accessStatus stageIds category relatedIds',
-    stages: 'id placeId publicTitle status scope estimatedHours completedAt legacyCompletedAt updatedAt category regionId mediaIds notes',
+    places: 'id slug aliasSlugs name regionId status summary coverId mediaIds pin stageIds category relatedIds',
+    stages: 'id placeId publicTitle status scope estimatedHours completedAt legacyCompletedAt createdAt updatedAt category regionId mediaIds notes state',
     updates: 'id slug title body author placeId stageId mediaIds state publishedAt updatedAt kind',
     regions: 'id name note status estimate estimateBasis estimateDate',
-    media: 'id src variants width height alt caption credit focalPoint originalUrl subject',
+    media: 'id src variants width height alt caption credit focalPoint originalUrl subject createdAt',
     articles: 'id title excerpt date url image imageId placeIds',
     tours: 'id slug title summary stops state',
     settings: 'id brand tagline navLabels introduction heroId mapId featuredPlaceIds galleryMediaIds focusStageId instagram substack fundraiser supportCopy aboutCopy creditsCopy privacyCopy faq activeQuestion ideasEnabled ideaReviewer retentionDays',
@@ -35,7 +81,7 @@ export function publicContent(source) {
   }
   for (const settings of result.settings) {
     settings.faq = (settings.faq || []).map(f => ({ question: f.question, answer: f.answer }));
-    if (settings.navLabels) settings.navLabels = Object.fromEntries(['explore', 'journal', 'gallery', 'about'].filter(k => typeof settings.navLabels[k] === 'string').map(k => [k, settings.navLabels[k]]));
+    if (settings.navLabels) settings.navLabels = Object.fromEntries(['explore', 'atlas', 'journal', 'gallery', 'about'].filter(k => typeof settings.navLabels[k] === 'string').map(k => [k, settings.navLabels[k]]));
   }
   for (const tour of result.tours) tour.stops = (tour.stops || []).map(s => ({ placeId: s.placeId, mediaId: s.mediaId, note: s.note }));
   return result;
@@ -63,9 +109,14 @@ export function validateContent(content) {
   }
   if (errors.length) return errors;
   if (content.settings.length !== 1 || content.settings[0].id !== 'site') errors.push('Exactly one site settings record is required.');
-  for (const stage of content.stages) if (!STATUSES.includes(stage.status) || !stage.publicTitle) errors.push(`Stage ${stage.id}: a public title and valid status are required.`);
+  for (const stage of content.stages) if (!STATUSES.includes(canonicalStatus(stage.status)) || !stage.publicTitle?.trim()) errors.push(`Ticket ${stage.id}: a title and valid status are required.`);
+  const names = new Set(), routes = new Set(content.places.map(p => p.slug));
   for (const p of content.places) {
-    if (!p.name?.trim() || !p.slug || !STATUSES.includes(p.status) || !ids.regions.has(p.regionId)) errors.push(`Place ${p.id}: name, slug, region and status are required.`);
+    const key = placeNameKey(p.name);
+    if (names.has(key)) errors.push(`Place ${p.name}: already exists. Choose the existing place or merge the duplicate.`);
+    names.add(key);
+    for (const alias of p.aliasSlugs || []) { if (!/^[a-z0-9][a-z0-9-]{0,149}$/.test(alias) || routes.has(alias)) errors.push('Place aliases must have unique valid URLs.'); routes.add(alias); }
+    if (!p.name?.trim() || !p.slug || !STATUSES.includes(canonicalStatus(p.status)) || !ids.regions.has(p.regionId)) errors.push(`Place ${p.id}: name, slug, region and status are required.`);
     if (p.pin && (!Number.isFinite(p.pin.x) || !Number.isFinite(p.pin.y) || p.pin.x < 0 || p.pin.x > 1 || p.pin.y < 0 || p.pin.y > 1)) errors.push(`Place ${p.id}: pin must be within the map.`);
     for (const id of p.stageIds || []) if (!ids.stages.has(id)) errors.push(`Place ${p.id}: missing stage ${id}.`);
     if (p.coverId && !ids.media.has(p.coverId)) errors.push(`Place ${p.id}: missing cover.`);

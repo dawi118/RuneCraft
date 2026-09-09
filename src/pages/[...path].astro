@@ -3,8 +3,10 @@ import { readPublication } from '../lib/storage.mjs';
 import { renderPage, shell } from '../lib/render.mjs';
 import { BRAND, escape as e, safeURL } from '../lib/content.mjs';
 import { publicOutcomes } from '../lib/ideas.mjs';
+if (Astro.url.pathname === '/explore/' && Astro.url.searchParams.has('place')) return Astro.redirect(`/atlas/${Astro.url.search}`, 301);
 const publication = await readPublication();
 const page = renderPage(Astro.url.pathname, publication.content, Astro.url.searchParams);
+if (page.redirect) return Astro.redirect(page.redirect, 301);
 if (page.path === '/community/' && publication.content.settings[0].ideasEnabled) {
   try {
     const outcomes = await publicOutcomes();
@@ -35,14 +37,14 @@ const image = page.image ? new URL(page.image.src, Astro.site).href : undefined;
     <link rel="apple-touch-icon" href="/brand/icon.png" />
     <meta name="theme-color" content="#06111b" />
     {page.status === 404 && <meta name="robots" content="noindex" />}
-    <link rel="icon" type="image/svg+xml" href="/brand/icon.png" />
+    <link rel="icon" type="image/png" href="/brand/icon.png" />
     <link rel="alternate" type="application/rss+xml" title="Gielinor: Reforged journal" href="/rss.xml" />
     <script is:inline>document.documentElement.classList.add('enhanced');</script>
-    <link rel="stylesheet" href="/theme.css?v=gold-20260909" />
+    <link rel="stylesheet" href="/theme.css?v=tickets-20260910" />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/literata-latin-400-normal.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/source-sans-3-latin-400-normal.woff2" crossorigin />
-    <script is:inline src="/site.js?v=gold-20260909" defer></script>
-    {page.path === '/explore/' && <script is:inline src="/atlas.js" defer></script>}
+    <script is:inline src="/site.js?v=tickets-20260910" defer></script>
+    {page.path === '/atlas/' && <script is:inline src="/atlas.js" defer></script>}
   </head>
   <body set:html={shell(page, publication.content, publication)} />
 </html>
