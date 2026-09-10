@@ -2,7 +2,7 @@ import { createUploadQueue } from './uploads.js?v=uploads-20260910';
 import { BRAND, escape as e, slugify, validateContent, clone, COLLECTIONS, STATUSES, canonicalStatus, sortRecent, placeNameKey, mergePlaces, normalizeContent } from './content.js';
 let author = '', base, content, draft, activeTab = 'tickets', requestId = crypto.randomUUID(), localTimer, checking = false;
 let ticketDraft = null, ticketEditorOpen = false, dirty = false, staleLive = null, publishing = false;
-let uploadedLibrary = [], libraryError = '';
+let uploadedLibrary = [], libraryError = '', saveNotice = '';
 let ticketLimit = 50, placeLimit = 30, updateLimit = 50;
 let ticketQuery = '', ticketStatus = '', ticketPlace = '', placeQuery = '', updateQuery = '', updateState = 'published';
 const root = document.querySelector('#editor-root'), status = document.querySelector('#editor-status');
@@ -38,7 +38,7 @@ function renderUploadState() {
   document.querySelectorAll('#workspace-panel button[type=submit], [data-preview-ticket], [data-preview-update], [data-archive-ticket], [data-tab], [data-back-tickets], [data-back-updates], #sign-out, [data-refresh-media], [data-save-private], [data-new-update], [data-edit-update], [data-private-id], [data-edit-photo]').forEach(button=>button.disabled=uploader.blocked||publishing);
   if(document.querySelector('#workspace-panel'))document.querySelector('#workspace-panel').inert=publishing;
   document.querySelectorAll('#workspace-panel input, #workspace-panel textarea, #workspace-panel select').forEach(input=>input.disabled=publishing);
-  const message=publishing?'Saving to website…':uploader.busy?'Uploading images… Save will be available when they finish.':uploader.blocked?'Retry or skip the unfinished uploads before saving.':dirty?'Unsaved changes — click Save to website.':'Published version loaded.';
+  const message=publishing?'Saving to website…':uploader.busy?'Uploading images… Save will be available when they finish.':uploader.blocked?'Retry or skip the unfinished uploads before saving.':saveNotice||(dirty?'Unsaved changes — click Save to website.':'Published version loaded.');
   document.querySelectorAll('[data-save-state]').forEach(el=>el.textContent=message);
   if(tasks.some(t=>['error','waiting'].includes(t.state))&&!document.querySelector('#login'))say('Some images were not uploaded. Retry or skip them in Photographs before saving.',true);
 }
@@ -49,9 +49,18 @@ function bindMediaPicker(selected,refreshView) {
   document.querySelectorAll('[data-select-media]').forEach(input=>input.onchange=()=>{if(input.checked)includeMedia(input.dataset.selectMedia);selected.mediaIds=input.checked?[...new Set([...selected.mediaIds,input.dataset.selectMedia])]:selected.mediaIds.filter(id=>id!==input.dataset.selectMedia);renderSelectedMedia();changed();});
   document.querySelector('[data-refresh-media]')?.addEventListener('click',async()=>{if(!uploadGuard())return;try{await loadMediaLibrary();refreshView();document.querySelector('[data-media-picker]').open=true;}catch(error){handleError(error);}});
 }
+root.addEventListener('invalid',event=>{
+  const input=event.target;
+  for(let details=input.closest('details');details;details=details.parentElement?.closest('details'))details.open=true;
+  if(input.form?.querySelector(':invalid')!==input)return;
+  const label=input.getAttribute('aria-label')||input.labels?.[0]?.textContent.trim()||'Please check this field';
+  saveNotice=`${label}: ${input.validationMessage}`;renderUploadState();say(saveNotice,true);
+},true);
 window.addEventListener('beforeunload',event=>{if(uploader.blocked){saveLocal();event.preventDefault();event.returnValue='';}});
 async function api(path, method = 'GET', body) {
-  const response = await fetch(`/api/${path}`, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, ...(body ? { body: JSON.stringify(body) } : {}) });
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
+  try {
+  const response = await fetch(`/api/${path}`, { signal:controller.signal,method, headers: body ? { 'Content-Type': 'application/json' } : {}, ...(body ? { body: JSON.stringify(body) } : {}) });
   const result = await response.json();
   if (!response.ok) {
     const error = new Error(result.error || 'The request failed.'); error.status = response.status; error.data = result;
@@ -59,6 +68,10 @@ async function api(path, method = 'GET', body) {
     throw error;
   }
   return result;
+  } catch(error) {
+    if(controller.signal.aborted)throw new Error(path==='publish'?'The save response timed out. Your draft is kept. Retry Save to confirm whether it reached the website.':'The server took too long to respond. Please retry.');
+    throw error;
+  } finally {clearTimeout(timer);}
 }
 function newDraft(placeId = '') { return { id: crypto.randomUUID(), title: '', body: '', placeId: placeId || content.places[0]?.id || '', mediaIds: [], state: 'draft', stageId: '', stageStatus: '', coverId: '', kind: 'Build update' }; }
 function saveLocal() {
@@ -66,7 +79,7 @@ function saveLocal() {
   try { localStorage.setItem(key(), JSON.stringify({ base, content, draft, ticketDraft, dirty, requestId, savedAt: new Date().toISOString() })); document.querySelector('[data-autosave]')?.replaceChildren(document.createTextNode(dirty ? 'Saved on this device. Click Save to website to publish.' : 'Published version loaded.')); }
   catch { say('Browser storage is unavailable. Export your work or use Save privately before leaving.', true); }
 }
-function changed() { dirty = true; clearTimeout(localTimer); localTimer = setTimeout(saveLocal, 300); renderUploadState(); }
+function changed() { saveNotice='';dirty = true; clearTimeout(localTimer); localTimer = setTimeout(saveLocal, 300); renderUploadState(); }
 function renderLogin(expired = false) {
   root.innerHTML = `<section class="admin-card login-card"><h2>${expired ? 'Sign in again' : 'Project authors'}</h2><p>${expired ? 'Your writing is preserved on this device. Sign in to continue.' : 'Enter your existing access key.'}</p><form id="login" class="admin-form">${field('Access key', 'token', '', 'password', 'required autocomplete="current-password"')}<button type="submit">Sign in</button></form></section>`;
   document.querySelector('#login').addEventListener('submit', async event => {
@@ -77,6 +90,7 @@ function renderLogin(expired = false) {
   });
 }
 async function loadWorkspace(keepCurrent = false) {
+  saveNotice='';
   const data = await api('workspace'); author = data.author;
   let saved; try { saved=JSON.parse(localStorage.getItem(key())||'null'); } catch {}
   if (keepCurrent && base && data.content.revision!==base.revision) { showStale(data.content); return; }
@@ -185,10 +199,10 @@ async function savePublication(proposed, path = '/') {
   if(staleLive){showStale(staleLive);throw new Error('Load the published version before saving.');}
   const errors = validateContent(proposed); if (errors.length) throw new Error(errors.join(' '));
   say('Publishing and verifying the live revision…'); saveLocal();
-  publishing=true;renderUploadState();
+  saveNotice='';publishing=true;renderUploadState();
   try {
     const result = await api('publish', 'POST', { content: proposed, baseRevision: base.revision, requestId, requireCurrent:true });
-    base = clone(result.content); content = clone(result.content); dirty=false; requestId = crypto.randomUUID();
+    base = clone(result.content); content = clone(result.content); dirty=false;saveNotice='Saved to website.'; requestId = crypto.randomUUID();
     uploader.saved(task=>task.owner.startsWith('ticket:')?content.stages.find(t=>t.id===task.owner.slice(7))?.mediaIds.includes(task.media.id):task.owner.startsWith('update:')?content.updates.find(u=>u.id===task.owner.slice(7))?.mediaIds.includes(task.media.id):content.settings[0].galleryMediaIds.includes(task.media.id)||content.settings[0].heroId===task.media.id);saveLocal(); say('Saved to website and verified. ');
     const link = document.createElement('a'); link.href = path; link.textContent = 'Open the live page ↗'; link.target = '_blank'; link.rel = 'noopener'; status.append(link);
     if (result.backup?.status === 'failed') {
@@ -199,7 +213,7 @@ async function savePublication(proposed, path = '/') {
   } finally { publishing=false;renderUploadState(); }
 }
 function handleError(error) {
-  say(error.message, true); saveLocal();
+  saveNotice=error.message;renderUploadState();say(error.message, true); saveLocal();
   if (error.status === 409 && error.data?.staleRevision) { showStale(error.data.live); return; }
   if (error.status === 409 && error.data?.conflicts) renderConflicts(error.data);
 }
@@ -244,7 +258,7 @@ function renderPhotos() {
   document.querySelector('[data-refresh-media]').onclick=async()=>{if(!uploadGuard())return;try{await loadMediaLibrary();renderPhotos();}catch(error){handleError(error);}};
   document.querySelectorAll('[data-edit-photo]').forEach(button => button.onclick = () => {
     if(!uploadGuard())return;const m = includeMedia(button.dataset.editPhoto), settings = content.settings[0], target = document.querySelector('[data-photo-form]');
-    target.innerHTML = `<section class="admin-card"><h2>Edit photograph</h2>${img(m)}<form class="admin-form" id="photo-form">${field('Image description (alt text)','alt',m.alt,'text','required')}${field('Caption','caption',m.caption)}${field('Credit','credit',m.credit)}<label>Subject<select name="subject">${['Details & interiors','Landscapes & exteriors','Map'].map(s => `<option ${s===m.subject?'selected':''}>${s}</option>`).join('')}</select></label><div class="field-row">${field('Focal point X (0–100)','x',m.focalPoint.x*100,'number','min="0" max="100"')}${field('Focal point Y (0–100)','y',m.focalPoint.y*100,'number','min="0" max="100"')}</div><label class="checkbox"><input type="checkbox" name="gallery" ${settings.galleryMediaIds.includes(m.id)?'checked':''}>Include in gallery</label><label class="checkbox"><input type="checkbox" name="hero" ${settings.heroId===m.id?'checked':''}>Use as homepage hero</label><button type="submit">Save to website</button></form></section>`;
+    target.innerHTML = `<section class="admin-card"><h2>Edit photograph</h2>${img(m)}<form class="admin-form" id="photo-form">${field('Image description (alt text)','alt',m.alt,'text','required')}${field('Caption','caption',m.caption)}${field('Credit','credit',m.credit)}<label>Subject<select name="subject">${['Details & interiors','Landscapes & exteriors','Map'].map(s => `<option ${s===m.subject?'selected':''}>${s}</option>`).join('')}</select></label><div class="field-row">${field('Focal point X (0–100)','x',m.focalPoint.x*100,'number','min="0" max="100" step="any"')}${field('Focal point Y (0–100)','y',m.focalPoint.y*100,'number','min="0" max="100" step="any"')}</div><label class="checkbox"><input type="checkbox" name="gallery" ${settings.galleryMediaIds.includes(m.id)?'checked':''}>Include in gallery</label><label class="checkbox"><input type="checkbox" name="hero" ${settings.heroId===m.id?'checked':''}>Use as homepage hero</label><button type="submit">Save to website</button></form></section>`;
     document.querySelector('#photo-form').oninput = event => { const form=event.currentTarget; for(const name of ['alt','caption','credit','subject']) m[name]=form.elements[name].value; m.focalPoint={x:Number(form.elements.x.value)/100,y:Number(form.elements.y.value)/100}; settings.galleryMediaIds=form.elements.gallery.checked?[...new Set([...settings.galleryMediaIds,m.id])]:settings.galleryMediaIds.filter(id=>id!==m.id); if(form.elements.hero.checked)settings.heroId=m.id; changed(); };
     renderUploadState();
     document.querySelector('#photo-form').onsubmit=async event=>{event.preventDefault();try{await savePublication(content,'/gallery/');renderPhotos();}catch(error){handleError(error);}};
@@ -294,7 +308,7 @@ function bindPlaceLookup(form,record,onSelect) {
 }
 function pinEditor(p) {
   if(!p)return '<p>Choose a place to position it on the atlas.</p>';
-  return `<details><summary>Atlas location · ${e(p.name)}</summary><p>This pin belongs to the place and is shared by its tickets.</p><div class="admin-pin-map" tabindex="0" role="group" aria-label="Pin placement map">${img(media(content.settings[0].mapId))}<span class="admin-pin-marker" ${p.pin?'':'hidden'} style="left:${(p.pin?.x||0)*100}%;top:${(p.pin?.y||0)*100}%">◆</span></div><div class="field-row">${field('Map X (%)','pinX',p.pin?p.pin.x*100:'','number','min="0" max="100" step="0.01"')}${field('Map Y (%)','pinY',p.pin?p.pin.y*100:'','number','min="0" max="100" step="0.01"')}</div><button type="button" data-remove-pin>Remove pin</button></details>`;
+  return `<details><summary>Atlas location · ${e(p.name)}</summary><p>This pin belongs to the place and is shared by its tickets.</p><div class="admin-pin-map" tabindex="0" role="group" aria-label="Pin placement map">${img(media(content.settings[0].mapId))}<span class="admin-pin-marker" ${p.pin?'':'hidden'} style="left:${(p.pin?.x||0)*100}%;top:${(p.pin?.y||0)*100}%">◆</span></div><div class="field-row">${field('Map X (%)','pinX',p.pin?(p.pin.x*100).toFixed(2):'','number','min="0" max="100" step="0.01"')}${field('Map Y (%)','pinY',p.pin?(p.pin.y*100).toFixed(2):'','number','min="0" max="100" step="0.01"')}</div><button type="button" data-remove-pin>Remove pin</button></details>`;
 }
 function bindPin(form,p) {
   const canvas=form.querySelector('.admin-pin-map');if(!canvas||!p)return;
@@ -318,7 +332,7 @@ function ticketContent() {
 }
 function renderTicketForm() {
   const t=ticketDraft,p=content.places.find(p=>p.id===t.placeId);
-  panel().innerHTML=`<button type="button" data-back-tickets>← All build tickets</button><section class="admin-card ticket-editor"><h2>${t.editing?'Editing published ticket':'Add new build ticket'}</h2><form id="ticket-form" class="admin-form"><div class="ticket-save-bar"><p data-save-state>${dirty?'Unsaved changes — click Save to website.':'Published version loaded.'}</p><div class="actions"><button type="button" data-preview-ticket>Preview ticket</button><button type="submit" class="button brass">${t.editing?'Save ticket to website':'Add ticket to website'}</button></div></div>${field('Ticket title','publicTitle',t.publicTitle,'text','required maxlength="200"')}${placeLookupMarkup(t.placeId)}<div class="field-row"><label>Status<select name="status" aria-label="Status">${STATUSES.map(v=>`<option ${t.status===v?'selected':''}>${e(v)}</option>`).join('')}</select></label>${field('Completion date','completedAt',t.completedAt||'','date')}</div>${area('Build notes','notes',t.notes)}${area('Scope','scope',t.scope,'short')}<div class="field-row"><label>Type<select name="category">${['building','landscape','monument','infrastructure','other'].map(v=>`<option ${t.category===v?'selected':''}>${v}</option>`).join('')}</select></label>${field('Estimated hours','estimatedHours',t.estimatedHours??'','number','min="0" step="0.25"')}</div><h3>Photographs</h3><div class="file-drop" data-drop><label>Add photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label><p>JPEG, PNG or WebP · up to 20 MB each. Large images are optimised automatically.</p></div><div data-upload-progress></div>${mediaPicker(t)}<div data-selected-media></div><label class="checkbox"><input type="checkbox" name="placeCover" ${t.placeCover?'checked':''}>Use the first photograph as this place’s cover</label><div data-ticket-pin>${pinEditor(p)}</div><p data-autosave class="save-indicator">Local autosave is a backup. Save to website publishes without a deployment.</p>${t.editing?`<button type="button" data-archive-ticket>${t.state==='archived'?'Restore ticket':'Archive ticket'}</button>`:''}</form></section>`;
+  panel().innerHTML=`<button type="button" data-back-tickets>← All build tickets</button><section class="admin-card ticket-editor"><h2>${t.editing?'Editing published ticket':'Add new build ticket'}</h2><form id="ticket-form" class="admin-form"><div class="ticket-save-bar"><p data-save-state role="status">${dirty?'Unsaved changes — click Save to website.':'Published version loaded.'}</p><div class="actions"><button type="button" data-preview-ticket>Preview ticket</button><button type="submit" class="button brass">${t.editing?'Save ticket to website':'Add ticket to website'}</button></div></div>${field('Ticket title','publicTitle',t.publicTitle,'text','required maxlength="200"')}${placeLookupMarkup(t.placeId)}<div class="field-row"><label>Status<select name="status" aria-label="Status">${STATUSES.map(v=>`<option ${t.status===v?'selected':''}>${e(v)}</option>`).join('')}</select></label>${field('Completion date','completedAt',t.completedAt||'','date')}</div>${area('Build notes','notes',t.notes)}${area('Scope','scope',t.scope,'short')}<div class="field-row"><label>Type<select name="category">${['building','landscape','monument','infrastructure','other'].map(v=>`<option ${t.category===v?'selected':''}>${v}</option>`).join('')}</select></label>${field('Estimated hours','estimatedHours',t.estimatedHours??'','number','min="0" step="0.25"')}</div><h3>Photographs</h3><div class="file-drop" data-drop><label>Add photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label><p>JPEG, PNG or WebP · up to 20 MB each. Large images are optimised automatically.</p></div><div data-upload-progress></div>${mediaPicker(t)}<div data-selected-media></div><label class="checkbox"><input type="checkbox" name="placeCover" ${t.placeCover?'checked':''}>Use the first photograph as this place’s cover</label><div data-ticket-pin>${pinEditor(p)}</div><p data-autosave class="save-indicator">Local autosave is a backup. Save to website publishes without a deployment.</p>${t.editing?`<button type="button" data-archive-ticket>${t.state==='archived'?'Restore ticket':'Archive ticket'}</button>`:''}</form></section>`;
   const form=document.querySelector('#ticket-form');
   document.querySelector('[data-back-tickets]').onclick=()=>{if(!uploadGuard())return;if(dirty){saveLocal();say('Local changes retained until you save or load the published version.');}ticketEditorOpen=false;renderTickets();};
   form.oninput=event=>{const f=event.target;if(f.name==='placeCover'){t.placeCover=f.checked;changed();}if(['publicTitle','notes','scope','category','status','completedAt','estimatedHours'].includes(f.name)){t[f.name]=f.type==='number'?(f.value?Number(f.value):null):f.value;changed();}};
