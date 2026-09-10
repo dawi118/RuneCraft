@@ -52,7 +52,7 @@ export async function ALL({ request, params }) {
       const input = await payload(request), errors = validateContent(input.content);
       if (errors.length) throw new ContentError(422, errors.join(' '));
       const content = publicContent(input.content), page = renderPage(input.path || '/', content);
-      return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Private preview · ${e(page.title)}</title><link rel="stylesheet" href="/theme.css?v=atlas-carousel-20260910"></head><body>${shell(page, content, { preview: true })}</body></html>`, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex', 'Content-Security-Policy': "default-src 'none'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'self'" } });
+      return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Private preview · ${e(page.title)}</title><link rel="stylesheet" href="/theme.css?v=atlas-hover-20260910"></head><body>${shell(page, content, { preview: true })}</body></html>`, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex', 'Content-Security-Policy': "default-src 'none'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'self'" } });
     }
     if (path === 'drafts' && method === 'PUT') {
       const input = await payload(request);
