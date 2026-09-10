@@ -57,3 +57,27 @@ test('Atlas uses source-resolution imagery and an accessible ticket carousel wit
   const empty=renderPage('/atlas/',c,new URLSearchParams('place=draynor-village')).body.split('<aside')[1].split('</aside>')[0];
   assert.match(empty,/View place/);assert.doesNotMatch(empty,/ticket-carousel/);
 });
+test('Explore and Atlas show only each ticket’s headline image, never its place cover',()=>{
+  const c=publicContent(seed),p=c.places.find(p=>p.id==='draynor-village');
+  const tickets=c.stages.filter(t=>t.placeId===p.id);
+  const first=tickets.find(t=>t.id==='draynor-village-interior-build'),second=tickets.find(t=>t.id==='draynor-village-exterior-build'),empty=tickets.find(t=>t!==first&&t!==second);
+  const [headline,extra,exterior,cover]=c.media.filter(m=>m.subject!=='Map').slice(0,4);
+  p.coverId=cover.id;first.mediaIds=[headline.id,extra.id];second.mediaIds=[exterior.id];empty.mediaIds=[];
+  const src=m=>m.variants?.[800]||m.src;
+  for(const view of ['full','board']){
+    const html=renderPage('/explore/',c,new URLSearchParams(`view=${view}`)).body;
+    assert.match(html,/<option value="">All statuses<\/option>/);
+    for(const [ticket,expected] of [[first,headline],[second,exterior],[empty,null]]){
+      const card=html.split(`data-ticket="${ticket.id}"`)[1].split('</article>')[0];
+      if(expected)assert.ok(card.includes(`src="${src(expected)}"`));else assert.match(card,/No photograph available/);
+      assert.ok(!card.includes(`src="${src(cover)}"`));assert.ok(!card.includes(`src="${src(extra)}"`));
+    }
+  }
+  const map=renderPage('/atlas/',c,new URLSearchParams(`place=${p.id}`)).body.split('<aside')[1].split('</aside>')[0];
+  for(const [ticket,expected] of [[first,headline],[second,exterior],[empty,null]]){
+    const slide=map.split(`data-popup-build="${ticket.id}"`)[1].split('</article>')[0];
+    if(expected)assert.ok(slide.includes(`src="${src(expected)}"`));else assert.match(slide,/No photograph available/);
+    assert.ok(!slide.includes(`src="${src(cover)}"`));assert.ok(!slide.includes(`src="${src(extra)}"`));
+    assert.ok(slide.includes(`href="/builds/${ticket.id}/"`));
+  }
+});

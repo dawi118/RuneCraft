@@ -29,3 +29,21 @@ test('local ticket recovery is optional and clearly separate from published cont
 test('published updates can be found, archived, and restored from a dedicated list',async({page})=>{
   await login(page);await page.getByRole('button',{name:'Published updates',exact:true}).click();await page.getByLabel('Find an update',{exact:true}).fill('Draynor');const button=page.locator('[data-archive-note]').first(),id=await button.getAttribute('data-archive-note');await button.click();await expect(page.locator('#editor-status')).toContainText('Saved to website and verified');await page.getByLabel('Publication',{exact:true}).selectOption('archived');await expect(page.locator(`[data-archive-note="${id}"]`)).toHaveText('Restore update');await page.locator(`[data-archive-note="${id}"]`).click();await expect(page.locator('#editor-status')).toContainText('Saved to website and verified');
 });
+test('author chooses a ticket headline photo used by Explore and Atlas without changing the place cover',async({page})=>{
+  await login(page);const id='draynor-village-interior-build';
+  await page.locator(`[data-edit-ticket="${id}"]`).click();
+  const before=(await(await page.request.get('/api/content')).json()).content;
+  const ticket=before.stages.find(t=>t.id===id),headlineId=ticket.mediaIds[1],cover=before.places.find(p=>p.id===ticket.placeId).coverId;
+  await page.locator(`[data-make-headline="${headlineId}"]`).click();
+  await expect(page.locator(`[data-media-edit="${headlineId}"] [data-headline-photo]`)).toContainText('Headline photo');
+  await page.getByRole('button',{name:'Save ticket to website',exact:true}).click();await expect(page.locator('#editor-status')).toContainText('Saved to website and verified');
+  const after=(await(await page.request.get('/api/content')).json()).content,m=after.media.find(m=>m.id===headlineId),src=m.variants?.[800]||m.src;
+  expect(after.stages.find(t=>t.id===id).mediaIds[0]).toBe(headlineId);expect(after.places.find(p=>p.id===ticket.placeId).coverId).toBe(cover);
+  for(const view of ['full','board']){
+    await page.goto(`/explore/?view=${view}`);await expect(page.locator(`[data-ticket="${id}"] [data-media-image]`)).toHaveAttribute('src',src);
+    await expect(page.getByLabel('Status',{exact:true}).locator('option:checked')).toHaveText('All statuses');
+  }
+  await page.goto(`/atlas/?place=${ticket.placeId}&ticket=${id}`);
+  await expect(page.locator(`[data-popup-build="${id}"] [data-media-image]`)).toHaveAttribute('src',src);
+  await expect(page.locator(`[data-popup-build="${id}"] [data-media-image]`)).toHaveCount(1);
+});

@@ -40,6 +40,8 @@ test('saved-place controls are removed and old place links redirect', async ({ p
   await page.goto('/places/around-lumbridge/');await expect(page).toHaveURL(/\/places\/lumbridge\//);await expect(page.locator('h1')).toHaveText('Lumbridge');
 });
 test('WCAG AA automated checks cover public navigation and key templates', async ({ page }) => {
+  // Audit settled colours, not a transient frame of WebKit’s link-colour transition.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   for(const route of ['/', '/explore/', '/atlas/', '/places/draynor-village/', '/gallery/', '/progress/', '/community/']) {
     await page.goto(route); await page.evaluate(()=>document.fonts.ready); const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
     expect(results.violations.map(v=>({id:v.id,help:v.help,nodes:v.nodes.map(n=>({target:n.target,reason:n.failureSummary}))})),route).toEqual([]);
