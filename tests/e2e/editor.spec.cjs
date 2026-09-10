@@ -29,7 +29,7 @@ test('expired session preserves the draft and requires server authentication',as
   await page.getByLabel('Access key').fill('local-e2e-project-key');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByLabel('What changed?')).toHaveValue('Still here when the session expires.');
 });
 test('anonymous requests cannot read drafts, preview, workspace or private queue',async({request})=>{
-  for(const route of ['workspace','drafts','revisions','ideas'])expect((await request.get(`/api/${route}`)).status()).toBe(401);
+  for(const route of ['workspace','drafts','revisions','ideas','media'])expect((await request.get(`/api/${route}`)).status()).toBe(401);
   expect((await request.post('/api/preview',{headers:{Origin:'http://127.0.0.1:4378'},data:{content:{}}})).status()).toBe(401);
   const rss=await request.get('/rss.xml');expect(await rss.text()).not.toContain('Session recovery');
   const map=await request.get('/sitemap.xml');expect(await map.text()).not.toContain('/admin/');

@@ -20,7 +20,7 @@ export async function ALL({ request, params }) {
     sameOrigin(request);
     if (path === 'content' && method === 'GET') {
       const publication = await readPublication();
-      return json(publication, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=30' });
+      return json(publication, 200, { 'Cache-Control': 'no-store' });
     }
     if (/^media\/[a-f0-9]{24}\/(400|800|1600|master)$/.test(path) && method === 'GET') {
       const image = await readJSON(storage(), path);
