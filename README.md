@@ -13,7 +13,7 @@ npm ci
 npm run dev
 ```
 
-The development server uses port 4377. Stop it before production builds, because the Netlify development adapter manages its own build directory. After `npm run build`, `npm run preview` serves the compiled Netlify handler on port 4379; `node scripts/measure.mjs` records synthetic performance and screenshots. Public browsing works immediately from the preserved content snapshot. For local author access, set `SESSION_SECRET` and `ADMIN_MARC_TOKEN`/`ADMIN_DAVID_TOKEN` in the process environment before starting the server. See `.env.example` for deployment variables. Do not store real keys in source, browser storage or the example file.
+The development server uses port 4377. Stop it before production builds, because the Netlify development adapter manages its own build directory. After `npm run build`, `npm run preview` serves the compiled Netlify handler on port 4379; `node scripts/measure.mjs` records synthetic performance and screenshots. Public browsing works immediately from the preserved content snapshot. For local author access, set the shared `ADMIN_TOKEN` (and optionally a separate `SESSION_SECRET`) in the process environment before starting the server. See `.env.example` for deployment variables. Do not store real keys in source, browser storage or the example file.
 
 ```sh
 npm test
@@ -40,9 +40,11 @@ Old `#tutorial`, `#lumber`, `#map`, `#exchange`, `#bonanza` and `#build-{id}` li
 
 ## Author workflow
 
-Choose a place, add or reuse photographs, write a title and note, preview at phone/desktop width, then publish. One update appears on the place, journal, home and region pages. Device autosave and private account drafts are separate and labelled accurately. The workspace includes place/pin editing, site settings, gallery curation, native dates, import/export, revision history, restore and field-level conflict resolution.
+Open or add a build ticket, choose its place, then upload or select photographs. The first photo is its headline on Explore and Atlas. The sticky **Save ticket to website** button publishes the ticket and its photos without a deployment. Journal updates use their own Save to website action. Device autosave and private account drafts are separate and labelled accurately. The workspace includes place/pin editing, site settings, gallery curation, native dates, import/export, revision history, restore and field-level conflict resolution.
 
-Publication uses conditional writes and strong verification. Unrelated edits merge; same-field conflicts preserve both versions. Images are decoded and validated server-side, with orientation correction, metadata removal and reusable WebP variants. Private drafts and idea/contact records never enter public API payloads, RSS, search or optional public backups.
+Uploads and publication are separate: successfully uploaded files remain in the server media library even if a local draft is discarded. Refresh uploads reloads that library. Files may be JPEG, PNG or WebP up to 20 MB; the browser optimises large images to the server’s 4 MB limit. Upload progress, retry/skip controls and session recovery protect unfinished batches. Saving is blocked until each file succeeds or is explicitly skipped.
+
+Publication uses conditional writes and strong verification. A newer server revision must be loaded before saving. Public HTML and content responses are not cached, so fresh page loads show saved photos immediately; immutable image variants retain long-lived caching. Images are decoded and validated server-side, with orientation correction, metadata removal and reusable WebP variants. Private drafts and idea/contact records never enter public API payloads, RSS, search or optional public backups.
 
 The original `runecraft_site` source is retained as migration/rollback reference. It is no longer the publish directory. Its legacy mutation endpoint now returns a clear conflict after authentication, preventing old browser tabs from silently saving to a disconnected content store. Existing read/media paths remain available. The new workspace provides the retained editing, upload, import/export and recovery capabilities through `/api/`.
 

@@ -14,7 +14,7 @@ if (page.path === '/community/' && publication.content.settings[0].ideasEnabled)
   } catch { /* Follow/read features remain available during a queue outage. */ }
 }
 Astro.response.status = page.status;
-Astro.response.headers.set('Cache-Control', publication.stale ? 'public, max-age=0, s-maxage=10' : 'public, max-age=0, s-maxage=30, stale-while-revalidate=30');
+Astro.response.headers.set('Cache-Control', 'no-store');
 const canonical = new URL(page.path, Astro.site).href;
 const image = page.image ? new URL(page.image.src, Astro.site).href : undefined;
 ---

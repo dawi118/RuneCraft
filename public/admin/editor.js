@@ -1,6 +1,8 @@
+import { createUploadQueue } from './uploads.js?v=uploads-20260910';
 import { BRAND, escape as e, slugify, validateContent, clone, COLLECTIONS, STATUSES, canonicalStatus, sortRecent, placeNameKey, mergePlaces, normalizeContent } from './content.js';
 let author = '', base, content, draft, activeTab = 'tickets', requestId = crypto.randomUUID(), localTimer, checking = false;
-let ticketDraft = null, ticketEditorOpen = false, dirty = false, staleLive = null;
+let ticketDraft = null, ticketEditorOpen = false, dirty = false, staleLive = null, publishing = false;
+let uploadedLibrary = [], libraryError = '';
 let ticketLimit = 50, placeLimit = 30, updateLimit = 50;
 let ticketQuery = '', ticketStatus = '', ticketPlace = '', placeQuery = '', updateQuery = '', updateState = 'published';
 const root = document.querySelector('#editor-root'), status = document.querySelector('#editor-status');
@@ -10,7 +12,44 @@ const img = m => m ? `<img src="${e(m.variants?.[400] || m.src)}" alt="${e(m.alt
 const field = (label, name, value = '', type = 'text', extra = '') => `<label>${e(label)}<input aria-label="${e(label)}" type="${type}" name="${name}" value="${e(value)}" ${extra}></label>`;
 const area = (label, name, value = '', cls = '') => `<label>${e(label)}<textarea aria-label="${e(label)}" name="${name}" class="${cls}">${e(value)}</textarea></label>`;
 const options = (records, selected, label = 'name') => records.map(r => `<option value="${e(r.id)}" ${selected === r.id ? 'selected' : ''}>${e(r[label])}</option>`).join('');
-const media = id => content.media.find(m => m.id === id);
+const media = id => content.media.find(m => m.id === id) || uploadedLibrary.find(m => m.id === id);
+const mediaLibrary = () => [...new Map([...uploadedLibrary, ...content.media].map(m=>[m.id,m])).values()].sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+function includeMedia(id) { const m=media(id);if(m&&!content.media.some(v=>v.id===id))content.media.push(clone(m));return media(id); }
+async function loadMediaLibrary() {
+  try { uploadedLibrary=(await api('media')).filter(Boolean);libraryError=''; }
+  catch(error){if(error.status===401)throw error;libraryError='Uploaded files could not be loaded. Use Refresh uploads to retry.';}
+}
+const uploadOwner = () => activeTab==='tickets'&&ticketDraft ? `ticket:${ticketDraft.id}` : activeTab==='update'&&draft ? `update:${draft.id}` : 'library';
+const uploader = createUploadQueue({
+  onChange: renderUploadState,
+  onUploaded(task) {
+    if(!uploadedLibrary.some(m=>m.id===task.media.id))uploadedLibrary.unshift(task.media);
+    task.accept(task.media);saveLocal();
+  },
+  onAuthRequired() { saveLocal();renderLogin(true);say('Your session expired. Sign in to resume the image uploads.',true); },
+});
+function uploadGuard() { if(uploader.blocked||publishing){say(uploader.busy?'Wait for the image uploads to finish.':'Retry or skip the unfinished uploads before continuing.',true);return false;}return true; }
+function renderUploadState() {
+  const target=document.querySelector('[data-upload-progress]');
+  const tasks=uploader.tasks.filter(t=>t.owner===uploadOwner()&&t.state!=='skipped');
+  if(target){target.innerHTML=tasks.map(t=>`<div class="upload-row" data-upload-id="${t.id}" data-upload-state="${t.state}"><strong>${e(t.name)}</strong><progress max="100" value="${t.progress}" aria-label="Upload progress for ${e(t.name)}"></progress><span>${e(t.state==='ready'?(t.owner==='library'?'Saved in the upload library. Attach it to a ticket to publish.':'Ready to publish. Click Save to website.') : t.state==='saved'?'Saved to website.':t.message)}${t.optimized?' · Optimised for upload':''}</span>${['error','waiting'].includes(t.state)?`<div class="actions">${t.state==='error'?`<button type="button" data-upload-retry="${t.id}">Retry upload</button>`:''}<button type="button" data-upload-skip="${t.id}">Skip this file</button></div>`:''}</div>`).join('');
+    target.querySelectorAll('[data-upload-retry]').forEach(b=>b.onclick=()=>uploader.retry(b.dataset.uploadRetry));target.querySelectorAll('[data-upload-skip]').forEach(b=>b.onclick=()=>uploader.skip(b.dataset.uploadSkip));
+  }
+  document.querySelectorAll('#workspace-panel button[type=submit], [data-preview-ticket], [data-preview-update], [data-archive-ticket], [data-tab], [data-back-tickets], [data-back-updates], #sign-out, [data-refresh-media], [data-save-private], [data-new-update], [data-edit-update], [data-private-id], [data-edit-photo]').forEach(button=>button.disabled=uploader.blocked||publishing);
+  if(document.querySelector('#workspace-panel'))document.querySelector('#workspace-panel').inert=publishing;
+  document.querySelectorAll('#workspace-panel input, #workspace-panel textarea, #workspace-panel select').forEach(input=>input.disabled=publishing);
+  const message=publishing?'Saving to website…':uploader.busy?'Uploading images… Save will be available when they finish.':uploader.blocked?'Retry or skip the unfinished uploads before saving.':dirty?'Unsaved changes — click Save to website.':'Published version loaded.';
+  document.querySelectorAll('[data-save-state]').forEach(el=>el.textContent=message);
+  if(tasks.some(t=>['error','waiting'].includes(t.state))&&!document.querySelector('#login'))say('Some images were not uploaded. Retry or skip them in Photographs before saving.',true);
+}
+function mediaPicker(selected) {
+  return `<details data-media-picker><summary>Choose from the media library</summary><button type="button" data-refresh-media>Refresh uploads</button>${libraryError?`<p class="admin-status error">${e(libraryError)}</p>`:''}<div class="admin-media-grid">${mediaLibrary().filter(m=>m.subject!=='Map').map(m=>`<label><input type="checkbox" data-select-media="${m.id}" ${selected.mediaIds.includes(m.id)?'checked':''}>${img(m)}<span>${e(m.caption||m.alt)}</span></label>`).join('')}</div></details>`;
+}
+function bindMediaPicker(selected,refreshView) {
+  document.querySelectorAll('[data-select-media]').forEach(input=>input.onchange=()=>{if(input.checked)includeMedia(input.dataset.selectMedia);selected.mediaIds=input.checked?[...new Set([...selected.mediaIds,input.dataset.selectMedia])]:selected.mediaIds.filter(id=>id!==input.dataset.selectMedia);renderSelectedMedia();changed();});
+  document.querySelector('[data-refresh-media]')?.addEventListener('click',async()=>{if(!uploadGuard())return;try{await loadMediaLibrary();refreshView();document.querySelector('[data-media-picker]').open=true;}catch(error){handleError(error);}});
+}
+window.addEventListener('beforeunload',event=>{if(uploader.blocked){saveLocal();event.preventDefault();event.returnValue='';}});
 async function api(path, method = 'GET', body) {
   const response = await fetch(`/api/${path}`, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, ...(body ? { body: JSON.stringify(body) } : {}) });
   const result = await response.json();
@@ -27,7 +66,7 @@ function saveLocal() {
   try { localStorage.setItem(key(), JSON.stringify({ base, content, draft, ticketDraft, dirty, requestId, savedAt: new Date().toISOString() })); document.querySelector('[data-autosave]')?.replaceChildren(document.createTextNode(dirty ? 'Saved on this device. Click Save to website to publish.' : 'Published version loaded.')); }
   catch { say('Browser storage is unavailable. Export your work or use Save privately before leaving.', true); }
 }
-function changed() { dirty = true; clearTimeout(localTimer); localTimer = setTimeout(saveLocal, 300); document.querySelectorAll('[data-save-state]').forEach(el=>el.textContent='Unsaved changes — click Save to website.'); }
+function changed() { dirty = true; clearTimeout(localTimer); localTimer = setTimeout(saveLocal, 300); renderUploadState(); }
 function renderLogin(expired = false) {
   root.innerHTML = `<section class="admin-card login-card"><h2>${expired ? 'Sign in again' : 'Project authors'}</h2><p>${expired ? 'Your writing is preserved on this device. Sign in to continue.' : 'Enter your existing access key.'}</p><form id="login" class="admin-form">${field('Access key', 'token', '', 'password', 'required autocomplete="current-password"')}<button type="submit">Sign in</button></form></section>`;
   document.querySelector('#login').addEventListener('submit', async event => {
@@ -42,8 +81,10 @@ async function loadWorkspace(keepCurrent = false) {
   let saved; try { saved=JSON.parse(localStorage.getItem(key())||'null'); } catch {}
   if (keepCurrent && base && data.content.revision!==base.revision) { showStale(data.content); return; }
   if (!keepCurrent || !content) { base=clone(data.content); content=clone(data.content); draft=newDraft();ticketDraft=null;dirty=false; }
+  await loadMediaLibrary();
   render();
   if(keepCurrent&&activeTab==='update')renderUpdate();
+  if(keepCurrent)uploader.resume();
   if (saved?.dirty && !keepCurrent) {
     if(saved.base?.revision!==base.revision) { showStale(data.content,saved); return; }
     const recovery=document.createElement('aside');recovery.className='admin-card recovery-prompt';
@@ -53,7 +94,7 @@ async function loadWorkspace(keepCurrent = false) {
     recovery.querySelector('[data-use-live]').onclick=()=>{dirty=false;saveLocal();recovery.remove();};
     recovery.querySelector('[data-export-recovery]').onclick=()=>download('gielinor-local-changes.json',saved);
   }
-  say('Published website loaded. Changes go live when you click Save to website.');
+  if(libraryError)say(libraryError,true);else say('Published website loaded. Changes go live when you click Save to website.');
 }
 function showStale(live,saved) {
   staleLive=live;document.querySelector('#stale-dialog')?.remove();
@@ -62,26 +103,28 @@ function showStale(live,saved) {
   document.body.append(dialog);dialog.addEventListener('cancel',event=>event.preventDefault());
   dialog.querySelector('[data-export-local]').onclick=()=>download('gielinor-local-changes.json',saved||{base,content,draft,ticketDraft});
   dialog.querySelector('[data-load-published]').onclick=async()=>{
-    try { const data=await api('workspace');base=clone(data.content);content=clone(data.content);draft=newDraft();ticketDraft=null;dirty=false;staleLive=null;requestId=crypto.randomUUID();saveLocal();dialog.close();dialog.remove();render();say('Loaded the latest published version. Local changes discarded.'); }
+    try { uploader.discard();const data=await api('workspace');base=clone(data.content);content=clone(data.content);draft=newDraft();ticketDraft=null;dirty=false;staleLive=null;requestId=crypto.randomUUID();saveLocal();dialog.close();dialog.remove();render();say('Loaded the latest published version. Local changes discarded.'); }
     catch(error){say(error.message,true);}
   };
   dialog.showModal();
 }
 async function checkFreshness() {
-  if(document.hidden||!author||!base||checking||staleLive)return;checking=true;
-  try{const live=await api('workspace');if(live.content.revision!==base.revision)showStale(live.content);}catch(error){say(error.message,true);}finally{checking=false;}
+  if(document.hidden||!author||!base||checking||staleLive||uploader.busy||publishing||document.querySelector('#login'))return;checking=true;
+  try{const live=await api('workspace');if(!uploader.busy&&!publishing&&live.content.revision!==base.revision)showStale(live.content);}catch(error){say(error.message,true);}finally{checking=false;}
 }
 function render() {
   document.querySelector('#session-controls').innerHTML = `<button type="button" id="sign-out">Sign out</button>`;
-  document.querySelector('#sign-out').onclick = async () => { saveLocal(); await api('session', 'DELETE'); author = ''; renderLogin(); say('Signed out. Your work stays saved on this device.'); };
+  document.querySelector('#sign-out').onclick = async () => { if(!uploadGuard())return;saveLocal(); await api('session', 'DELETE'); author = ''; renderLogin(); say('Signed out. Your work stays saved on this device.'); };
   const tabs = [['tickets','Build tickets'], ['places','Places'], ['update','Published updates'], ['settings','Site settings'], ['history','Version history']];
   root.innerHTML = `<nav class="admin-nav" aria-label="Workspace areas">${tabs.map(([id, label]) => `<button type="button" data-tab="${id}" ${activeTab === id ? 'aria-current="page"' : ''}>${label}</button>`).join('')}</nav><div id="workspace-panel"></div>`;
-  root.querySelectorAll('[data-tab]').forEach(button => button.onclick = () => { saveLocal(); activeTab = button.dataset.tab; render(); });
+  root.querySelectorAll('[data-tab]').forEach(button => button.onclick = () => { if(!uploadGuard())return;saveLocal(); activeTab = button.dataset.tab; render(); });
   if (activeTab === 'tickets') renderTickets();
   if (activeTab === 'update') renderUpdates();
   if (activeTab === 'places') renderPlaces();
   if (activeTab === 'settings') renderSettings();
+  if (activeTab === 'photos') renderPhotos();
   if (activeTab === 'history') renderHistory();
+  renderUploadState();
 }
 const panel = () => document.querySelector('#workspace-panel');
 function renderUpdate() {
@@ -90,7 +133,7 @@ function renderUpdate() {
     const latest = id => content.updates.filter(u => u.placeId === id).map(u => u.updatedAt || u.publishedAt || '').sort().at(-1) || '';
     return latest(b.id).localeCompare(latest(a.id));
   });
-  panel().innerHTML = `<button type="button" data-back-updates>← Published updates</button><div class="admin-grid"><section class="admin-card"><h2>${draft.editing ? 'Editing published update' : 'Add new update'}</h2><form id="update-form" class="admin-form"><label>Place<select name="placeId" required>${options(sortedPlaces, draft.placeId)}</select></label>${field('Title', 'title', draft.title, 'text', 'required maxlength="200" placeholder="A small discovery in Draynor…"')}<div><div class="toolbar" aria-label="Note formatting"><button type="button" data-format="**">Bold</button><button type="button" data-format="*">Italic</button></div>${area('What changed?', 'body', draft.body)}</div><div class="file-drop" data-drop><label>Add photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label><p class="admin-help">Drop JPEG, PNG or WebP files here. Up to 4 MB each.</p></div><div data-upload-progress></div><details><summary>Choose from the media library</summary><div class="admin-media-grid">${content.media.filter(m => m.subject !== 'Map').map(m => `<label><input type="checkbox" data-select-media="${m.id}" ${draft.mediaIds.includes(m.id) ? 'checked' : ''}>${img(m)}<span>${e(m.caption || m.alt)}</span></label>`).join('')}</div></details><div class="media-selection" data-selected-media></div><details><summary>Stage, cover and publishing details</summary><div class="admin-form"><label>Link a stage<select name="stageId"><option value="">No stage change</option>${options(content.stages.filter(s => s.placeId === draft.placeId), draft.stageId, 'publicTitle')}</select></label><label>Stage status<select name="stageStatus"><option value="">Keep current status</option>${STATUSES.map(s => `<option ${draft.stageStatus === s ? 'selected' : ''}>${s}</option>`).join('')}</select></label><label>Place cover<select name="coverId"><option value="">Keep current cover</option>${options(draft.mediaIds.map(media).filter(Boolean), draft.coverId, 'alt')}</select></label>${field('Completion date (only if known)', 'completedAt', draft.completedAt || '', 'date')}<p class="admin-help">The server supplies publication time, author and URL. Completion dates remain separate from publication dates.</p></div></details><p data-autosave class="save-indicator">Local autosave is a backup. Click Save to website to publish.</p><div class="actions"><button type="button" data-preview-update>Preview</button><button type="submit" class="button brass">${draft.editing ? 'Save update to website' : 'Add update to website'}</button><button type="button" data-save-private>Save privately</button></div></form></section><aside><section class="admin-card"><h3>Journal update</h3><p class="admin-help">Save this note to the website’s journal and its place page.</p><button data-new-update>Start another update</button></section><section class="admin-card"><h3>Private drafts</h3><div data-private-drafts>Loading private drafts…</div></section><section class="admin-card"><h3>Recent publications</h3>${[...content.updates].filter(u => u.state === 'published').sort((a,b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0,8).map(u => `<button class="admin-draft" data-edit-update="${u.id}">${e(u.title)}</button>`).join('')}</section></aside></div>`;
+  panel().innerHTML = `<button type="button" data-back-updates>← Published updates</button><div class="admin-grid"><section class="admin-card"><h2>${draft.editing ? 'Editing published update' : 'Add new update'}</h2><form id="update-form" class="admin-form"><label>Place<select name="placeId" required>${options(sortedPlaces, draft.placeId)}</select></label>${field('Title', 'title', draft.title, 'text', 'required maxlength="200" placeholder="A small discovery in Draynor…"')}<div><div class="toolbar" aria-label="Note formatting"><button type="button" data-format="**">Bold</button><button type="button" data-format="*">Italic</button></div>${area('What changed?', 'body', draft.body)}</div><div class="file-drop" data-drop><label>Add photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label><p class="admin-help">Drop JPEG, PNG or WebP files here. Up to 20 MB each; large images are optimised automatically.</p></div><div data-upload-progress></div>${mediaPicker(draft)}<div class="media-selection" data-selected-media></div><details><summary>Stage, cover and publishing details</summary><div class="admin-form"><label>Link a stage<select name="stageId"><option value="">No stage change</option>${options(content.stages.filter(s => s.placeId === draft.placeId), draft.stageId, 'publicTitle')}</select></label><label>Stage status<select name="stageStatus"><option value="">Keep current status</option>${STATUSES.map(s => `<option ${draft.stageStatus === s ? 'selected' : ''}>${s}</option>`).join('')}</select></label><label>Place cover<select name="coverId"><option value="">Keep current cover</option>${options(draft.mediaIds.map(media).filter(Boolean), draft.coverId, 'alt')}</select></label>${field('Completion date (only if known)', 'completedAt', draft.completedAt || '', 'date')}<p class="admin-help">The server supplies publication time, author and URL. Completion dates remain separate from publication dates.</p></div></details><p data-autosave class="save-indicator">Local autosave is a backup. Click Save to website to publish.</p><div class="actions"><button type="button" data-preview-update>Preview</button><button type="submit" class="button brass">${draft.editing ? 'Save update to website' : 'Add update to website'}</button><button type="button" data-save-private>Save privately</button></div></form></section><aside><section class="admin-card"><h3>Journal update</h3><p class="admin-help">Save this note to the website’s journal and its place page.</p><button data-new-update>Start another update</button></section><section class="admin-card"><h3>Private drafts</h3><div data-private-drafts>Loading private drafts…</div></section><section class="admin-card"><h3>Recent publications</h3>${[...content.updates].filter(u => u.state === 'published').sort((a,b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0,8).map(u => `<button class="admin-draft" data-edit-update="${u.id}">${e(u.title)}</button>`).join('')}</section></aside></div>`;
   document.querySelector('[data-back-updates]').onclick=()=>{saveLocal();renderUpdates();};
   const form = document.querySelector('#update-form');
   form.addEventListener('input', event => { if (event.target.name) draft[event.target.name] = event.target.value; changed(); });
@@ -100,9 +143,9 @@ function renderUpdate() {
   document.querySelector('[data-save-private]').onclick = async () => { saveLocal(); try { await api('drafts', 'PUT', { id: draft.id, draft, content, baseRevision: base.revision }); say('Saved privately in your author account. This has not been published.'); renderPrivateDrafts(); } catch (error) { handleError(error); } };
   document.querySelector('[data-new-update]').onclick = async () => { saveLocal(); try { if (draft.title || draft.body) await api('drafts', 'PUT', { id: draft.id, draft, content, baseRevision: base.revision }); draft = newDraft(); renderUpdate(); } catch(error) { handleError(error); } };
   document.querySelectorAll('[data-format]').forEach(button => button.onclick = () => { const textarea = form.elements.body, mark = button.dataset.format, start = textarea.selectionStart, end = textarea.selectionEnd; textarea.setRangeText(`${mark}${textarea.value.slice(start,end)}${mark}`, start, end, 'select'); draft.body = textarea.value; textarea.focus(); changed(); });
-  document.querySelectorAll('[data-select-media]').forEach(input => input.onchange = () => { draft.mediaIds = input.checked ? [...draft.mediaIds, input.dataset.selectMedia] : draft.mediaIds.filter(id => id !== input.dataset.selectMedia); renderSelectedMedia(); changed(); });
-  document.querySelectorAll('[data-edit-update]').forEach(button => button.onclick = () => { const update = content.updates.find(u => u.id === button.dataset.editUpdate); draft = { ...clone(update), editing: true }; renderUpdate(); });
-  bindUploads(m => { if (!draft.mediaIds.includes(m.id)) draft.mediaIds.push(m.id); renderSelectedMedia(); changed(); });
+  bindMediaPicker(draft,renderUpdate);
+  document.querySelectorAll('[data-edit-update]').forEach(button => button.onclick = () => { if(!uploadGuard())return;const update = content.updates.find(u => u.id === button.dataset.editUpdate); draft = { ...clone(update), editing: true }; renderUpdate(); });
+  bindUploads(m => { includeMedia(m.id);if (!draft.mediaIds.includes(m.id)) draft.mediaIds.push(m.id); renderSelectedMedia(); changed(); });
   renderSelectedMedia(); renderPrivateDrafts();
 }
 function updateContent() {
@@ -119,11 +162,12 @@ function updateContent() {
 }
 async function renderPrivateDrafts() {
   const el = document.querySelector('[data-private-drafts]'); if (!el) return;
-  try { const drafts = await api('drafts'); if (!el.isConnected) return; el.innerHTML = drafts.map(d => `<button class="admin-draft" data-private-id="${e(d.id)}">${e(d.draft.title || 'Untitled update')}</button>`).join('') || '<p class="admin-help">No private drafts yet.</p>'; el.querySelectorAll('button').forEach(button => button.onclick = () => { const saved = drafts.find(d => d.id === button.dataset.privateId); if(saved.baseRevision!==base.revision){showStale(content,saved);return;} dirty=true;draft = saved.draft; for (const m of saved.content?.media || []) if (!media(m.id)) content.media.push(m); renderUpdate(); }); }
+  try { const drafts = await api('drafts'); if (!el.isConnected) return; el.innerHTML = drafts.map(d => `<button class="admin-draft" data-private-id="${e(d.id)}">${e(d.draft.title || 'Untitled update')}</button>`).join('') || '<p class="admin-help">No private drafts yet.</p>'; el.querySelectorAll('button').forEach(button => button.onclick = () => { if(!uploadGuard())return;const saved = drafts.find(d => d.id === button.dataset.privateId); if(saved.baseRevision!==base.revision){showStale(content,saved);return;} dirty=true;draft = saved.draft; for (const m of saved.content?.media || []) if (!content.media.some(v=>v.id===m.id)) content.media.push(m); renderUpdate(); });renderUploadState(); }
   catch (error) { if (el.isConnected) el.textContent = error.message; }
 }
 function renderSelectedMedia() {
   const selected = activeTab==='tickets' ? ticketDraft : draft;
+  selected.mediaIds.forEach(includeMedia);
   const target = document.querySelector('[data-selected-media]'); if (!target) return;
   target.innerHTML = selected.mediaIds.map((id, index) => { const m = media(id); return `<div class="media-edit" draggable="true" data-media-edit="${id}">${img(m)}<div>${activeTab==='tickets'&&index===0?'<p class="admin-help" data-headline-photo>Headline photo · Explore and Atlas</p>':''}${field('Image description (alt text)', `alt-${id}`, m.alt)}${field('Caption', `caption-${id}`, m.caption)}${field('Credit', `credit-${id}`, m.credit)}<div class="field-row">${field('Focal point X (0–100)', `x-${id}`, Math.round((m.focalPoint?.x??.5) * 100), 'number', 'min="0" max="100"')}${field('Focal point Y (0–100)', `y-${id}`, Math.round((m.focalPoint?.y??.5) * 100), 'number', 'min="0" max="100"')}</div><div class="actions">${activeTab==='tickets'&&index>0?`<button type="button" data-make-headline="${id}">Make headline</button>`:''}<button type="button" data-move="${index},-1" ${index === 0 ? 'disabled' : ''}>Move up</button><button type="button" data-move="${index},1" ${index === selected.mediaIds.length - 1 ? 'disabled' : ''}>Move down</button><button type="button" data-remove-media="${id}">Remove</button></div></div></div>`; }).join('');
   target.querySelectorAll('[data-media-edit]').forEach(row => {
@@ -137,21 +181,22 @@ function renderSelectedMedia() {
   target.querySelectorAll('[data-remove-media]').forEach(button => button.onclick = () => { selected.mediaIds = selected.mediaIds.filter(id => id !== button.dataset.removeMedia); renderSelectedMedia(); changed(); });
 }
 async function savePublication(proposed, path = '/') {
+  if(!uploadGuard())throw new Error('Finish, retry or skip the image uploads before saving.');
   if(staleLive){showStale(staleLive);throw new Error('Load the published version before saving.');}
   const errors = validateContent(proposed); if (errors.length) throw new Error(errors.join(' '));
   say('Publishing and verifying the live revision…'); saveLocal();
-  document.querySelectorAll('button[type=submit]').forEach(b => b.disabled = true);
+  publishing=true;renderUploadState();
   try {
     const result = await api('publish', 'POST', { content: proposed, baseRevision: base.revision, requestId, requireCurrent:true });
     base = clone(result.content); content = clone(result.content); dirty=false; requestId = crypto.randomUUID();
-    saveLocal(); say('Saved to website and verified. ');
+    uploader.saved(task=>task.owner.startsWith('ticket:')?content.stages.find(t=>t.id===task.owner.slice(7))?.mediaIds.includes(task.media.id):task.owner.startsWith('update:')?content.updates.find(u=>u.id===task.owner.slice(7))?.mediaIds.includes(task.media.id):content.settings[0].galleryMediaIds.includes(task.media.id)||content.settings[0].heroId===task.media.id);saveLocal(); say('Saved to website and verified. ');
     const link = document.createElement('a'); link.href = path; link.textContent = 'Open the live page ↗'; link.target = '_blank'; link.rel = 'noopener'; status.append(link);
     if (result.backup?.status === 'failed') {
       status.append(document.createTextNode(' The live page is published, but the optional GitHub backup failed. '));
       const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Retry backup'; retry.onclick = async () => { try { const backup = await api('backup', 'POST', {}); say(backup.status === 'saved' ? 'Public backup saved. The live publication is unchanged.' : 'Backup is still unavailable; the live publication remains saved.', backup.status !== 'saved'); } catch(error) { handleError(error); } }; status.append(retry);
     }
     return result;
-  } finally { document.querySelectorAll('button[type=submit]').forEach(b => b.disabled = false); }
+  } finally { publishing=false;renderUploadState(); }
 }
 function handleError(error) {
   say(error.message, true); saveLocal();
@@ -183,37 +228,25 @@ async function preview(proposed, path = '/') {
 document.querySelectorAll('[data-preview-size]').forEach(button => button.onclick = () => document.querySelector('#preview-dialog iframe').classList.toggle('phone', button.dataset.previewSize === 'phone'));
 document.querySelector('[data-close-preview]').onclick = () => document.querySelector('#preview-dialog').close();
 function bindUploads(onSuccess) {
-  const input = document.querySelector('[data-upload]'), drop = document.querySelector('[data-drop]'); if (!input) return;
-  const queue = async files => { for (const file of files) await uploadFile(file, onSuccess); };
-  input.onchange = () => queue([...input.files]);
-  drop?.addEventListener('dragover', event => { event.preventDefault(); drop.classList.add('dragging'); });
-  drop?.addEventListener('dragleave', () => drop.classList.remove('dragging'));
-  drop?.addEventListener('drop', event => { event.preventDefault(); drop.classList.remove('dragging'); queue([...event.dataTransfer.files]); });
-}
-async function uploadFile(file, onSuccess, row) {
-  row ||= document.createElement('div'); row.className = 'upload-row'; row.innerHTML = `<span>${e(file.name)}</span><progress max="100" value="0" aria-label="Upload progress for ${e(file.name)}"></progress><span data-upload-state>Preparing…</span>`;
-  document.querySelector('[data-upload-progress]')?.append(row);
-  try {
-    if (file.size > 4 * 1024 * 1024 || !['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Use a JPEG, PNG or WebP under 4 MB.');
-    const data = await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
-    const m = await new Promise((resolve,reject) => {
-      const xhr = new XMLHttpRequest(); xhr.open('POST','/api/media'); xhr.setRequestHeader('Content-Type','application/json'); xhr.timeout = 90000;
-      xhr.upload.onprogress = event => { if(event.lengthComputable) row.querySelector('progress').value = event.loaded / event.total * 100; row.querySelector('[data-upload-state]').textContent = 'Uploading and preparing image sizes…'; };
-      xhr.onload = () => { try { const value = JSON.parse(xhr.responseText); if(xhr.status >= 200 && xhr.status < 300) resolve(value); else reject(new Error(value.error)); } catch { reject(new Error('The upload response was interrupted.')); } };
-      xhr.onerror = () => reject(new Error('Connection interrupted.')); xhr.ontimeout = () => reject(new Error('Upload timed out.'));
-      xhr.send(JSON.stringify({ fileName: file.name, contentType: file.type, data }));
-    });
-    if (!media(m.id)) content.media.push(m);
-    row.querySelector('progress').value = 100; row.querySelector('[data-upload-state]').textContent = 'Uploaded; not yet published.'; onSuccess(m); saveLocal();
-  } catch (error) { row.querySelector('[data-upload-state]').textContent = `${error.message} `; const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Retry this file'; retry.onclick = () => uploadFile(file,onSuccess,row); row.append(retry); }
+  const input=document.querySelector('[data-upload]'),drop=document.querySelector('[data-drop]');if(!input)return;
+  const owner=uploadOwner();
+  const enqueue=files=>{if(publishing)return;uploader.add([...files],owner,onSuccess);};
+  input.onchange=()=>{enqueue(input.files);input.value='';};
+  drop?.addEventListener('dragover',event=>{event.preventDefault();drop.classList.add('dragging');});
+  drop?.addEventListener('dragleave',()=>drop.classList.remove('dragging'));
+  drop?.addEventListener('drop',event=>{event.preventDefault();drop.classList.remove('dragging');enqueue(event.dataTransfer.files);});
+  renderUploadState();
 }
 function renderPhotos() {
-  panel().innerHTML = `<section class="admin-card"><h2>Add and curate photographs</h2><div class="file-drop" data-drop><label>Choose photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label></div><div data-upload-progress></div><p class="admin-help">Use the library to edit descriptions, focal points and gallery selection. Uploads are reused throughout the site.</p><div class="admin-media-grid">${content.media.map(m => `<button type="button" data-edit-photo="${m.id}" class="admin-draft">${img(m)}<span>${e(m.caption || m.alt)}</span></button>`).join('')}</div></section><div data-photo-form></div>`;
-  bindUploads(() => say('Photograph uploaded. Attach it to a build ticket or select it for the gallery.'));
+  activeTab='photos';
+  panel().innerHTML = `<section class="admin-card"><h2>Add and curate photographs</h2><div class="file-drop" data-drop><label>Choose photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label></div><div data-upload-progress></div><p class="admin-help">Uploads are stored on the server. Attach them to a build ticket, or edit a photo and save it to the gallery.</p><button type="button" data-refresh-media>Refresh uploads</button>${libraryError?`<p class="admin-status error">${e(libraryError)}</p>`:''}<div class="admin-media-grid">${mediaLibrary().map(m => `<button type="button" data-edit-photo="${m.id}" class="admin-draft">${img(m)}<span>${e(m.caption || m.alt)}</span></button>`).join('')}</div></section><div data-photo-form></div>`;
+  bindUploads(() => renderPhotos());
+  document.querySelector('[data-refresh-media]').onclick=async()=>{if(!uploadGuard())return;try{await loadMediaLibrary();renderPhotos();}catch(error){handleError(error);}};
   document.querySelectorAll('[data-edit-photo]').forEach(button => button.onclick = () => {
-    const m = media(button.dataset.editPhoto), settings = content.settings[0], target = document.querySelector('[data-photo-form]');
+    if(!uploadGuard())return;const m = includeMedia(button.dataset.editPhoto), settings = content.settings[0], target = document.querySelector('[data-photo-form]');
     target.innerHTML = `<section class="admin-card"><h2>Edit photograph</h2>${img(m)}<form class="admin-form" id="photo-form">${field('Image description (alt text)','alt',m.alt,'text','required')}${field('Caption','caption',m.caption)}${field('Credit','credit',m.credit)}<label>Subject<select name="subject">${['Details & interiors','Landscapes & exteriors','Map'].map(s => `<option ${s===m.subject?'selected':''}>${s}</option>`).join('')}</select></label><div class="field-row">${field('Focal point X (0–100)','x',m.focalPoint.x*100,'number','min="0" max="100"')}${field('Focal point Y (0–100)','y',m.focalPoint.y*100,'number','min="0" max="100"')}</div><label class="checkbox"><input type="checkbox" name="gallery" ${settings.galleryMediaIds.includes(m.id)?'checked':''}>Include in gallery</label><label class="checkbox"><input type="checkbox" name="hero" ${settings.heroId===m.id?'checked':''}>Use as homepage hero</label><button type="submit">Save to website</button></form></section>`;
     document.querySelector('#photo-form').oninput = event => { const form=event.currentTarget; for(const name of ['alt','caption','credit','subject']) m[name]=form.elements[name].value; m.focalPoint={x:Number(form.elements.x.value)/100,y:Number(form.elements.y.value)/100}; settings.galleryMediaIds=form.elements.gallery.checked?[...new Set([...settings.galleryMediaIds,m.id])]:settings.galleryMediaIds.filter(id=>id!==m.id); if(form.elements.hero.checked)settings.heroId=m.id; changed(); };
+    renderUploadState();
     document.querySelector('#photo-form').onsubmit=async event=>{event.preventDefault();try{await savePublication(content,'/gallery/');renderPhotos();}catch(error){handleError(error);}};
   });
 }
@@ -285,15 +318,15 @@ function ticketContent() {
 }
 function renderTicketForm() {
   const t=ticketDraft,p=content.places.find(p=>p.id===t.placeId);
-  panel().innerHTML=`<button type="button" data-back-tickets>← All build tickets</button><section class="admin-card ticket-editor"><h2>${t.editing?'Editing published ticket':'Add new build ticket'}</h2><form id="ticket-form" class="admin-form">${field('Ticket title','publicTitle',t.publicTitle,'text','required maxlength="200"')}${placeLookupMarkup(t.placeId)}<div class="field-row"><label>Status<select name="status" aria-label="Status">${STATUSES.map(v=>`<option ${t.status===v?'selected':''}>${e(v)}</option>`).join('')}</select></label>${field('Completion date','completedAt',t.completedAt||'','date')}</div>${area('Build notes','notes',t.notes)}${area('Scope','scope',t.scope,'short')}<div class="field-row"><label>Type<select name="category">${['building','landscape','monument','infrastructure','other'].map(v=>`<option ${t.category===v?'selected':''}>${v}</option>`).join('')}</select></label>${field('Estimated hours','estimatedHours',t.estimatedHours??'','number','min="0" step="0.25"')}</div><h3>Photographs</h3><div class="file-drop" data-drop><label>Add photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label><p>JPEG, PNG or WebP · up to 4 MB each</p></div><div data-upload-progress></div><details><summary>Choose from the media library</summary><div class="admin-media-grid">${content.media.filter(m=>m.subject!=='Map').map(m=>`<label><input type="checkbox" data-select-media="${m.id}" ${t.mediaIds.includes(m.id)?'checked':''}>${img(m)}<span>${e(m.caption||m.alt)}</span></label>`).join('')}</div></details><div data-selected-media></div><label class="checkbox"><input type="checkbox" name="placeCover" ${t.placeCover?'checked':''}>Use the first photograph as this place’s cover</label><div data-ticket-pin>${pinEditor(p)}</div><div class="ticket-save-bar"><p data-save-state>${dirty?'Unsaved changes — click Save to website.':'Published version loaded.'}</p><div class="actions"><button type="button" data-preview-ticket>Preview ticket</button><button type="submit" class="button brass">${t.editing?'Save ticket to website':'Add ticket to website'}</button>${t.editing?`<button type="button" data-archive-ticket>${t.state==='archived'?'Restore ticket':'Archive ticket'}</button>`:''}</div><p data-autosave>Local autosave is a backup. Save to website publishes without a deployment.</p></div></form></section>`;
+  panel().innerHTML=`<button type="button" data-back-tickets>← All build tickets</button><section class="admin-card ticket-editor"><h2>${t.editing?'Editing published ticket':'Add new build ticket'}</h2><form id="ticket-form" class="admin-form"><div class="ticket-save-bar"><p data-save-state>${dirty?'Unsaved changes — click Save to website.':'Published version loaded.'}</p><div class="actions"><button type="button" data-preview-ticket>Preview ticket</button><button type="submit" class="button brass">${t.editing?'Save ticket to website':'Add ticket to website'}</button></div></div>${field('Ticket title','publicTitle',t.publicTitle,'text','required maxlength="200"')}${placeLookupMarkup(t.placeId)}<div class="field-row"><label>Status<select name="status" aria-label="Status">${STATUSES.map(v=>`<option ${t.status===v?'selected':''}>${e(v)}</option>`).join('')}</select></label>${field('Completion date','completedAt',t.completedAt||'','date')}</div>${area('Build notes','notes',t.notes)}${area('Scope','scope',t.scope,'short')}<div class="field-row"><label>Type<select name="category">${['building','landscape','monument','infrastructure','other'].map(v=>`<option ${t.category===v?'selected':''}>${v}</option>`).join('')}</select></label>${field('Estimated hours','estimatedHours',t.estimatedHours??'','number','min="0" step="0.25"')}</div><h3>Photographs</h3><div class="file-drop" data-drop><label>Add photographs<input type="file" data-upload multiple accept="image/jpeg,image/png,image/webp"></label><p>JPEG, PNG or WebP · up to 20 MB each. Large images are optimised automatically.</p></div><div data-upload-progress></div>${mediaPicker(t)}<div data-selected-media></div><label class="checkbox"><input type="checkbox" name="placeCover" ${t.placeCover?'checked':''}>Use the first photograph as this place’s cover</label><div data-ticket-pin>${pinEditor(p)}</div><p data-autosave class="save-indicator">Local autosave is a backup. Save to website publishes without a deployment.</p>${t.editing?`<button type="button" data-archive-ticket>${t.state==='archived'?'Restore ticket':'Archive ticket'}</button>`:''}</form></section>`;
   const form=document.querySelector('#ticket-form');
-  document.querySelector('[data-back-tickets]').onclick=()=>{if(dirty){saveLocal();say('Local changes retained until you save or load the published version.');}ticketEditorOpen=false;renderTickets();};
+  document.querySelector('[data-back-tickets]').onclick=()=>{if(!uploadGuard())return;if(dirty){saveLocal();say('Local changes retained until you save or load the published version.');}ticketEditorOpen=false;renderTickets();};
   form.oninput=event=>{const f=event.target;if(f.name==='placeCover'){t.placeCover=f.checked;changed();}if(['publicTitle','notes','scope','category','status','completedAt','estimatedHours'].includes(f.name)){t[f.name]=f.type==='number'?(f.value?Number(f.value):null):f.value;changed();}};
   bindPlaceLookup(form,t,p=>{form.querySelector('[data-ticket-pin]').innerHTML=pinEditor(p);bindPin(form,p);});bindPin(form,p);
-  form.querySelectorAll('[data-select-media]').forEach(input=>input.onchange=()=>{t.mediaIds=input.checked?[...new Set([...t.mediaIds,input.dataset.selectMedia])]:t.mediaIds.filter(id=>id!==input.dataset.selectMedia);renderSelectedMedia();changed();});
-  bindUploads(m=>{t.mediaIds.push(m.id);renderSelectedMedia();changed();});renderSelectedMedia();
+  bindMediaPicker(t,renderTicketForm);
+  bindUploads(m=>{includeMedia(m.id);t.mediaIds=[...new Set([...t.mediaIds,m.id])];renderSelectedMedia();changed();});renderSelectedMedia();
   form.querySelector('[data-preview-ticket]').onclick=()=>{try{preview(ticketContent(),`/builds/${t.id}/`).catch(handleError);}catch(error){handleError(error);}};
-  form.onsubmit=async event=>{event.preventDefault();try{await savePublication(ticketContent(),`/builds/${t.id}/`);ticketDraft={...clone(content.stages.find(s=>s.id===t.id)),editing:true};dirty=false;saveLocal();renderTicketForm();}catch(error){handleError(error);}};
+  form.onsubmit=async event=>{event.preventDefault();if(!uploadGuard())return;try{await savePublication(ticketContent(),`/builds/${t.id}/`);ticketDraft={...clone(content.stages.find(s=>s.id===t.id)),editing:true};dirty=false;saveLocal();renderTicketForm();}catch(error){handleError(error);}};
   form.querySelector('[data-archive-ticket]')?.addEventListener('click',async()=>{t.state=t.state==='archived'?'published':'archived';changed();try{await savePublication(ticketContent(),'/explore/');ticketDraft=null;dirty=false;saveLocal();renderTickets();}catch(error){handleError(error);}});
 }
 function renderUpdates() {
