@@ -64,3 +64,19 @@ test('Atlas carousel supports arrows, keyboard, swiping and direct ticket links 
   expect(await page.locator('.map-canvas').evaluate(el=>el.offsetWidth)).toBeLessThanOrEqual(2462*4+1);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
+test('pin names stay hidden until hover or keyboard focus, including on selected pins',async({page})=>{
+  await page.goto('/atlas/');await page.mouse.move(2,2);
+  const labels=page.locator('.map-pin .pin-label'),pin=page.locator('[data-pin="draynor-village"]'),label=pin.locator('.pin-label');
+  await expect(page.locator('.map-viewport')).toHaveAttribute('data-zoom',/\d/);
+  for(const item of await labels.all())await expect(item).toBeHidden();
+  if(await page.evaluate(()=>matchMedia('(hover:hover)').matches)){
+    await pin.hover();await expect(label).toBeVisible();
+    await page.mouse.move(2,2);await expect(label).toBeHidden();
+  }
+  await pin.click();await expect(page.locator('.atlas-popup')).toContainText('Draynor Village');
+  await page.mouse.move(2,2);await expect(label).toBeHidden();
+  await page.getByRole('link',{name:'Close map popup'}).click();
+  await page.locator('.map-viewport').focus();await page.keyboard.press('Tab');
+  const focused=page.locator('.map-pin:focus-visible');await expect(focused).toHaveCount(1);await expect(focused.locator('.pin-label')).toBeVisible();
+  await page.locator('.map-viewport').focus();for(const item of await labels.all())await expect(item).toBeHidden();
+});

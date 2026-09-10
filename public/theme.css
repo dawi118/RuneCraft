@@ -73,3 +73,7 @@ html{background:#07131d}
 
 .atlas-raster{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .map-canvas.raster-ready{visibility:hidden}
+/* Pin names appear on deliberate hover or keyboard focus, never as persistent banners. */
+.atlas-shell .map-pin .pin-label{display:none}
+.atlas-shell .map-pin:focus-visible .pin-label{display:block}
+@media(hover:hover){.atlas-shell .map-pin:hover .pin-label{display:block}}
