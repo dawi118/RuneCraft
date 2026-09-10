@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import seed from '../migration/content.json' with {type:'json'};
-import {normalizeContent,publicContent,validateContent,mergePlaces,sortRecent} from '../src/lib/content.mjs';
+import {normalizeContent,publicContent,validateContent,mergePlaces,sortCompleted} from '../src/lib/content.mjs';
 import {renderPage,shell} from '../src/lib/render.mjs';
 
 test('place standardisation preserves ticket IDs, images and old Lumbridge URLs',()=>{
@@ -22,7 +22,7 @@ test('Full View and Build Board share filters, sorting and three standard status
   for(const name of ['q','region','status','sort']){assert.ok(full.includes(`name="${name}"`));assert.ok(board.includes(`name="${name}"`));}
   assert.ok(full.includes('Completion date:'));assert.ok(board.indexOf('<h2>Not Started')<board.indexOf('<h2>In Progress'));assert.ok(board.indexOf('<h2>In Progress')<board.indexOf('<h2>Built'));
   assert.ok(!full.includes('Open map'));assert.ok(!full.includes('Saved places'));assert.ok(!full.includes('Statuses'));
-  const expected=sortRecent(c.stages.filter(s=>s.placeId),'oldest').map(s=>s.id);
+  const expected=sortCompleted(c.stages.filter(s=>s.placeId),'oldest').map(s=>s.id);
   assert.deepEqual([...full.matchAll(/data-ticket="([^"]+)"/g)].map(m=>m[1]),expected);
 });
 test('gallery place options and results are constrained to the selected region',()=>{
@@ -33,7 +33,7 @@ test('gallery place options and results are constrained to the selected region',
 });
 test('bylines and saved-place controls are absent from the public site; Atlas is a primary route',()=>{
   const c=publicContent(seed);
-  for(const route of ['/journal/','/journal/'+c.updates[0].slug+'/','/places/draynor-village/','/privacy/','/search/?saved=1','/about/','/credits/']){
+  for(const route of ['/places/draynor-village/','/privacy/','/search/?saved=1','/about/','/credits/']){
     const html=shell(renderPage(route,c),c);assert.ok(!/Marc (?:&amp;|&|and) David|data-save=|data-clear-saved|data-saved-list/.test(html),route);
     assert.ok(html.includes('href="/atlas/"'));
   }
@@ -69,14 +69,14 @@ test('Explore and Atlas show only each ticket’s headline image, never its plac
     assert.match(html,/<option value="">All statuses<\/option>/);
     for(const [ticket,expected] of [[first,headline],[second,exterior],[empty,null]]){
       const card=html.split(`data-ticket="${ticket.id}"`)[1].split('</article>')[0];
-      if(expected)assert.ok(card.includes(`src="${src(expected)}"`));else assert.match(card,/No photograph available/);
+      if(expected)assert.ok(card.includes(`src="${src(expected)}"`));else assert.doesNotMatch(card,/<img|card-image|missing-photo/);
       assert.ok(!card.includes(`src="${src(cover)}"`));assert.ok(!card.includes(`src="${src(extra)}"`));
     }
   }
   const map=renderPage('/atlas/',c,new URLSearchParams(`place=${p.id}`)).body.split('<aside')[1].split('</aside>')[0];
   for(const [ticket,expected] of [[first,headline],[second,exterior],[empty,null]]){
     const slide=map.split(`data-popup-build="${ticket.id}"`)[1].split('</article>')[0];
-    if(expected)assert.ok(slide.includes(`src="${src(expected)}"`));else assert.match(slide,/No photograph available/);
+    if(expected)assert.ok(slide.includes(`src="${src(expected)}"`));else assert.doesNotMatch(slide,/<img|missing-photo/);
     assert.ok(!slide.includes(`src="${src(cover)}"`));assert.ok(!slide.includes(`src="${src(extra)}"`));
     assert.ok(slide.includes(`href="/builds/${ticket.id}/"`));
   }

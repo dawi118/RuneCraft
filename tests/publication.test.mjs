@@ -31,10 +31,13 @@ test('same-field concurrency returns a recoverable conflict with both values',as
   await publish({content:a,baseRevision:seed.revision,requestId:'publish-one-123',author:'Marc'});
   await assert.rejects(publish({content:b,baseRevision:seed.revision,requestId:'publish-two-123',author:'David'}),error=>error.status===409&&error.details.conflicts[0].local==='Second edit'&&error.details.conflicts[0].live==='First edit');
 });
-test('publishing distributes one update to home, place, journal and region without a rebuild',async()=>{
+test('legacy updates stay recoverable while retired public URLs redirect',async()=>{
   const content=structuredClone(seed);content.updates.push({id:'fresh-note',slug:'fresh-note',title:'A new detail in Draynor',body:'Three rooms, three photographs.',author:'Marc',placeId:'draynor-village',mediaIds:content.places[1].mediaIds.slice(0,3),state:'published',publishedAt:new Date().toISOString()});
   await publish({content,baseRevision:seed.revision,requestId:'new-update-123',author:'Marc'});const live=(await readPublication()).content;
-  for(const path of ['/','/places/draynor-village/','/journal/','/journal/fresh-note/','/regions/misthalin/'])assert.ok(renderPage(path,live).body.includes('A new detail in Draynor'),path);
+  assert.ok(live.updates.some(u=>u.id==='fresh-note'));
+  for(const path of ['/','/places/draynor-village/','/regions/misthalin/'])assert.ok(!renderPage(path,live).body.includes('A new detail in Draynor'),path);
+  assert.equal(renderPage('/journal/',live).redirect,'/explore/');
+  assert.equal(renderPage('/journal/fresh-note/',live).redirect,'/places/draynor-village/');
 });
 test('private drafts cannot enter a publication; malformed relations fail validation',async()=>{
   const content=structuredClone(seed);content.updates[0].state='draft';await assert.rejects(publish({content,baseRevision:seed.revision,requestId:'draft-save-123',author:'Marc'}),e=>e.status===422);

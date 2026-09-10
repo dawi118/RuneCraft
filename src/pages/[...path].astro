@@ -28,7 +28,7 @@ const image = page.image ? new URL(page.image.src, Astro.site).href : undefined;
     <link rel="canonical" href={canonical} />
     <meta property="og:title" content={page.title === BRAND ? BRAND : `${page.title} | ${BRAND}`} />
     <meta property="og:description" content={page.description} />
-    <meta property="og:type" content={page.path.startsWith('/journal/') && page.path !== '/journal/' ? 'article' : 'website'} />
+    <meta property="og:type" content={page.path.startsWith('/builds/') ? 'article' : 'website'} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={BRAND} />
     {image && <meta property="og:image" content={image} />}
@@ -38,9 +38,9 @@ const image = page.image ? new URL(page.image.src, Astro.site).href : undefined;
     <meta name="theme-color" content="#06111b" />
     {page.status === 404 && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/png" href="/brand/icon.png" />
-    <link rel="alternate" type="application/rss+xml" title="Gielinor: Reforged journal" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Gielinor: Reforged builds" href="/rss.xml" />
     <script is:inline>document.documentElement.classList.add('enhanced');</script>
-    <link rel="stylesheet" href="/theme.css?v=atlas-hover-20260910" />
+    <link rel="stylesheet" href="/theme.css?v=streamline-20260910" />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/literata-latin-400-normal.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/source-sans-3-latin-400-normal.woff2" crossorigin />
     <script is:inline src="/site.js?v=atlas-carousel-20260910" defer></script>
