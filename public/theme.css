@@ -79,3 +79,11 @@ html{background:#07131d}
 @media(hover:hover){.atlas-shell .map-pin:hover .pin-label{display:block}}
 
 .upload-row[data-upload-state="error"],.upload-row[data-upload-state="waiting"]{border:1px solid #dc9b82;padding:1rem;border-radius:4px}.upload-row strong{overflow-wrap:anywhere}.upload-row .actions{grid-column:1/-1}.upload-row progress{max-width:100%}
+
+/* Compact photograph controls; image-free cards have no reserved image area. */
+.expand-label{width:30px;height:30px;padding:6px;display:grid;place-items:center;bottom:12px;right:12px;pointer-events:none;border-radius:50%;box-sizing:border-box}
+.expand-label svg{display:block}
+a[data-photo]{cursor:zoom-in}
+.ticket-grid{align-items:start}
+.directory .without-photo,.pin-detail .without-photo{grid-template-columns:1fr}
+[data-map-preview] img{width:min(100%,600px);height:auto;max-height:340px;object-fit:contain;margin:1rem 0}

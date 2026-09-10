@@ -105,7 +105,7 @@ test('the photograph library displays uploads immediately and can publish them t
  const button=page.locator('[data-edit-photo]').filter({hasText:'gallery-interior.png'});await expect(button).toBeVisible();const id=await button.getAttribute('data-edit-photo');
  await button.click();await page.getByLabel('Include in gallery',{exact:true}).check();await page.getByRole('button',{name:'Save to website',exact:true}).click();
  await expect(page.locator('#editor-status')).toContainText('Saved to website and verified');await page.goto('/gallery/');
- const image=page.locator(`img[src="/api/media/${id}/800"]`);await expect(image).toBeVisible();await expect.poll(()=>image.evaluate(i=>i.complete&&i.naturalWidth>0)).toBe(true);
+ const image=page.locator(`img[src="/api/media/${id}/800"]`);await image.scrollIntoViewIfNeeded();await expect(image).toBeVisible();await expect.poll(()=>image.evaluate(i=>i.complete&&i.naturalWidth>0)).toBe(true);
 });
 
 

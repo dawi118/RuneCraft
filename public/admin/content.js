@@ -11,6 +11,16 @@ export function sortRecent(records, order = 'newest') {
     return (order === 'oldest' ? aa.localeCompare(bb) : bb.localeCompare(aa)) || a.id.localeCompare(b.id);
   });
 }
+// Public browsing uses completion only. Undated records stay last in either direction.
+export function sortCompleted(records, order = 'newest', { builtFirst = false } = {}) {
+  const stamp = r => r.completedAt && Number.isFinite(Date.parse(r.completedAt)) ? r.completedAt : '';
+  return [...records].sort((a,b) => {
+    const aa=stamp(a),bb=stamp(b);
+    if(!aa||!bb){if(aa||bb)return aa?-1:1;}
+    if(builtFirst && (a.status==='Built')!==(b.status==='Built'))return a.status==='Built'?-1:1;
+    return (order==='oldest'?aa.localeCompare(bb):bb.localeCompare(aa)) || a.id.localeCompare(b.id);
+  });
+}
 export function mergePlaces(content, fromId, toId) {
   const from = content.places.find(p => p.id === fromId), to = content.places.find(p => p.id === toId);
   if (!from || !to || from === to) throw new Error('Choose two different places to merge.');

@@ -38,7 +38,7 @@ test('rich text and links cannot introduce script into server-returned HTML', ()
 test('public templates use the supplied identity and omit editorial filler', async () => {
   const {renderPage,shell,picture}=await import('../src/lib/render.mjs');
   const {default:content}=await import('../migration/content.json',{with:{type:'json'}});
-  for(const route of ['/','/explore/','/places/draynor-village/','/gallery/','/journal/','/community/','/support/']) {
+  for(const route of ['/','/explore/','/places/draynor-village/','/gallery/','/community/','/support/']) {
     const html=shell(renderPage(route,content),content,{source:'snapshot'});
     assert.ok(html.includes('/brand/logo.webp'));
     assert.doesNotMatch(html,/Photos coming|next visit|Somewhere you remember|A little further|Pull up a chair|content snapshot|A little more Gielinor|one room, road and landscape|production schedule/i);
