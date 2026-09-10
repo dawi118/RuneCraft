@@ -101,3 +101,9 @@ Verification for this revision: 47 unit/integration tests and 65 enabled browser
 - Atlas uses the preserved 2462×1738 source map and uploaded map masters instead of responsive photo thumbnails. A viewport-sized canvas renders at device pixel density without image smoothing, including fractional zoom; an image fallback remains if canvas or JavaScript is unavailable. Pins/labels render independently at a fixed screen size. Maximum magnification is bounded to four CSS pixels per source pixel.
 - The existing JPEG already contains softened/compressed detail. Rendering cannot reconstruct that detail; a higher-resolution map source would be needed for substantially more detailed close-ups.
 - Automated coverage checks carousel navigation and deep links, touch and mouse gestures, reduced motion/accessibility, fixed pin size, source-image selection and fractional-zoom rendering across Chromium phone/tablet/desktop and WebKit phone/desktop.
+
+## Ticket-specific headline photographs — 10 September 2026
+
+Explore (Full View and Build Board) and every Atlas ticket slide now use only the first photograph attached to that ticket. They do not fall back to a place cover; tickets without photographs use the existing neutral placeholder. The author editor identifies the headline photograph and provides a Make headline action that reorders only that ticket’s photos. The place-cover setting remains independent. The Status filter’s empty option now reads All statuses.
+
+Regression coverage verifies separate interior/exterior headlines, absence of place-cover fallback, one photograph per carousel slide, and saving a chosen headline through the author workspace to Explore and Atlas without changing the place cover.
