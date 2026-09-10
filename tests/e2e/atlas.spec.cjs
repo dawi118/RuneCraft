@@ -77,6 +77,9 @@ test('pin names stay hidden until hover or keyboard focus, including on selected
   await page.mouse.move(2,2);await expect(label).toBeHidden();
   await page.getByRole('link',{name:'Close map popup'}).click();
   await page.locator('.map-viewport').focus();await page.keyboard.press('Tab');
+  // Safari's system preference can skip links in Tab order; preserve keyboard modality
+  // and focus the pin explicitly to verify its accessible label in either configuration.
+  await pin.focus();
   const focused=page.locator('.map-pin:focus-visible');await expect(focused).toHaveCount(1);await expect(focused.locator('.pin-label')).toBeVisible();
   await page.locator('.map-viewport').focus();for(const item of await labels.all())await expect(item).toBeHidden();
 });
