@@ -68,7 +68,7 @@ export function createUploadQueue({onChange,onUploaded,onAuthRequired}) {
     retry(id){const task=tasks.find(t=>t.id===id);if(task?.state==='error'){task.state='queued';task.message='Queued';notify();run();}},
     skip(id){const task=tasks.find(t=>t.id===id);if(task&&['error','waiting'].includes(task.state)){task.state='skipped';task.file=null;notify();}},
     resume(){paused=false;for(const task of tasks.filter(t=>t.state==='waiting'))task.state='queued';notify();run();},
-    discard(){if(this.busy)return;for(const task of tasks){task.file=null;if(task.state!=='ready')task.state='skipped';}paused=false;notify();},
+    discard(){if(this.busy)return;for(const task of tasks){task.file=null;task.state='skipped';}paused=false;notify();},
     saved(isPublished){for(const task of tasks.filter(t=>t.state==='ready'&&isPublished(t)))task.state='saved';notify();},
   };
 }

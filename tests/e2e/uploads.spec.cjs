@@ -122,3 +122,14 @@ test('JPEG and WebP files upload, including a file without a browser MIME type',
  await page.locator('[data-upload]').setInputFiles([{name:'interior.jpg',mimeType:'',buffer:await source.clone().jpeg().toBuffer()},{name:'interior.webp',mimeType:'image/webp',buffer:await source.clone().webp().toBuffer()}]);
  await expect(state(page,'ready')).toHaveCount(2);await expect(selected(page)).toHaveCount(2);await expect(save(page)).toBeEnabled();
 });
+
+
+test('loading a newer publication discards attachment drafts but keeps uploaded files available',async({page},info)=>{
+ desktop(info);await login(page);await edit(page);await clearPhotos(page);
+ await page.locator('[data-upload]').setInputFiles(await photo('discarded-local-upload.png','#473a2e'));await expect(state(page,'ready')).toHaveCount(1);const id=await selected(page).getAttribute('data-media-edit');
+ const {content}=await(await page.request.get('/api/workspace')).json();content.stages.find(t=>t.id===ticketId).notes='Newer server notes take precedence.';
+ const response=await page.request.post('/api/publish',{headers:{Origin:'http://127.0.0.1:4378'},data:{content,baseRevision:content.revision,requestId:'upload-stale-'+Date.now(),requireCurrent:true}});expect(response.status()).toBe(200);
+ await save(page).click();await expect(page.locator('#stale-dialog')).toBeVisible();await page.getByRole('button',{name:'Load published version',exact:true}).click();await edit(page);
+ await expect(page.locator('[data-upload-id]')).toHaveCount(0);await expect(page.locator(`[data-media-edit="${id}"]`)).toHaveCount(0);
+ await page.getByText('Choose from the media library',{exact:true}).click();await expect(page.locator(`[data-select-media="${id}"]`)).toBeVisible();await expect(page.locator(`[data-select-media="${id}"]`)).not.toBeChecked();
+});
